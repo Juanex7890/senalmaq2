@@ -138,12 +138,14 @@ export function CategoriesMega({ categories, isOpen, onClose, triggerRef, header
         ref={panelRef}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        className="fixed inset-0 z-50 lg:hidden transform transition-transform duration-300 ease-out"
+        className={`fixed inset-y-0 right-0 w-full max-w-sm z-50 lg:hidden transform transition-transform duration-300 ease-out ${
+          isOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="categories-mega-title"
       >
-        <div className="flex flex-col h-full bg-white">
+        <div className="flex flex-col h-full bg-white shadow-2xl">
           {/* Mobile Header */}
           <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200 bg-primary-600 text-white">
             <div>
