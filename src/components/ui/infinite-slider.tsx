@@ -27,7 +27,7 @@ export function InfiniteSlider({
   const [startX, setStartX] = useState(0)
   const [translateX, setTranslateX] = useState(0)
   const sliderRef = useRef<HTMLDivElement>(null)
-  const animationRef = useRef<number>()
+  const animationRef = useRef<number | undefined>(undefined)
 
   const totalItems = children.length
   const itemWidthWithGap = itemWidth + gap
