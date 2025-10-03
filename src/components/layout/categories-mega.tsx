@@ -169,18 +169,15 @@ export function CategoriesMega({ categories, isOpen, onClose, triggerRef, header
           <div className="flex-1 overflow-y-auto">
             <div className="px-4 py-4">
               {sortedCategories.length > 0 ? (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {sortedCategories.map((category) => (
                     <Link
                       key={category.id}
                       href={`/categoria/${category.slug}`}
-                      className="group flex items-center justify-between w-full px-4 py-4 text-left bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md hover:border-primary-300 hover:bg-primary-50 transition-all duration-200"
+                      className="block w-full px-5 py-4 text-center font-semibold text-primary-700 bg-white border border-primary-200 rounded-xl shadow-md hover:bg-primary-50 hover:border-primary-400 transition-colors"
                       onClick={onClose}
                     >
-                      <span className="font-medium text-gray-900 group-hover:text-primary-700">
-                        {category.name}
-                      </span>
-                      <div className="w-2 h-2 bg-primary-200 rounded-full group-hover:bg-primary-500 transition-colors" />
+                      {category.name}
                     </Link>
                   ))}
                 </div>
