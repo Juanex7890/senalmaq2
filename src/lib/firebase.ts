@@ -240,6 +240,12 @@ export function applySocialSchema(data: any = {}): SocialData {
         .filter((value: string) => value !== "")
     : [];
 
+  const heroImages = Array.isArray(base.heroImages)
+    ? base.heroImages
+        .map((value: any) => (typeof value === "string" ? value.trim() : ""))
+        .filter((value: string) => value !== "")
+    : [];
+
   return {
     ...SOCIAL_DEFAULTS,
     ...raw,
@@ -248,6 +254,7 @@ export function applySocialSchema(data: any = {}): SocialData {
     tiktok: typeof base.tiktok === "string" ? base.tiktok.trim() : "",
     videoId: typeof base.videoId === "string" ? base.videoId.trim() : "",
     shorts,
+    heroImages,
   };
 }
 
