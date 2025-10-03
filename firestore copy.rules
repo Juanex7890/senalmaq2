@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function productUpdateKeys() {
+      return request.resource.data.keys().hasOnly(
+        resource.data.keys().union([
+          'name',
+          'description',
+          'price',
+          'category',
+          'id',
+          'image',
+          'imageUrl',
+        ])
+      );
+    }
+
+    function imageUrlIsValid() {
+      return !('imageUrl' in request.resource.data)
+        || request.resource.data.imageUrl is string
+        || request.resource.data.imageUrl == null;
+    }
+
+    match /products/{document} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && productUpdateKeys() && imageUrlIsValid();
+      allow delete: if isSignedIn();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

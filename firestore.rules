@@ -1,0 +1,75 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Categories collection
+    match /categories/{categoryId} {
+      // Allow read for all users (public data)
+      allow read: if true;
+      
+      // Allow write only if user is admin
+      allow write: if request.auth != null && 
+        request.auth.token.role == 'admin';
+    }
+    
+    // Products collection
+    match /products/{productId} {
+      // Allow read for all users (public data)
+      allow read: if true;
+      
+      // Allow write only if user is admin
+      allow write: if request.auth != null && 
+        request.auth.token.role == 'admin';
+    }
+    
+    // Site media collection
+    match /site_media/{document} {
+      // Allow read for all users
+      allow read: if true;
+      
+      // Allow write only if user is admin
+      allow write: if request.auth != null && 
+        request.auth.token.role == 'admin';
+    }
+    
+    // Settings collection (for social media config)
+    match /settings/{document} {
+      // Allow read for all users
+      allow read: if true;
+      
+      // Allow write only if user is admin
+      allow write: if request.auth != null && 
+        request.auth.token.role == 'admin';
+    }
+    
+    // Users collection (for admin management)
+    match /users/{userId} {
+      // Users can read their own data
+      allow read: if request.auth != null && 
+        request.auth.uid == userId;
+      
+      // Only admins can write user data
+      allow write: if request.auth != null && 
+        request.auth.token.role == 'admin';
+    }
+    
+    // Orders collection (for future use)
+    match /orders/{orderId} {
+      // Users can read their own orders
+      allow read: if request.auth != null && 
+        resource.data.userId == request.auth.uid;
+      
+      // Users can create orders
+      allow create: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      
+      // Only admins can update/delete orders
+      allow update, delete: if request.auth != null && 
+        request.auth.token.role == 'admin';
+    }
+    
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
