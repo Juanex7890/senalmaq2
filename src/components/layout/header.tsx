@@ -7,13 +7,13 @@ import { SearchBar } from '@/components/catalog/search-bar'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { CategoriesMega } from '@/components/layout/categories-mega'
-import { 
-  Menu, 
-  X, 
-  ShoppingCart, 
+import {
+  Menu,
+  X,
+  ShoppingCart,
   Phone,
   Mail,
-  ChevronDown
+  MoreHorizontal,
 } from 'lucide-react'
 
 interface HeaderProps {
@@ -69,6 +69,7 @@ export function Header({ categories }: HeaderProps) {
   }, [])
 
   const isActive = (path: string) => pathname === path
+  const isCategoriesRoute = pathname.startsWith('/categorias') || pathname.startsWith('/categoria/')
 
   return (
     <>
@@ -100,70 +101,69 @@ export function Header({ categories }: HeaderProps) {
         isScrolled ? 'shadow-lg' : ''
       }`}>
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">S</span>
-              </div>
-              <span className="text-xl font-bold text-gray-900">Senalmaq</span>
-            </Link>
+          <div className="flex items-center gap-4 h-16">
+            <div className="flex items-center gap-6 flex-shrink-0">
+              {/* Logo */}
+              <Link href="/" className="flex items-center space-x-2">
+                <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-xl">S</span>
+                </div>
+                <span className="text-xl font-bold text-gray-900">Senalmaq</span>
+              </Link>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-8">
-              <Link 
-                href="/" 
-                className={`font-medium transition-colors ${
-                  isActive('/') ? 'text-primary-600' : 'text-gray-700 hover:text-primary-600'
-                }`}
-              >
-                Inicio
-              </Link>
-              <div className="relative group">
-                <button
-                  ref={categoriesButtonRef}
-                  onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-                  onMouseEnter={() => setIsCategoriesOpen(true)}
-                  onFocus={() => setIsCategoriesOpen(true)}
-                  className={`font-medium transition-colors flex items-center space-x-1 ${
-                    isActive('/categorias') ? 'text-primary-600' : 'text-gray-700 hover:text-primary-600'
-                  }`}
-                  aria-expanded={isCategoriesOpen}
-                  aria-controls="categories-mega-menu"
-                  aria-haspopup="true"
+              {/* Desktop Navigation */}
+              <nav className="hidden lg:flex items-center gap-6 text-sm font-medium">
+                <Link
+                  href="/"
+                  className={`transition-colors ${isActive('/') ? 'text-primary-600' : 'text-gray-700 hover:text-primary-600'}`}
                 >
-                  <span>Categorías</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform ${isCategoriesOpen ? 'rotate-180' : ''}`} />
-                </button>
-              </div>
-              <Link 
-                href="/productos" 
-                className={`font-medium transition-colors ${
-                  isActive('/productos') ? 'text-primary-600' : 'text-gray-700 hover:text-primary-600'
-                }`}
-              >
-                Productos
-              </Link>
-            </nav>
+                  Inicio
+                </Link>
+                <Link
+                  href="/productos"
+                  className={`transition-colors ${isActive('/productos') ? 'text-primary-600' : 'text-gray-700 hover:text-primary-600'}`}
+                >
+                  Productos
+                </Link>
+              </nav>
+            </div>
 
             {/* Search Bar */}
-            <div className="hidden md:block flex-1 max-w-md mx-8">
-              <SearchBar placeholder="Buscar productos..." />
+            <div className="hidden md:flex flex-1 items-center max-w-xl mx-6">
+              <SearchBar placeholder="Buscar productos..." className="w-full" />
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center space-x-4">
-              <Button 
-                variant="ghost" 
-                size="icon" 
+            <div className="flex items-center gap-2 sm:gap-3 ml-auto">
+              <button
+                type="button"
+                ref={categoriesButtonRef}
+                onClick={() => setIsCategoriesOpen((prev) => !prev)}
+                onMouseEnter={() => setIsCategoriesOpen(true)}
+                onFocus={() => setIsCategoriesOpen(true)}
+                className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 ${
+                  isCategoriesOpen || isCategoriesRoute
+                    ? 'bg-primary-700 text-white'
+                    : 'bg-primary-600 text-white hover:bg-primary-700'
+                }`}
+                aria-expanded={isCategoriesOpen}
+                aria-controls="categories-mega-menu"
+                aria-haspopup="true"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+                <span className="whitespace-nowrap">Categorías</span>
+              </button>
+              <Button
+                variant="ghost"
+                size="icon"
                 className="relative"
                 onClick={() => router.push('/carrito')}
               >
                 <ShoppingCart className="h-5 w-5" />
                 {cartCount > 0 && (
-                  <Badge 
-                    variant="destructive" 
-                    size="sm" 
+                  <Badge
+                    variant="destructive"
+                    size="sm"
                     className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
                   >
                     {cartCount}
@@ -177,9 +177,11 @@ export function Header({ categories }: HeaderProps) {
                 size="icon"
                 className="lg:hidden"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
+                aria-label="Abrir menú de navegación"
               >
                 {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </Button>
+
             </div>
           </div>
         </div>
