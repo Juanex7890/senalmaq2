@@ -127,17 +127,104 @@ export function CategoriesMega({ categories, isOpen, onClose, triggerRef, header
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Mobile Backdrop */}
       <div 
-        className="fixed inset-0 bg-black/20 z-40"
+        className="fixed inset-0 bg-black/50 z-40 lg:hidden"
         onClick={onClose}
       />
       
+      {/* Mobile Menu */}
       <div
         ref={panelRef}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        className="fixed left-0 right-0 z-50 animate-in slide-in-from-top-2 duration-300 ease-out shadow-2xl"
+        className="fixed inset-0 z-50 lg:hidden transform transition-transform duration-300 ease-out"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="categories-mega-title"
+      >
+        <div className="flex flex-col h-full bg-white">
+          {/* Mobile Header */}
+          <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200 bg-primary-600 text-white">
+            <div>
+              <h2 id="categories-mega-title" className="text-lg font-semibold">
+                Categorías
+              </h2>
+              <p className="text-primary-100 text-sm mt-1">
+                Explora nuestros productos
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-primary-700 rounded-full transition-colors"
+              aria-label="Cerrar menú de categorías"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+
+          {/* Mobile Content */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="px-4 py-4">
+              {sortedCategories.length > 0 ? (
+                <div className="space-y-2">
+                  {sortedCategories.map((category) => (
+                    <Link
+                      key={category.id}
+                      href={`/categoria/${category.slug}`}
+                      className="group flex items-center justify-between w-full px-4 py-4 text-left bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md hover:border-primary-300 hover:bg-primary-50 transition-all duration-200"
+                      onClick={onClose}
+                    >
+                      <span className="font-medium text-gray-900 group-hover:text-primary-700">
+                        {category.name}
+                      </span>
+                      <div className="w-2 h-2 bg-primary-200 rounded-full group-hover:bg-primary-500 transition-colors" />
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-gray-500">No hay categorías disponibles</p>
+                </div>
+              )}
+
+              {/* Mobile Bottom Actions */}
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <div className="space-y-3">
+                  <Link
+                    href="/productos"
+                    className="flex items-center justify-center w-full px-4 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors"
+                    onClick={onClose}
+                  >
+                    Todos los Productos
+                  </Link>
+                  <Link
+                    href="/categorias"
+                    className="flex items-center justify-center w-full px-4 py-3 border border-primary-600 text-primary-600 font-medium rounded-lg hover:bg-primary-50 transition-colors"
+                    onClick={onClose}
+                  >
+                    Ver todas las Categorías
+                  </Link>
+                  <Link
+                    href="/busqueda"
+                    className="flex items-center justify-center w-full px-4 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                    onClick={onClose}
+                  >
+                    Búsqueda Avanzada
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Menu - Hidden on mobile */}
+      <div
+        ref={panelRef}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        className="hidden lg:block fixed left-0 right-0 z-50 animate-in slide-in-from-top-2 duration-300 ease-out shadow-2xl"
         style={{ top: `${topPosition}px` }}
         role="dialog"
         aria-modal="true"
