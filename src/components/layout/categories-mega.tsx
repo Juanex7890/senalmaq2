@@ -31,12 +31,9 @@ export function CategoriesMega({ categories, isOpen, onClose, triggerRef, header
       return
     }
 
-    const headerHeight = headerElement.offsetHeight
-    const headerDocumentTop = headerElement.offsetTop
-    const scrollY = window.scrollY
-    const visibleOffset = Math.max(headerDocumentTop - scrollY, 0)
-
-    setTopPosition(headerHeight + visibleOffset)
+    const headerRect = headerElement.getBoundingClientRect()
+    const headerBottom = headerRect.bottom
+    setTopPosition(headerBottom)
   }, [headerRef])
 
   useEffect(() => {
@@ -130,48 +127,53 @@ export function CategoriesMega({ categories, isOpen, onClose, triggerRef, header
 
   return (
     <>
+      {/* Backdrop */}
+      <div 
+        className="fixed inset-0 bg-black/20 z-40"
+        onClick={onClose}
+      />
+      
       <div
         ref={panelRef}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        className="fixed left-0 right-0 z-40 animate-in slide-in-from-top-2 duration-300 ease-out"
+        className="fixed left-0 right-0 z-50 animate-in slide-in-from-top-2 duration-300 ease-out shadow-2xl"
         style={{ top: `${topPosition}px` }}
         role="dialog"
         aria-modal="true"
         aria-labelledby="categories-mega-title"
       >
         <div className="w-full max-w-7xl mx-auto px-4 md:px-6">
-          <div className="bg-white shadow-2xl border border-gray-100">
-            <div className="flex items-center justify-between px-8 py-6 border-b border-gray-200">
+          <div className="bg-white shadow-2xl border border-gray-200 rounded-lg overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
               <div>
-                <h2 id="categories-mega-title" className="text-xl font-bold text-black">
-                  Categorias
+                <h2 id="categories-mega-title" className="text-lg font-semibold text-gray-900">
+                  Categorías
                 </h2>
                 <p className="text-gray-600 text-sm mt-1">
-                  Explora nuestra amplia gama de productos organizados por categorias
+                  Explora nuestra amplia gama de productos
                 </p>
               </div>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-gray-100 transition-colors"
-                aria-label="Cerrar menu de categorias"
+                className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                aria-label="Cerrar menú de categorías"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="px-8 py-6">
+            <div className="px-6 py-4">
               {sortedCategories.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                   {sortedCategories.map((category) => (
                     <Link
                       key={category.id}
                       href={`/categoria/${category.slug}`}
-                      className="group block rounded-lg border border-gray-100 px-4 py-3 text-sm text-black transition-colors hover:border-primary-200 hover:bg-primary-50/40 hover:text-primary-700"
+                      className="group block rounded-md px-4 py-3 text-sm text-gray-700 transition-colors hover:bg-primary-50 hover:text-primary-700 border border-transparent hover:border-primary-200"
                       onClick={onClose}
                     >
                       <span className="font-medium">{category.name}</span>
-                      <span className="mt-1 block text-xs text-gray-500 group-hover:text-primary-600">Ver productos</span>
                     </Link>
                   ))}
                 </div>
@@ -181,28 +183,28 @@ export function CategoriesMega({ categories, isOpen, onClose, triggerRef, header
                 </div>
               )}
 
-              <div className="mt-8 pt-6 border-t border-gray-200">
-                <div className="flex flex-wrap gap-6">
+              <div className="mt-6 pt-4 border-t border-gray-200">
+                <div className="flex flex-wrap gap-4">
                   <Link
                     href="/productos"
-                    className="text-sm font-bold text-black hover:text-gray-600"
+                    className="text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors"
                     onClick={onClose}
                   >
                     Todos los Productos
                   </Link>
                   <Link
                     href="/categorias"
-                    className="text-sm font-bold text-black hover:text-gray-600"
+                    className="text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors"
                     onClick={onClose}
                   >
-                    Ver todas las Categorias
+                    Ver todas las Categorías
                   </Link>
                   <Link
                     href="/busqueda"
-                    className="text-sm font-bold text-black hover:text-gray-600"
+                    className="text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors"
                     onClick={onClose}
                   >
-                    Busqueda Avanzada
+                    Búsqueda Avanzada
                   </Link>
                 </div>
               </div>
