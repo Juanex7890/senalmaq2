@@ -5,7 +5,7 @@ import {
 } from '@/lib/firebase';
 import { getDoc } from 'firebase/firestore';
 
-export interface SiteMedia extends SocialData {
+export interface SiteMedia extends Omit<SocialData, 'heroImages'> {
   heroHeadline?: string;
   heroSub?: string;
   youtubeMainId?: string;
@@ -13,7 +13,7 @@ export interface SiteMedia extends SocialData {
   instagramUrl?: string;
   youtubeUrl?: string;
   whatsappUrl?: string;
-  heroImages?: string[];
+  heroImages: string[];
 }
 
 export async function getSiteMedia(): Promise<SiteMedia | null> {
