@@ -29,7 +29,7 @@ export function SearchBarOverlay({ placeholder = 'Buscar productos...', classNam
   
   const inputRef = useRef<HTMLInputElement>(null)
   const resultsRef = useRef<HTMLDivElement>(null)
-  const debounceTimeoutRef = useRef<NodeJS.Timeout>()
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
 
   const searchProducts = useCallback(
     debounce(async (searchQuery: string) => {
