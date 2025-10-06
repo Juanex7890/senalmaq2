@@ -4,6 +4,7 @@ import { getSiteMedia } from '@/lib/actions/media'
 import { getCategories } from '@/lib/actions/categories'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
+import { SearchBarOverlay } from '@/components/catalog/search-bar-overlay'
 import { ProductCardServer } from '@/components/catalog/product-card-server'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -41,8 +42,15 @@ async function HomePageContent() {
       
       <main>
         {/* Hero Section */}
-        <section className="relative bg-gradient-to-br from-green-50 to-green-100 py-16">
+        <section className="relative bg-gradient-to-br from-green-50 to-green-100 py-8 md:py-16">
           <div className="w-full max-w-7xl mx-auto px-4 md:px-6">
+            {/* Mobile Search Bar - Above Video */}
+            <div className="md:hidden mb-4">
+              <div className="rounded-2xl bg-white/95 border border-green-100 shadow-lg p-3">
+                <SearchBarOverlay placeholder="Buscar productos..." className="w-full" />
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
               {/* YouTube Video - Left Side */}
               {siteMedia?.youtubeMainId && (

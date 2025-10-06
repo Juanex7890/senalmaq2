@@ -3,13 +3,11 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
-import { SearchBar } from '@/components/catalog/search-bar'
+import { SearchBarOverlay } from '@/components/catalog/search-bar-overlay'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { CategoriesMega } from '@/components/layout/categories-mega'
 import {
-  Menu,
-  X,
   ShoppingCart,
   Phone,
   Mail,
@@ -21,7 +19,6 @@ interface HeaderProps {
 }
 
 export function Header({ categories }: HeaderProps) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [cartCount, setCartCount] = useState(0)
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false)
@@ -31,6 +28,15 @@ export function Header({ categories }: HeaderProps) {
   const panelRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const pathname = usePathname()
+
+  const isDesktopViewport = () =>
+    typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches
+
+  const openCategoriesIfDesktop = () => {
+    if (isDesktopViewport()) {
+      setIsCategoriesOpen(true)
+    }
+  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -130,7 +136,7 @@ export function Header({ categories }: HeaderProps) {
 
             {/* Search Bar */}
             <div className="hidden md:flex flex-1 items-center max-w-xl mx-6">
-              <SearchBar placeholder="Buscar productos..." className="w-full" />
+              <SearchBarOverlay placeholder="Buscar productos..." className="w-full" />
             </div>
 
             {/* Action Buttons */}
@@ -139,8 +145,8 @@ export function Header({ categories }: HeaderProps) {
                 type="button"
                 ref={categoriesButtonRef}
                 onClick={() => setIsCategoriesOpen((prev) => !prev)}
-                onMouseEnter={() => setIsCategoriesOpen(true)}
-                onFocus={() => setIsCategoriesOpen(true)}
+                onMouseEnter={openCategoriesIfDesktop}
+                onFocus={openCategoriesIfDesktop}
                 className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 ${
                   isCategoriesOpen || isCategoriesRoute
                     ? 'bg-primary-700 text-white'
@@ -171,91 +177,11 @@ export function Header({ categories }: HeaderProps) {
                 )}
               </Button>
 
-              {/* Mobile Menu Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="lg:hidden"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                aria-label="Abrir menú de navegación"
-              >
-                {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </Button>
 
             </div>
           </div>
         </div>
 
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="lg:hidden border-t border-gray-200 bg-white">
-              <div className="container mx-auto px-4 py-4">
-                {/* Mobile Search */}
-                <div className="mb-4">
-                  <SearchBar placeholder="Buscar productos..." />
-                </div>
-
-                {/* Mobile Navigation */}
-                <nav className="space-y-2">
-                  <Link
-                    href="/"
-                    className={`block py-2 px-3 rounded-md font-medium transition-colors ${
-                      isActive('/') ? 'text-primary-600 bg-primary-50' : 'text-gray-700 hover:text-primary-600 hover:bg-gray-50'
-                    }`}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Inicio
-                  </Link>
-                  <Link
-                    href="/categorias"
-                    className={`block py-2 px-3 rounded-md font-medium transition-colors ${
-                      isActive('/categorias') ? 'text-primary-600 bg-primary-50' : 'text-gray-700 hover:text-primary-600 hover:bg-gray-50'
-                    }`}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Categorías
-                  </Link>
-                  <Link
-                    href="/productos"
-                    className={`block py-2 px-3 rounded-md font-medium transition-colors ${
-                      isActive('/productos') ? 'text-primary-600 bg-primary-50' : 'text-gray-700 hover:text-primary-600 hover:bg-gray-50'
-                    }`}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Todos los productos
-                  </Link>
-                  <Link
-                    href="/carrito"
-                    className={`block py-2 px-3 rounded-md font-medium transition-colors ${
-                      isActive('/carrito') ? 'text-primary-600 bg-primary-50' : 'text-gray-700 hover:text-primary-600 hover:bg-gray-50'
-                    }`}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Carrito ({cartCount})
-                  </Link>
-                </nav>
-
-                {/* Mobile Categories */}
-                {categories && categories.length > 0 && (
-                  <div className="mt-6">
-                    <h3 className="text-sm font-medium text-gray-500 mb-3">Categorías</h3>
-                    <div className="grid grid-cols-2 gap-2">
-                      {categories.map((category) => (
-                        <Link
-                          key={category.id}
-                          href={`/categoria/${category.slug}`}
-                          className="text-sm text-gray-700 hover:text-primary-600 py-2 px-3 rounded-md hover:bg-gray-50 transition-colors"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          {category.name}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
       </header>
 
       {/* Categories Mega Menu */}

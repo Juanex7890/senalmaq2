@@ -7,7 +7,7 @@ service cloud.firestore {
 
     function productUpdateKeys() {
       return request.resource.data.keys().hasOnly(
-        resource.data.keys().union([
+        resource.data.keys(().union([
           'name',
           'description',
           'price',

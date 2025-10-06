@@ -35,7 +35,6 @@ export function CategoriesMega({ categories, isOpen, onClose, triggerRef, header
   const desktopPanelRef = useRef<HTMLDivElement | null>(null)
   const previouslyFocusedElementRef = useRef<HTMLElement | null>(null)
   const wasOpenRef = useRef(false)
-  const historyPoppedRef = useRef(false)
 
   const isDesktopViewport = useCallback(() => {
     if (typeof window === 'undefined') {
@@ -157,19 +156,6 @@ export function CategoriesMega({ categories, isOpen, onClose, triggerRef, header
     const previousOverflow = body.style.overflow
     body.style.overflow = 'hidden'
 
-    let pushedHistoryEntry = false
-
-    const handlePopState = () => {
-      historyPoppedRef.current = true
-      onClose()
-    }
-
-    if (typeof window !== 'undefined') {
-      window.addEventListener('popstate', handlePopState)
-      window.history.pushState({ __categoriesSheet: true }, '', window.location.href)
-      pushedHistoryEntry = true
-    }
-
     const focusableSelectors = 'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
     const panel = mobilePanelRef.current
@@ -221,19 +207,6 @@ export function CategoriesMega({ categories, isOpen, onClose, triggerRef, header
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
-
-      if (typeof window !== 'undefined' && pushedHistoryEntry) {
-        window.removeEventListener('popstate', handlePopState)
-
-        if (!historyPoppedRef.current) {
-          window.history.back()
-        } else {
-          historyPoppedRef.current = false
-        }
-
-        historyPoppedRef.current = false
-      }
-
       body.style.overflow = previousOverflow
     }
   }, [isDesktopViewport, isOpen, onClose, triggerRef])
@@ -297,12 +270,9 @@ export function CategoriesMega({ categories, isOpen, onClose, triggerRef, header
       <div
         ref={(node) => {
           mobilePanelRef.current = node
-
-          if (!isDesktopViewport()) {
-            panelRef.current = node
-          }
+          panelRef.current = node
         }}
-        className={`fixed inset-0 z-[60] flex flex-col bg-white pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] lg:hidden transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
+        className="fixed inset-0 z-[60] flex flex-col bg-white pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] overscroll-contain touch-pan-y lg:hidden"
         role="dialog"
         aria-modal="true"
         aria-labelledby="categories-mega-title-mobile"
@@ -318,7 +288,7 @@ export function CategoriesMega({ categories, isOpen, onClose, triggerRef, header
             className="p-2 -mr-2 rounded-lg hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
             onClick={onClose}
           >
-            <span aria-hidden="true">✕</span>
+            <X className="h-5 w-5" aria-hidden="true" />
           </button>
         </div>
 
