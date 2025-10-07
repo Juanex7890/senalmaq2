@@ -86,15 +86,15 @@ export function Header({ categories }: HeaderProps) {
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
                 <Phone className="h-4 w-4" />
-                <span>+34 123 456 789</span>
+                <span>+601 6976689</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Mail className="h-4 w-4" />
-                <span>info@senalmaq.com</span>
+                <span>cosersenalmaq@gmail.com</span>
               </div>
             </div>
             <div className="hidden md:flex items-center space-x-4">
-              <span>Envío gratis en pedidos superiores a $50.000</span>
+              <span> Reclama un obsequio por compras superiores a 700.000</span>
             </div>
           </div>
         </div>

@@ -5,7 +5,7 @@ import { getCategories } from '@/lib/actions/categories'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { SearchBarOverlay } from '@/components/catalog/search-bar-overlay'
-import { ProductCardServer } from '@/components/catalog/product-card-server'
+import { ProductCardClient } from '@/components/catalog/product-card-client'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { InfiniteSlider } from '@/components/ui/infinite-slider'
@@ -155,7 +155,7 @@ async function HomePageContent() {
               className="max-w-7xl mx-auto"
             >
               {bestsellers.map((product) => (
-                <ProductCardServer key={product.id} product={product} />
+                <ProductCardClient key={product.id} product={product} />
               ))}
             </InfiniteSlider>
           </div>
@@ -227,7 +227,7 @@ async function HomePageContent() {
       <Footer 
         siteMedia={siteMedia ?? undefined} 
         contactInfo={{
-          phone: '+57 317 669 3030',
+          phone: '+601 6976689',
           whatsapp1: '+57 317 669 3030',
           whatsapp2: '+57 318 296 9963',
           email: 'info@senalmaq.com',

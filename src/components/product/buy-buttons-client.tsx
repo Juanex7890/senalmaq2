@@ -7,7 +7,7 @@ import { addToCart } from '@/lib/cart'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { ShoppingCart, Heart, MessageCircle, Truck, Shield, RotateCcw } from 'lucide-react'
+import { ShoppingCart, Heart, MessageCircle, Truck, Shield, RotateCcw, CreditCard } from 'lucide-react'
 
 interface BuyButtonsClientProps {
   product: Product
@@ -39,6 +39,28 @@ export function BuyButtonsClient({
     // TODO: Implement wishlist functionality
     console.log('Toggle wishlist:', product)
     // You can implement actual wishlist logic here
+  }
+
+  const handleBuyNow = () => {
+    if (!product.active) {
+      const event = new CustomEvent('showToast', {
+        detail: {
+          message: 'Este producto no está disponible',
+          type: 'error',
+          duration: 3000
+        }
+      })
+      window.dispatchEvent(event)
+      return
+    }
+
+    // Add to cart first
+    addToCart(product, quantity)
+    
+    // Redirect to cart page
+    setTimeout(() => {
+      window.location.href = '/carrito'
+    }, 500)
   }
 
   return (
@@ -105,6 +127,16 @@ export function BuyButtonsClient({
             />
           </Button>
         </div>
+
+        {/* Buy Now Button */}
+        <Button
+          onClick={handleBuyNow}
+          className="w-full h-12 text-lg bg-green-600 hover:bg-green-700 text-white"
+          disabled={!product.active}
+        >
+          <CreditCard className="h-5 w-5 mr-2" />
+          {product.active ? 'Comprar ahora' : 'No disponible'}
+        </Button>
 
         {/* WhatsApp Button */}
         <Button
