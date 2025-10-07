@@ -21,27 +21,24 @@ export function CategoryClient({
   filters,
   brands,
   category,
-  categories
+  categories,
 }: CategoryClientProps) {
   const router = useRouter()
   const [isNavigating, setIsNavigating] = useState(false)
 
-  const enrichFilters = (input: SearchFilters, override?: Category): SearchFilters => {
-    const next = { ...input }
-    const target =
-      override ||
-      (next.categoryId ? categories.find(cat => cat.id === next.categoryId) : undefined) ||
-      category
+  const findCategoryBySlug = (slug?: string) =>
+    slug ? categories.find((cat) => cat.slug === slug) : undefined
 
-    if (next.categoryId) {
-      if (target) {
-        next.categoryId = target.id
-        next.categoryName = target.name
-        next.categorySlug = target.slug
-      }
+  const enrichFilters = (input: SearchFilters, override?: Category): SearchFilters => {
+    const next: SearchFilters = { ...input }
+    const target = override || findCategoryBySlug(next.categorySlug) || category
+
+    if (target) {
+      next.categorySlug = target.slug
+      next.categoryName = target.name
     } else {
-      delete next.categoryName
       delete next.categorySlug
+      delete next.categoryName
     }
 
     return next
@@ -62,55 +59,50 @@ export function CategoryClient({
 
     const queryString = params.toString()
     if (targetCategory) {
-      return queryString
-        ? `/categoria/${targetCategory.slug}?${queryString}`
-        : `/categoria/${targetCategory.slug}`
+      const basePath = '/categoria/' + targetCategory.slug
+      return queryString ? basePath + '?' + queryString : basePath
     }
 
-    if (!preparedFilters.categoryId || preparedFilters.categoryId === '') {
-      return queryString ? `/productos?${queryString}` : '/productos'
-    }
-
-    return queryString ? `?${queryString}` : ''
+    return queryString ? '/productos?' + queryString : '/productos'
   }
 
   const handleFiltersChange = (incomingFilters: SearchFilters) => {
     setIsNavigating(true)
 
-    if (!incomingFilters.categoryId || incomingFilters.categoryId === '') {
-      const prepared = enrichFilters(incomingFilters)
+    if (!incomingFilters.categorySlug) {
+      const prepared = enrichFilters({ ...incomingFilters, categorySlug: undefined })
       const url = buildUrl(prepared)
       router.push(url || '/productos')
       return
     }
 
-    if (incomingFilters.categoryId !== category.id) {
-      const targetCategory = categories.find(cat => cat.id === incomingFilters.categoryId)
+    if (incomingFilters.categorySlug !== category.slug) {
+      const targetCategory = findCategoryBySlug(incomingFilters.categorySlug)
       if (targetCategory) {
         const prepared = enrichFilters(incomingFilters, targetCategory)
         const url = buildUrl(prepared, targetCategory)
-        router.push(url || `/categoria/${targetCategory.slug}`)
+        router.push(url)
         return
       }
     }
 
     const prepared = enrichFilters(incomingFilters, category)
-    const url = buildUrl(prepared)
-    router.push(url || `/categoria/${category.slug}`)
+    const url = buildUrl(prepared, category)
+    router.push(url)
   }
 
   const handleSortChange = (sortBy: string) => {
     setIsNavigating(true)
     const prepared = enrichFilters({ ...filters, sortBy: sortBy as any }, category)
-    const url = buildUrl(prepared)
-    router.push(url || `/categoria/${category.slug}`)
+    const url = buildUrl(prepared, category)
+    router.push(url)
   }
 
   const handlePageChange = (page: number) => {
     setIsNavigating(true)
     const prepared = enrichFilters({ ...filters, page }, category)
-    const url = buildUrl(prepared)
-    router.push(url || `/categoria/${category.slug}`)
+    const url = buildUrl(prepared, category)
+    router.push(url)
   }
 
   return (
@@ -128,55 +120,55 @@ export function CategoryClient({
       <div className="w-full">
         {/* Products Grid */}
         <div className="w-full">
-        {/* Results Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <p className="text-gray-600">
-              {pagination.total} {pagination.total === 1 ? 'producto' : 'productos'} encontrados
-            </p>
-          </div>
-          <div className="flex items-center space-x-4">
-            <select
-              value={filters.sortBy || 'relevance'}
-              onChange={(e) => handleSortChange(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg transition-all duration-200 ease-in-out hover:border-gray-400 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 focus:outline-none"
-            >
-              <option value="relevance">Relevancia</option>
-              <option value="price-asc">Precio: menor a mayor</option>
-              <option value="price-desc">Precio: mayor a menor</option>
-              <option value="newest">Más recientes</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Products */}
-        {products.length > 0 ? (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+          {/* Results Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <p className="text-gray-600">
+                {pagination.total} {pagination.total === 1 ? 'producto' : 'productos'} encontrados
+              </p>
             </div>
-
-            {/* Pagination */}
-            {pagination.totalPages > 1 && (
-              <Pagination
-                pagination={pagination}
-                onPageChange={handlePageChange}
-              />
-            )}
-          </>
-        ) : (
-          <div className="text-center py-16">
-            <div className="text-6xl text-gray-300 mb-4">dY"?</div>
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">
-              No se encontraron productos
-            </h3>
-            <p className="text-gray-500 mb-6">
-              No hay productos en esta categoría que coincidan con los filtros seleccionados.
-            </p>
+            <div className="flex items-center space-x-4">
+              <select
+                value={filters.sortBy || 'relevance'}
+                onChange={(e) => handleSortChange(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-lg transition-all duration-200 ease-in-out hover:border-gray-400 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 focus:outline-none"
+              >
+                <option value="relevance">Relevancia</option>
+                <option value="price-asc">Precio: menor a mayor</option>
+                <option value="price-desc">Precio: mayor a menor</option>
+                <option value="newest">Mas recientes</option>
+              </select>
+            </div>
           </div>
-        )}
+
+          {/* Products */}
+          {products.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                {products.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {pagination.totalPages > 1 && (
+                <Pagination
+                  pagination={pagination}
+                  onPageChange={handlePageChange}
+                />
+              )}
+            </>
+          ) : (
+            <div className="text-center py-16">
+              <div className="text-6xl text-gray-300 mb-4">:(</div>
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                No se encontraron productos
+              </h3>
+              <p className="text-gray-500 mb-6">
+                No hay productos en esta categoria que coincidan con los filtros seleccionados.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

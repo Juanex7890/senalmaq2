@@ -22,9 +22,8 @@ async function ProductsContent({ searchParams }: { searchParams: Promise<{ [key:
   const resolvedSearchParams = await searchParams
 
   // Parse search params
-  const categoryIdParam = resolvedSearchParams.categoryId
-  const categoryNameParam = resolvedSearchParams.categoryName
   const categorySlugParam = resolvedSearchParams.categorySlug
+  const categoryNameParam = resolvedSearchParams.categoryName
   const brandParam = resolvedSearchParams.brand
   const minPriceParam = resolvedSearchParams.minPrice
   const maxPriceParam = resolvedSearchParams.maxPrice
@@ -32,9 +31,8 @@ async function ProductsContent({ searchParams }: { searchParams: Promise<{ [key:
   const pageParam = resolvedSearchParams.page
   const limitParam = resolvedSearchParams.limit
 
-  const categoryIdValue = Array.isArray(categoryIdParam) ? categoryIdParam[0] : categoryIdParam
-  const categoryNameValue = Array.isArray(categoryNameParam) ? categoryNameParam[0] : categoryNameParam
   const categorySlugValue = Array.isArray(categorySlugParam) ? categorySlugParam[0] : categorySlugParam
+  const categoryNameValue = Array.isArray(categoryNameParam) ? categoryNameParam[0] : categoryNameParam
   const brandValue = Array.isArray(brandParam) ? brandParam[0] : brandParam
   const minPriceValue = Array.isArray(minPriceParam) ? minPriceParam[0] : minPriceParam
   const maxPriceValue = Array.isArray(maxPriceParam) ? maxPriceParam[0] : maxPriceParam
@@ -42,12 +40,15 @@ async function ProductsContent({ searchParams }: { searchParams: Promise<{ [key:
   const pageValue = Array.isArray(pageParam) ? pageParam[0] : pageParam
   const limitValue = Array.isArray(limitParam) ? limitParam[0] : limitParam
 
-  const selectedCategory = categoryIdValue ? categories.find(cat => cat.id === categoryIdValue) : undefined
+  let selectedCategory = categorySlugValue ? categories.find(cat => cat.slug === categorySlugValue) : undefined
+  if (!selectedCategory && categoryNameValue) {
+    const normalizedName = categoryNameValue.toLowerCase()
+    selectedCategory = categories.find(cat => cat.name.toLowerCase() === normalizedName)
+  }
 
   const filters: SearchFilters = {
-    categoryId: categoryIdValue || undefined,
-    categoryName: categoryNameValue || selectedCategory?.name,
     categorySlug: categorySlugValue || selectedCategory?.slug,
+    categoryName: categoryNameValue || selectedCategory?.name,
     brand: brandValue || undefined,
     minPrice: minPriceValue ? Number(minPriceValue) : undefined,
     maxPrice: maxPriceValue ? Number(maxPriceValue) : undefined,
@@ -122,6 +123,7 @@ export default function ProductsPage({ searchParams }: ProductsPageProps) {
     </Suspense>
   )
 }
+
 
 
 

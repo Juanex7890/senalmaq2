@@ -230,10 +230,10 @@ export default function CartPage() {
                     </div>
 
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Envío</span>
+                      <span className="text-gray-600">Envíos </span>
                       <span className="font-medium">
                         {shipping === 0 ? (
-                          <span className="text-green-600">Gratis</span>
+                          <span className="text-green-600">a toda colombia</span>
                         ) : (
                           formatPrice(shipping)
                         )}

@@ -24,6 +24,8 @@ export function ProductCard({
   const discount = product.compareAtPrice 
     ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
     : 0
+  const primaryImage = product.imagePaths?.[0] ?? product.images?.[0] ?? product.imageUrl
+  const imageSrc = primaryImage ? getImageUrl(primaryImage) : '/placeholder-product.svg'
 
   return (
     <div className="group relative">
@@ -63,9 +65,7 @@ export function ProductCard({
         <Link href={`/producto/${product.slug}`}>
           <div className="aspect-square relative">
             <Image
-              src={product.imagePaths && product.imagePaths.length > 0 
-                ? getImageUrl(product.imagePaths[0]) 
-                : '/placeholder-product.svg'}
+              src={imageSrc}
               alt={product.name}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"

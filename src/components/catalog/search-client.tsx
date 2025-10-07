@@ -30,6 +30,12 @@ export function SearchClient({
   const router = useRouter()
   const searchParams = useSearchParams()
 
+  useEffect(() => {
+    setProducts(initialProducts)
+    setPagination(initialPagination)
+    setFilters(initialFilters)
+  }, [initialProducts, initialPagination, initialFilters])
+
   const handleFiltersChange = (newFilters: SearchFilters) => {
     const params = new URLSearchParams(searchParams.toString())
     Object.entries(newFilters).forEach(([key, value]) => {

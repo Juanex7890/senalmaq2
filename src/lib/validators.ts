@@ -17,7 +17,7 @@ export const productSchema = z.object({
   compareAtPrice: z.number().min(0).optional(),
   brand: z.string().optional(),
   sku: z.string().optional(),
-  categoryId: z.string().min(1, 'La categoría es requerida'),
+  category: z.string().min(1, 'La categoría es requerida'),
   imagePaths: z.array(z.string()).min(1, 'Al menos una imagen es requerida'),
   specs: z.array(z.object({
     key: z.string().min(1),
@@ -35,6 +35,7 @@ export const siteMediaSchema = z.object({
   youtubeShortIds: z.array(z.string()),
   instagramUrl: z.string().url('URL de Instagram inválida'),
   youtubeUrl: z.string().url('URL de YouTube inválida'),
+  tiktokUrl: z.string().url('URL de TikTok invalida'),
   whatsappUrl: z.string().url('URL de WhatsApp inválida'),
 })
 
@@ -45,7 +46,6 @@ export const searchSchema = z.object({
 })
 
 export const filtersSchema = z.object({
-  categoryId: z.string().optional(),
   minPrice: z.number().min(0).optional(),
   maxPrice: z.number().min(0).optional(),
   brand: z.string().optional(),

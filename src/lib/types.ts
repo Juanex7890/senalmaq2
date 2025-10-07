@@ -1,4 +1,4 @@
-﻿export interface Category {
+ï»¿export interface Category {
   id: string;
   name: string;
   icon: string;
@@ -26,7 +26,6 @@ export interface Product {
   brand?: string;
   slug?: string;
   // Legacy fields for compatibility
-  categoryId?: string;
   categoryName?: string;
   categorySlug?: string;
   imagePaths?: string[];
@@ -48,7 +47,9 @@ export interface SiteMedia {
   youtubeShortIds: string[]
   instagramUrl: string
   youtubeUrl: string
+  tiktokUrl: string
   whatsappUrl: string
+  heroImages?: string[]
 }
 
 export interface CartItem {
@@ -64,7 +65,6 @@ export interface User {
 }
 
 export interface SearchFilters {
-  categoryId?: string
   categoryName?: string
   categorySlug?: string
   minPrice?: number
@@ -81,5 +81,3 @@ export interface PaginationInfo {
   total: number
   totalPages: number
 }
-
-

@@ -24,9 +24,9 @@ import { getYouTubeEmbedUrl, getYouTubeThumbnail } from '@/lib/utils'
 import { generateMetadata } from '@/lib/seo'
 
 export const metadata = generateMetadata({
-  title: 'Senalmaq - Máquinas de Coser Industriales y Hogar',
-  description: 'Encuentra las mejores máquinas de coser industriales y para hogar en Senalmaq. Amplio catálogo de productos, garantía y envío gratis.',
-  keywords: 'máquinas de coser, industrial, hogar, singer, fileteadoras, cortadoras, planchas',
+  title: 'Senalmaq - Maquinas de Coser Industriales y Hogar',
+  description: 'Encuentra las mejores maquinas de coser industriales y para hogar en Senalmaq. Amplio catalogo de productos, garantia y envio gratis.',
+  keywords: 'maquinas de coser, industrial, hogar, singer, fileteadoras, cortadoras, planchas',
 })
 
 async function HomePageContent() {
@@ -61,7 +61,7 @@ async function HomePageContent() {
                         className="absolute inset-0 h-full w-full"
                         src={getYouTubeEmbedUrl(siteMedia.youtubeMainId)}
                         loading="lazy"
-                        title="Senalmaq - Máquinas de Coser"
+                        title="Senalmaq - Maquinas de Coser"
                         allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         referrerPolicy="strict-origin-when-cross-origin"
                         allowFullScreen
@@ -76,7 +76,7 @@ async function HomePageContent() {
               <div className="relative z-10 space-y-8">
                 <div>
                   <h2 className="text-3xl md:text-4xl font-bold text-green-800 mb-6">
-                    Síguenos
+                    Si­guenos
                   </h2>
                   
                   {/* Social Media Buttons */}
@@ -102,7 +102,7 @@ async function HomePageContent() {
                     </a>
 
                     <a
-                      href="#"
+                      href={siteMedia?.tiktokUrl || '#'}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center space-x-3 p-3 bg-white border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors duration-200 outline outline-0 focus-visible:outline-2 focus-visible:outline-gray-600"
@@ -117,13 +117,13 @@ async function HomePageContent() {
                   {/* WhatsApp Button */}
                   <div className="pt-2">
                     <a
-                      href={siteMedia?.whatsappUrl || '#'}
+                      href="https://wa.me/573176693030"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-center w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 outline outline-0 focus-visible:outline-2 focus-visible:outline-green-600"
                     >
                       <MessageCircle className="h-5 w-5 mr-2" />
-                      Escríbenos por WhatsApp
+                      Escri­benos por WhatsApp
                     </a>
                   </div>
                 </div>
@@ -139,10 +139,10 @@ async function HomePageContent() {
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Las más vendidas
+                Las mas vendidas!
               </h2>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                Los productos más populares entre nuestros clientes
+                Los productos mas populares entre nuestros clientes
               </p>
             </div>
 
@@ -208,34 +208,32 @@ async function HomePageContent() {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto prose prose-lg">
               <h2 className="text-3xl font-bold text-gray-900 mb-6">
-                Especialistas en Máquinas de Coser desde 1985
+                Especialistas en Maquinas de Coser
               </h2>
               <p className="text-gray-600 leading-relaxed mb-6">
-                En Senalmaq llevamos más de 35 años proporcionando las mejores máquinas de coser 
-                industriales y para hogar. Nuestro catálogo incluye marcas reconocidas como Singer, 
-                Brother, Janome y muchas más, garantizando la máxima calidad y durabilidad.
+              Justo Pastor Calderón empezó en el mundo de las máquinas de coser a los 16 años, cuando ingresó a una ensambladora. Al principio hacía tareas básicas como contar tornillos —y no le iba muy bien—, pero una importación desde Brasil le abrió la puerta a trabajar en bodega. Desde allí recorrió distintas áreas de la empresa y aprendió a fondo el funcionamiento de las máquinas, acumulando una experiencia que, para 2015, ya sumaba 41 años.
               </p>
               <p className="text-gray-600 leading-relaxed mb-6">
-                Ofrecemos una amplia gama de productos que incluye máquinas de coser domésticas, 
-                fileteadoras industriales, cortadoras RC-100, planchas industriales y todos los 
-                accesorios necesarios para tu taller o negocio.
+              Con el impulso de la mujer que luego sería su esposa, decidió independizarse y fundó en Suba el taller SenalMaq (Servicio Nacional de Máquinas de Coser), que llevaba 25 años en funcionamiento. Empezaron vendiendo una máquina guardada y, poco a poco, añadieron repuestos, hilos, cremalleras y otros insumos de costura, convirtiéndose en un negocio integral de venta y reparación para todas las marcas y modelos.
               </p>
               <p className="text-gray-600 leading-relaxed">
-                Nuestro equipo de técnicos especializados te brindará el mejor servicio post-venta, 
-                con garantía oficial y repuestos originales. Además, ofrecemos envío gratis en 
-                pedidos superiores a 50€ y soporte técnico por WhatsApp.
+              Su familia también creció dentro del oficio: cuatro de sus cinco hijos trabajan con él, además de su esposa. A los 57 años, Calderón afirma que su amor por estas máquinas es “para siempre”; con ellas sacó adelante a su hogar y quiere que el negocio sea herencia para hijos y nietos. La ironía: aunque ha dedicado medio siglo a repararlas, nunca ha tenido una máquina de coser en su casa.
               </p>
             </div>
           </div>
         </section>
       </main>
 
-      <Footer siteMedia={siteMedia ? {
-        ...siteMedia,
-        instagramUrl: siteMedia.instagramUrl || '',
-        youtubeUrl: siteMedia.youtubeUrl || '',
-        whatsappUrl: siteMedia.whatsappUrl || ''
-      } : undefined} />
+      <Footer 
+        siteMedia={siteMedia ?? undefined} 
+        contactInfo={{
+          phone: '+57 317 669 3030',
+          whatsapp1: '+57 317 669 3030',
+          whatsapp2: '+57 318 296 9963',
+          email: 'info@senalmaq.com',
+          address: 'Cra 108a # 139-05 / Calle 139 # 103f 13, Suba, Bogota, Colombia.'
+        }}
+      />
     </div>
   )
 }

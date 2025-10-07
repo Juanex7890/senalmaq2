@@ -1,7 +1,6 @@
-import { Suspense } from 'react'
+﻿import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
-import { getProductBySlug, getProductsWithPagination } from '@/lib/actions/products'
-import { getCategoryById } from '@/lib/actions/categories'
+import { getProductBySlug, getProductsWithPagination, resolveCategoryForProduct } from '@/lib/actions/products'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Gallery } from '@/components/product/gallery'
@@ -22,19 +21,25 @@ async function ProductContent({ slug }: { slug: string }) {
     notFound()
   }
 
-  const category = await getCategoryById(product.category)
   const categories = await getCategories()
+  const category = resolveCategoryForProduct(product, categories)
 
   // Get related products (same category, excluding current product)
   const { products: relatedProducts } = await getProductsWithPagination(
-    { categoryId: product.category },
+    {
+      categorySlug: product.categorySlug || category?.slug,
+      categoryName:
+        product.categoryName ||
+        (typeof product.category === 'string' ? product.category : undefined) ||
+        category?.name,
+    },
     { page: 1, limit: 4 }
   )
   const filteredRelated = relatedProducts.filter(p => p.id !== product.id).slice(0, 4)
 
   const breadcrumbItems = [
     { name: 'Inicio', url: '/' },
-    { name: 'Categorías', url: '/categorias' },
+    { name: 'CategorÃ­as', url: '/categorias' },
     ...(category ? [{ name: category.name, url: `/categoria/${category.slug}` }] : []),
     { name: product.name, url: `/producto/${product.name.toLowerCase().replace(/\s+/g, '-')}` },
   ]
@@ -49,7 +54,7 @@ async function ProductContent({ slug }: { slug: string }) {
           <nav className="flex items-center space-x-2 text-sm text-gray-500 mb-8">
             <a href="/" className="hover:text-primary-600">Inicio</a>
             <span>/</span>
-            <a href="/categorias" className="hover:text-primary-600">Categorías</a>
+            <a href="/categorias" className="hover:text-primary-600">CategorÃ­as</a>
             {category && (
               <>
                 <span>/</span>
@@ -103,7 +108,7 @@ async function ProductContent({ slug }: { slug: string }) {
             <div className="space-y-6">
               <div className="bg-white rounded-2xl p-6 shadow-sm">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Información del producto
+                  InformaciÃ³n del producto
                 </h3>
                 <div className="space-y-3">
                   <div className="flex justify-between">
@@ -115,8 +120,14 @@ async function ProductContent({ slug }: { slug: string }) {
                     <span className="font-medium">{product.sku || 'No disponible'}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Categoría:</span>
-                    <span className="font-medium">{category?.name || 'Sin categoría'}</span>
+                    <span className="text-gray-600">CategorÃ­a:</span>
+                    <span className="font-medium">
+                      {
+                        category?.name ||
+                        product.categoryName ||
+                        (typeof product.category === 'string' ? product.category : 'Sin categorÃ­a')
+                      }
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Estado:</span>
@@ -129,13 +140,13 @@ async function ProductContent({ slug }: { slug: string }) {
 
               <div className="bg-primary-50 rounded-2xl p-6">
                 <h3 className="text-lg font-semibold text-primary-900 mb-4">
-                  Garantía y soporte
+                  GarantÃ­a y soporte
                 </h3>
                 <ul className="space-y-2 text-sm text-primary-800">
-                  <li>• Garantía oficial del fabricante</li>
-                  <li>• Soporte técnico especializado</li>
-                  <li>• Repuestos originales disponibles</li>
-                  <li>• Servicio de mantenimiento</li>
+                  <li>â€¢ GarantÃ­a oficial del fabricante</li>
+                  <li>â€¢ Soporte tÃ©cnico especializado</li>
+                  <li>â€¢ Repuestos originales disponibles</li>
+                  <li>â€¢ Servicio de mantenimiento</li>
                 </ul>
               </div>
             </div>
@@ -216,3 +227,4 @@ export default async function ProductPage({ params }: ProductPageProps) {
     </Suspense>
   )
 }
+

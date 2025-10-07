@@ -12,6 +12,7 @@ import {
   DocumentSnapshot,
   QuerySnapshot,
   Unsubscribe,
+  DocumentData,
 } from "firebase/firestore";
 import {
   getStorage,
@@ -58,14 +59,37 @@ const auth = getAuth(app);
 const storage = getStorage(app);
 
 const PRODUCTS_COLLECTION = "products";
-const productsCollection = collection(db, PRODUCTS_COLLECTION);
-
+const CATEGORIES_COLLECTION = "categories";
 const SETTINGS_COLLECTION = "settings";
 const SOCIAL_DOC_ID = "social";
+
+const productsCollection = collection(db, PRODUCTS_COLLECTION);
+const categoriesCollection = collection(db, CATEGORIES_COLLECTION);
 const socialDocRef = doc(db, SETTINGS_COLLECTION, SOCIAL_DOC_ID);
 
-const CATEGORIES_COLLECTION = "categories";
-const categoriesCollection = collection(db, CATEGORIES_COLLECTION);
+const sanitizeString = (value: unknown, fallback = ""): string =>
+  typeof value === "string" ? value.trim() : fallback;
+
+const sanitizeBoolean = (value: unknown, fallback = false): boolean =>
+  typeof value === "boolean" ? value : Boolean(value ?? fallback);
+
+const sanitizeNumber = (value: unknown, fallback = 0): number => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const sanitizeStringArray = (value: unknown): string[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item) => (typeof item === "string" ? item.trim() : ""))
+    .filter((item) => item !== "");
+};
 
 export interface Product {
   docId: string;
@@ -78,13 +102,12 @@ export interface Product {
   imageUrl: string;
   image: string;
   images: string[];
+  imagePaths: string[];
   brand?: string;
   slug?: string;
   sku?: string;
-  categoryId?: string;
   categoryName?: string;
   categorySlug?: string;
-  imagePaths?: string[];
   compareAtPrice?: number;
   isBestseller?: boolean;
   isFeatured?: boolean;
@@ -105,39 +128,70 @@ export interface SocialData {
   instagram: string;
   youtube: string;
   tiktok: string;
+  whatsapp: string;
   videoId: string;
   shorts: string[];
   heroImages: string[];
 }
 
-const PRODUCT_DEFAULTS = {
+export const PRODUCT_DEFAULTS: Pick<
+  Product,
+  "bestSeller" | "images" | "imagePaths"
+> & { price: number } = {
   bestSeller: false,
+  images: [],
+  imagePaths: [],
+  price: 0,
 };
 
-const SOCIAL_DEFAULTS: SocialData = {
+export const SOCIAL_DEFAULTS: SocialData = {
   instagram: "",
   youtube: "",
   tiktok: "",
+  whatsapp: "",
   videoId: "",
   shorts: [],
   heroImages: [],
 };
 
-const CATEGORY_DEFAULTS = {
+export const CATEGORY_DEFAULTS: Pick<Category, "name" | "icon"> = {
   name: "",
   icon: "gear",
 };
 
-export function applyProductSchema(data: any = {}): Partial<Product> {
-  const raw = typeof data === "object" && data !== null ? data : {};
-  const merged = {
-    ...PRODUCT_DEFAULTS,
-    ...raw,
-  };
+export function applyProductSchema(data: unknown = {}): Partial<Product> {
+  const raw = typeof data === "object" && data !== null ? (data as Record<string, unknown>) : {};
+
+  const name = sanitizeString(raw.name);
+  const primaryImage = sanitizeString(raw.imageUrl) || sanitizeString(raw.image);
+  const images = sanitizeStringArray(raw.images);
+  const imagePaths = sanitizeStringArray(raw.imagePaths);
+  const categoryName = sanitizeString(raw.categoryName) || sanitizeString(raw.category);
+  const categorySlug = sanitizeString(raw.categorySlug);
+
+  const resolvedCategorySlug = categorySlug || (categoryName ? generateSlug(categoryName) : "");
 
   return {
-    ...merged,
-    bestSeller: Boolean(merged.bestSeller),
+    name,
+    description: sanitizeString(raw.description),
+    price: sanitizeNumber(raw.price, PRODUCT_DEFAULTS.price),
+    category: sanitizeString(raw.category),
+    categoryName: categoryName || undefined,
+    categorySlug: resolvedCategorySlug || undefined,
+    bestSeller: sanitizeBoolean(raw.bestSeller, PRODUCT_DEFAULTS.bestSeller),
+    isBestseller: sanitizeBoolean((raw as Record<string, unknown>).isBestseller, false),
+    isFeatured: sanitizeBoolean((raw as Record<string, unknown>).isFeatured, false),
+    imageUrl: primaryImage,
+    image: primaryImage,
+    images,
+    imagePaths,
+    brand: sanitizeString(raw.brand) || undefined,
+    slug: sanitizeString(raw.slug) || (name ? generateSlug(name) : undefined),
+    sku: sanitizeString(raw.sku) || undefined,
+    compareAtPrice: (() => {
+      const value = sanitizeNumber(raw.compareAtPrice, NaN);
+      return Number.isFinite(value) ? value : undefined;
+    })(),
   };
 }
 
@@ -145,175 +199,127 @@ export const getProductsCollection = () => productsCollection;
 export const getProductDoc = (id: string) => doc(db, PRODUCTS_COLLECTION, id);
 
 export function subscribeToProducts(
-  onNext: (snapshot: QuerySnapshot) => void,
+  onNext: (snapshot: QuerySnapshot<DocumentData>) => void,
   onError: (error: Error) => void
 ): Unsubscribe {
   return onSnapshot(productsCollection, onNext, onError);
 }
 
-export function mapProductDocument(document: DocumentSnapshot): Product | null {
-  if (!document) {
+export function mapProductDocument(document: DocumentSnapshot<DocumentData>): Product | null {
+  if (!document.exists()) {
     return null;
   }
 
   const data = applyProductSchema(document.data());
-  const legacyId = typeof data?.id === "string" ? data.id : undefined;
-  const name = typeof data?.name === "string" ? data.name.trim() : "";
-
-  const rawCategoryId = typeof (data as any)?.categoryId === "string" ? (data as any).categoryId.trim() : "";
-  const rawCategory = typeof (data as any)?.category === "string" ? (data as any).category.trim() : "";
-  const rawCategoryName = typeof (data as any)?.categoryName === "string" ? (data as any).categoryName.trim() : "";
-  const categoryId = rawCategoryId || "";
-  const categoryName = rawCategoryName || rawCategory;
-  const categoryValue = categoryId || rawCategory;
-  const categorySlug =
-    typeof (data as any)?.categorySlug === "string"
-      ? (data as any).categorySlug.trim()
-      : categoryName
-          ? generateSlug(categoryName)
-          : rawCategory
-          ? generateSlug(rawCategory)
-          : "";
-
-  const rawSlug = typeof (data as any)?.slug === "string" ? (data as any).slug.trim() : "";
-  const slug = rawSlug || name
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .trim();
-
-  const imageUrlValue = typeof data?.imageUrl === "string" ? data.imageUrl.trim() : "";
-  const imageFallback = typeof (data as any)?.image === "string" ? (data as any).image.trim() : "";
-  const imageUrl = imageUrlValue || imageFallback;
-
-  const images = Array.isArray((data as any)?.images)
-    ? ((data as any).images as any[])
-        .map((value) => (typeof value === "string" ? value.trim() : ""))
-        .filter((value) => value !== "")
-    : [];
-
-  const imagePaths = Array.isArray((data as any)?.imagePaths)
-    ? ((data as any).imagePaths as any[])
-        .map((value) => (typeof value === "string" ? value.trim() : ""))
-        .filter((value) => value !== "")
-    : images;
-
-  const compareAtPriceRaw = (data as any)?.compareAtPrice;
-  const compareAtPrice = typeof compareAtPriceRaw === "number"
-    ? compareAtPriceRaw
-    : Number(compareAtPriceRaw) || undefined;
+  const docId = document.id;
+  const legacyId = sanitizeString((document.data() as Record<string, unknown>)?.id);
+  const images = data.images ?? PRODUCT_DEFAULTS.images;
+  const imagePaths = data.imagePaths ?? PRODUCT_DEFAULTS.imagePaths;
 
   return {
-    ...data,
-    docId: document.id,
-    id: legacyId ?? document.id,
-    name,
-    slug,
-    price: Number((data as any)?.price) || 0,
-    description: typeof data?.description === "string" ? data.description : "",
-    category: categoryValue,
-    categoryId: categoryId || undefined,
-    categoryName: categoryName || undefined,
-    categorySlug: categorySlug || undefined,
-    bestSeller: Boolean(data?.bestSeller),
-    isBestseller: Boolean((data as any)?.isBestseller ?? data?.bestSeller),
-    imageUrl,
-    image: imageUrl,
+    docId,
+    id: legacyId || docId,
+    name: data.name ?? "",
+    price: data.price ?? PRODUCT_DEFAULTS.price,
+    description: data.description ?? "",
+    category: data.category ?? "",
+    bestSeller: data.bestSeller ?? PRODUCT_DEFAULTS.bestSeller,
+    imageUrl: data.imageUrl ?? "",
+    image: data.image ?? "",
     images,
     imagePaths,
-    compareAtPrice,
-  } as Product;
+    brand: data.brand,
+    slug: data.slug,
+    sku: data.sku,
+    categoryName: data.categoryName,
+    categorySlug: data.categorySlug,
+    compareAtPrice: data.compareAtPrice,
+    isBestseller: data.isBestseller,
+    isFeatured: data.isFeatured,
+  };
 }
 
-export function applySocialSchema(data: any = {}): SocialData {
-  const raw = typeof data === "object" && data !== null ? data : {};
-  const base = {
-    ...SOCIAL_DEFAULTS,
-    ...raw,
-  };
-  const shorts = Array.isArray(base.shorts)
-    ? base.shorts
-        .map((value: any) => (typeof value === "string" ? value.trim() : ""))
-        .filter((value: string) => value !== "")
-    : [];
+export function applyCategorySchema(data: unknown = {}): Partial<Category> {
+  const raw = typeof data === "object" && data !== null ? (data as Record<string, unknown>) : {};
 
-  const heroImages = Array.isArray(base.heroImages)
-    ? base.heroImages
-        .map((value: any) => (typeof value === "string" ? value.trim() : ""))
-        .filter((value: string) => value !== "")
-    : [];
+  const name = sanitizeString(raw.name) || CATEGORY_DEFAULTS.name;
+  const slugFromData = sanitizeString(raw.slug);
+  const slug = slugFromData || generateSlug(name);
 
   return {
-    ...SOCIAL_DEFAULTS,
-    ...raw,
-    instagram: typeof base.instagram === "string" ? base.instagram.trim() : "",
-    youtube: typeof base.youtube === "string" ? base.youtube.trim() : "",
-    tiktok: typeof base.tiktok === "string" ? base.tiktok.trim() : "",
-    videoId: typeof base.videoId === "string" ? base.videoId.trim() : "",
-    shorts,
-    heroImages,
+    name,
+    icon: sanitizeString(raw.icon) || CATEGORY_DEFAULTS.icon,
+    slug,
+    description: sanitizeString(raw.description) || undefined,
   };
 }
 
-export function mapSocialDocument(snapshot: DocumentSnapshot): SocialData {
-  if (!snapshot || !snapshot.exists()) {
-    return { ...SOCIAL_DEFAULTS };
-  }
-  return applySocialSchema(snapshot.data());
-}
-
-export const getSocialDoc = () => socialDocRef;
-
-export function subscribeToSocial(
-  onNext: (snapshot: DocumentSnapshot) => void,
-  onError: (error: Error) => void
-): Unsubscribe {
-  return onSnapshot(socialDocRef, onNext, onError);
-}
-
-export async function saveSocialData(data: Partial<SocialData> = {}): Promise<SocialData> {
-  const payload = applySocialSchema(data);
-  await setDoc(socialDocRef, payload, { merge: true });
-  return payload;
-}
-
-export function applyCategorySchema(data: any = {}): Partial<Category> {
-  const raw = typeof data === "object" && data !== null ? data : {};
-  return {
-    ...CATEGORY_DEFAULTS,
-    ...raw,
-    name: typeof raw.name === "string" ? raw.name.trim() : "",
-    icon: typeof raw.icon === "string" ? raw.icon.trim() : CATEGORY_DEFAULTS.icon,
-  };
-}
-
-export function mapCategoryDocument(document: DocumentSnapshot): Category | null {
-  if (!document) {
+export function mapCategoryDocument(document: DocumentSnapshot<DocumentData>): Category | null {
+  if (!document.exists()) {
     return null;
   }
+
   const data = applyCategorySchema(document.data());
-  const name = data.name || "";
-  // Use stored slug if available, otherwise generate from name
-  const slug = data.slug || name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-  
   return {
-    ...data,
     id: document.id,
-    slug,
-  } as Category;
+    name: data.name ?? CATEGORY_DEFAULTS.name,
+    icon: data.icon ?? CATEGORY_DEFAULTS.icon,
+    slug: data.slug ?? generateSlug(document.id),
+    description: data.description,
+  };
 }
 
 export const getCategoriesCollection = () => categoriesCollection;
 export const getCategoryDoc = (id: string) => doc(db, CATEGORIES_COLLECTION, id);
 
 export function subscribeToCategories(
-  onNext: (snapshot: QuerySnapshot) => void,
+  onNext: (snapshot: QuerySnapshot<DocumentData>) => void,
   onError: (error: Error) => void
 ): Unsubscribe {
   return onSnapshot(categoriesCollection, onNext, onError);
+}
+
+export const getSocialDoc = () => socialDocRef;
+
+export function subscribeToSocial(
+  onNext: (snapshot: DocumentSnapshot<DocumentData>) => void,
+  onError: (error: Error) => void
+): Unsubscribe {
+  return onSnapshot(socialDocRef, onNext, onError);
+}
+
+export function applySocialSchema(data: unknown = {}): SocialData {
+  const raw = typeof data === "object" && data !== null ? (data as Record<string, unknown>) : {};
+  const base = {
+    ...SOCIAL_DEFAULTS,
+    ...raw,
+  };
+
+  const shorts = sanitizeStringArray(base.shorts);
+  const heroImages = sanitizeStringArray(base.heroImages);
+
+  return {
+    instagram: sanitizeString(base.instagram),
+    youtube: sanitizeString(base.youtube),
+    tiktok: sanitizeString(base.tiktok),
+    whatsapp: sanitizeString(base.whatsapp),
+    videoId: sanitizeString(base.videoId),
+    shorts,
+    heroImages,
+  };
+}
+
+export function mapSocialDocument(snapshot: DocumentSnapshot<DocumentData>): SocialData {
+  if (!snapshot.exists()) {
+    return { ...SOCIAL_DEFAULTS };
+  }
+  return applySocialSchema(snapshot.data());
+}
+
+export async function saveSocialData(data: Partial<SocialData> = {}): Promise<SocialData> {
+  const payload = applySocialSchema({ ...SOCIAL_DEFAULTS, ...data });
+  await setDoc(socialDocRef, payload, { merge: true });
+  return payload;
 }
 
 export const getProductImageRef = (docId: string, fileName: string) =>
@@ -347,10 +353,16 @@ export function getDownloadUrlForPath(path: string): Promise<string> {
   return getDownloadURL(ref(storage, path));
 }
 
-export { app, auth, db, storage, analytics, SOCIAL_DEFAULTS, CATEGORY_DEFAULTS };
-
-
-
+export {
+  app,
+  auth,
+  db,
+  storage,
+  analytics,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+};
 
 
 

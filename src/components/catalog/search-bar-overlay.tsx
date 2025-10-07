@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Search, X, Loader2 } from 'lucide-react'
-import { debounce } from '@/lib/utils'
+import { debounce, formatPrice, getImageUrl } from '@/lib/utils'
 import { Product } from '@/lib/types'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -195,7 +195,11 @@ export function SearchBarOverlay({ placeholder = 'Buscar productos...', classNam
                 </p>
               </div>
               <div className="max-h-80 overflow-y-auto">
-                {results.map((product, index) => (
+                {results.map((product, index) => {
+                const primaryImage = product.images?.[0] ?? product.imagePaths?.[0] ?? product.imageUrl
+                const imageSrc = primaryImage ? getImageUrl(primaryImage) : null
+
+                return (
                   <button
                     key={product.id}
                     onClick={() => handleResultClick(product)}
@@ -205,9 +209,9 @@ export function SearchBarOverlay({ placeholder = 'Buscar productos...', classNam
                   >
                     <div className="flex items-center space-x-3">
                       <div className="flex-shrink-0 w-12 h-12 bg-gray-100 rounded-lg overflow-hidden">
-                        {product.images && product.images.length > 0 ? (
+                        {imageSrc ? (
                           <Image
-                            src={product.images[0]}
+                            src={imageSrc}
                             alt={product.name}
                             width={48}
                             height={48}
@@ -227,12 +231,13 @@ export function SearchBarOverlay({ placeholder = 'Buscar productos...', classNam
                           {product.categoryName || product.category}
                         </p>
                         <p className="text-sm font-semibold text-green-600">
-                          €{product.price.toLocaleString()}
+                          {formatPrice(product.price)}
                         </p>
                       </div>
                     </div>
                   </button>
-                ))}
+                )
+              })}
               </div>
               {query.trim() && (
                 <div className="p-3 border-t border-gray-100">

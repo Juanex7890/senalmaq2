@@ -5,9 +5,9 @@
 } from '@/lib/firebase';
 import { query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 import { generateSlug } from '@/lib/utils';
+import { Category } from '@/lib/types';
 
 type CategoryFilterInput = {
-  categoryId?: string;
   categoryName?: string;
   categorySlug?: string;
 };
@@ -24,7 +24,6 @@ const buildCategoryCandidateSet = (values: CategoryFilterInput): Set<string> => 
     }
   };
 
-  push(values.categoryId);
   push(values.categorySlug);
   if (values.categoryName) {
     push(values.categoryName);
@@ -43,7 +42,6 @@ const buildProductCategorySet = (product: Product): Set<string> => {
     }
   };
 
-  push(product.categoryId);
   push(typeof product.category === 'string' ? product.category : undefined);
   push(product.categorySlug);
   if (product.categoryName) {
@@ -128,15 +126,14 @@ export async function getAllProducts(): Promise<Product[]> {
 }
 
 export async function getProductsByCategory(
-  categoryIdentifier: string,
-  options: { categoryName?: string; categorySlug?: string } = {}
+  categorySlug: string,
+  options: { categoryName?: string } = {}
 ): Promise<Product[]> {
   try {
     const allProducts = await getAllProducts();
     const categoryFilter: CategoryFilterInput = {
-      categoryId: categoryIdentifier,
       categoryName: options.categoryName,
-      categorySlug: options.categorySlug,
+      categorySlug,
     };
 
     return allProducts.filter((product) => matchesCategoryFilter(product, categoryFilter));
@@ -177,13 +174,11 @@ export async function searchProducts(
 
     // Apply category filter
     const categoryFilter: CategoryFilterInput = {
-      categoryId: filters.categoryId,
       categoryName: filters.categoryName,
       categorySlug: filters.categorySlug,
     };
 
     if (
-      categoryFilter.categoryId ||
       categoryFilter.categoryName ||
       categoryFilter.categorySlug
     ) {
@@ -264,26 +259,22 @@ export async function getProductsWithPagination(
     // Debug logging
     console.log('dY"? getProductsWithPagination Debug:');
     console.log('  - Total products:', allProducts.length);
-    console.log('  - Filter categoryId:', filters.categoryId);
     console.log('  - Filter categoryName:', filters.categoryName);
     console.log('  - Filter categorySlug:', filters.categorySlug);
     console.log('  - Sample product categories:', allProducts.slice(0, 3).map(p => ({
       name: p.name,
-      categoryId: p.categoryId || p.category,
-      categoryName: p.categoryName,
+      categoryName: p.categoryName || p.category,
       categorySlug: p.categorySlug,
     })));
 
     // Apply category filter
     let filteredProducts = allProducts;
     const categoryFilter: CategoryFilterInput = {
-      categoryId: filters.categoryId,
       categoryName: filters.categoryName,
       categorySlug: filters.categorySlug,
     };
 
     if (
-      categoryFilter.categoryId ||
       categoryFilter.categoryName ||
       categoryFilter.categorySlug
     ) {
@@ -379,4 +370,27 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   }
 }
 
+export function resolveCategoryForProduct(product: Product, categories: Category[]): Category | null {
+  if (!product.categoryName && !product.category) {
+    return null;
+  }
+
+  // Try to find by categoryName first
+  if (product.categoryName) {
+    const found = categories.find(cat => 
+      cat.name.toLowerCase() === product.categoryName?.toLowerCase()
+    );
+    if (found) return found;
+  }
+
+  // Try to find by category (legacy field)
+  if (product.category) {
+    const found = categories.find(cat => 
+      cat.name.toLowerCase() === product.category.toLowerCase()
+    );
+    if (found) return found;
+  }
+
+  return null;
+}
 

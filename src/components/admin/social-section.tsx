@@ -171,6 +171,17 @@ export default function SocialSection({
               disabled={socialDisabled}
             />
           </label>
+          <label className="block text-sm font-semibold text-slate-700">
+            WhatsApp
+            <input
+              type="url"
+              value={socialDraft.whatsapp || ''}
+              onChange={onSocialFieldChange('whatsapp')}
+              placeholder="https://wa.me/57..."
+              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-base focus:border-green-600 focus:ring-2 focus:ring-green-100"
+              disabled={socialDisabled}
+            />
+          </label>
           <div className="md:col-span-2 flex justify-end">
             <button
               type="submit"

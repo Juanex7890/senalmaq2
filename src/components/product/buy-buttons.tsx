@@ -121,7 +121,7 @@ export function BuyButtons({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-gray-200">
         <div className="flex items-center space-x-2 text-sm text-gray-600">
           <Truck className="h-5 w-5 text-primary-500" />
-          <span>Envío gratis</span>
+          <span>Envíos a toda colombia</span>
         </div>
         <div className="flex items-center space-x-2 text-sm text-gray-600">
           <Shield className="h-5 w-5 text-primary-500" />

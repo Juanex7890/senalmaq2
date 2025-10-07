@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useRef } from 'react'
 import { SearchFilters } from '@/lib/types'
@@ -11,7 +11,7 @@ interface FiltersProps {
   filters: SearchFilters
   onFiltersChange: (filters: SearchFilters) => void
   brands: string[]
-  categories: Array<{ id: string; name: string }>
+  categories: Array<{ slug: string; name: string }>
 }
 
 export function Filters({ filters, onFiltersChange, brands, categories }: FiltersProps) {
@@ -116,13 +116,13 @@ export function Filters({ filters, onFiltersChange, brands, categories }: Filter
       }`}>
         {/* Category Filter */}
         <Select
-          label="Categoría"
-          placeholder="Todas las categorías"
-          value={filters?.categoryId || ''}
-          onChange={(e) => handleFilterChange('categoryId', e.target.value || undefined)}
+          label="CategorÃ­a"
+          placeholder="Todas las categorÃ­as"
+          value={filters?.categorySlug || ''}
+          onChange={(e) => handleFilterChange('categorySlug', e.target.value || undefined)}
           options={[
-            { value: '', label: 'Todas las categorías' },
-            ...categories.map(cat => ({ value: cat.id, label: cat.name }))
+            { value: '', label: 'Todas las categorÃ­as' },
+            ...categories.map(cat => ({ value: cat.slug, label: cat.name }))
           ]}
         />
 
@@ -147,7 +147,7 @@ export function Filters({ filters, onFiltersChange, brands, categories }: Filter
             <div className="relative">
               <Input
                 type="number"
-                placeholder="Mínimo"
+                placeholder="MÃ­nimo"
                 value={minPrice}
                 onChange={(e) => handleMinPriceChange(e.target.value)}
                 className="pr-8"
@@ -159,7 +159,7 @@ export function Filters({ filters, onFiltersChange, brands, categories }: Filter
             <div className="relative">
               <Input
                 type="number"
-                placeholder="Máximo"
+                placeholder="MÃ¡ximo"
                 value={maxPrice}
                 onChange={(e) => handleMaxPriceChange(e.target.value)}
                 className="pr-8"
@@ -191,7 +191,7 @@ export function Filters({ filters, onFiltersChange, brands, categories }: Filter
             { value: 'relevance', label: 'Relevancia' },
             { value: 'price-asc', label: 'Precio: menor a mayor' },
             { value: 'price-desc', label: 'Precio: mayor a menor' },
-            { value: 'newest', label: 'Más recientes' },
+            { value: 'newest', label: 'MÃ¡s recientes' },
           ]}
         />
 
@@ -210,3 +210,4 @@ export function Filters({ filters, onFiltersChange, brands, categories }: Filter
     </div>
   )
 }
+

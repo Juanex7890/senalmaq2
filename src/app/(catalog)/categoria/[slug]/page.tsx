@@ -1,4 +1,4 @@
-import { Suspense } from 'react'
+﻿import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { getCategoryBySlug } from '@/lib/actions/categories'
 import { getProductsWithPagination } from '@/lib/actions/products'
@@ -41,7 +41,6 @@ async function CategoryContent({ slug, searchParams }: { slug: string; searchPar
   const limitValue = Array.isArray(limitParam) ? limitParam[0] : limitParam
 
   const filters: SearchFilters = {
-    categoryId: category.id,
     categoryName: categoryNameValue || category.name,
     categorySlug: categorySlugValue || category.slug,
     minPrice: minPriceValue ? Number(minPriceValue) : undefined,
@@ -71,7 +70,7 @@ async function CategoryContent({ slug, searchParams }: { slug: string; searchPar
           <nav className="flex items-center space-x-2 text-sm text-gray-500 mb-8">
             <a href="/" className="hover:text-primary-600">Inicio</a>
             <span>/</span>
-            <a href="/categorias" className="hover:text-primary-600">Categorías</a>
+            <a href="/categorias" className="hover:text-primary-600">CategorÃ­as</a>
             <span>/</span>
             <span className="text-gray-900">{category.name}</span>
           </nav>
@@ -110,7 +109,7 @@ export async function generateMetadata({ params }: CategoryPageProps) {
   
   if (!category) {
     return {
-      title: 'Categoría no encontrada',
+      title: 'CategorÃ­a no encontrada',
     }
   }
 
@@ -147,3 +146,4 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
     </Suspense>
   )
 }
+

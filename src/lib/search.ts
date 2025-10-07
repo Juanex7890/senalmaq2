@@ -4,7 +4,6 @@ import { Product, SearchFilters, PaginationInfo } from './types'
 import { generateSlug } from '@/lib/utils'
 
 type CategoryFilterInput = {
-  categoryId?: string
   categoryName?: string
   categorySlug?: string
 }
@@ -21,7 +20,6 @@ const buildCategoryCandidateSet = (values: CategoryFilterInput) => {
     }
   }
 
-  push(values.categoryId)
   push(values.categorySlug)
   if (values.categoryName) {
     push(values.categoryName)
@@ -40,7 +38,6 @@ const buildProductCategorySet = (product: Product) => {
     }
   }
 
-  push(product.categoryId)
   push(typeof product.category === 'string' ? product.category : undefined)
   push(product.categorySlug)
   if (product.categoryName) {
@@ -100,13 +97,11 @@ export async function searchProducts(
 
     // Apply category filter
     const categoryFilter: CategoryFilterInput = {
-      categoryId: filters.categoryId,
       categoryName: filters.categoryName,
       categorySlug: filters.categorySlug,
     }
 
     if (
-      categoryFilter.categoryId ||
       categoryFilter.categoryName ||
       categoryFilter.categorySlug
     ) {
