@@ -30,7 +30,7 @@ export interface Product {
   categorySlug?: string;
   imagePaths?: string[];
   specs?: { key: string; value: string }[];
-  active?: boolean;
+  active: boolean;
   isBestseller?: boolean;
   isFeatured?: boolean;
   createdAt?: Date;

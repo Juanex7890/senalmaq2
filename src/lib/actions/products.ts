@@ -1,8 +1,8 @@
 ﻿import { 
   getProductsCollection, 
-  mapProductDocument, 
-  Product 
+  mapProductDocument
 } from '@/lib/firebase';
+import { Product } from '@/lib/types';
 import { query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 import { generateSlug } from '@/lib/utils';
 import { Category } from '@/lib/types';

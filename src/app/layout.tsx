@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import { ToastProvider } from '@/components/ui/toast'
+import { SmoothToast } from '@/components/ui/smooth-toast'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -70,9 +70,8 @@ export default function RootLayout({
   return (
     <html lang="es" className="h-full" suppressHydrationWarning>
       <body className={`${inter.className} h-full antialiased`}>
-        <ToastProvider>
-          {children}
-        </ToastProvider>
+        {children}
+        <SmoothToast />
       </body>
     </html>
   )

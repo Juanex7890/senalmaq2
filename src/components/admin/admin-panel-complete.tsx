@@ -20,10 +20,10 @@ import {
   subscribeToSocial,
   SOCIAL_DEFAULTS,
   CATEGORY_DEFAULTS,
-  Product,
   Category,
   SocialData,
 } from "@/lib/firebase";
+import { Product } from "@/lib/types";
 
 
 import SocialSection from "./social-section";

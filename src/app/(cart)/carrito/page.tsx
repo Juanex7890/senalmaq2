@@ -147,17 +147,31 @@ export default function CartPage() {
                       <div className="flex items-center space-x-4">
                         {/* Product Image */}
                         <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                          {item.product?.imagePaths && item.product.imagePaths.length > 0 ? (
-                            <img
-                              src={item.product.imagePaths[0]}
-                              alt={item.product.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-gray-400">
-                              📦
-                            </div>
-                          )}
+                          {(() => {
+                            // Try different image sources in order of preference
+                            const imageSrc = 
+                              item.product?.imagePaths?.[0] ||
+                              item.product?.images?.[0] ||
+                              item.product?.imageUrl ||
+                              item.product?.image ||
+                              null;
+                            
+                            return imageSrc ? (
+                              <img
+                                src={imageSrc}
+                                alt={item.product?.name || 'Producto'}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  // Fallback to placeholder if image fails to load
+                                  e.currentTarget.style.display = 'none';
+                                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                }}
+                              />
+                            ) : null;
+                          })()}
+                          <div className="w-full h-full flex items-center justify-center text-gray-400 hidden">
+                            📦
+                          </div>
                         </div>
 
                         {/* Product Info */}

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Product } from '@/lib/types'
 import { getImageUrl, formatPrice } from '@/lib/utils'
+import { addToCart } from '@/lib/cart'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ShoppingCart, Heart } from 'lucide-react'
@@ -101,7 +102,7 @@ export function ProductCard({
 
           {/* Add to Cart Button */}
           <Button
-            onClick={() => onAddToCart?.(product)}
+            onClick={() => onAddToCart ? onAddToCart(product) : addToCart(product)}
             className="w-full mt-3"
             size="sm"
           >

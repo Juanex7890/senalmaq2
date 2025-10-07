@@ -1,5 +1,6 @@
 ﻿import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { Product } from "./types";
 import {
   collection,
   doc,
@@ -91,29 +92,6 @@ const sanitizeStringArray = (value: unknown): string[] => {
     .filter((item) => item !== "");
 };
 
-export interface Product {
-  docId: string;
-  id: string;
-  name: string;
-  price: number;
-  description: string;
-  category: string;
-  bestSeller: boolean;
-  imageUrl: string;
-  image: string;
-  images: string[];
-  imagePaths: string[];
-  brand?: string;
-  slug?: string;
-  sku?: string;
-  categoryName?: string;
-  categorySlug?: string;
-  compareAtPrice?: number;
-  isBestseller?: boolean;
-  isFeatured?: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
 
 export interface Category {
   id: string;
@@ -136,12 +114,13 @@ export interface SocialData {
 
 export const PRODUCT_DEFAULTS: Pick<
   Product,
-  "bestSeller" | "images" | "imagePaths"
+  "bestSeller" | "images" | "imagePaths" | "active"
 > & { price: number } = {
   bestSeller: false,
   images: [],
   imagePaths: [],
   price: 0,
+  active: true,
 };
 
 export const SOCIAL_DEFAULTS: SocialData = {
@@ -236,6 +215,7 @@ export function mapProductDocument(document: DocumentSnapshot<DocumentData>): Pr
     compareAtPrice: data.compareAtPrice,
     isBestseller: data.isBestseller,
     isFeatured: data.isFeatured,
+    active: data.active ?? PRODUCT_DEFAULTS.active,
   };
 }
 

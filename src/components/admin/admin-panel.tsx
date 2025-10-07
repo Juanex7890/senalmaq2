@@ -20,10 +20,10 @@ import {
   subscribeToSocial,
   SOCIAL_DEFAULTS,
   CATEGORY_DEFAULTS,
-  Product,
   Category,
   SocialData,
 } from "@/lib/firebase";
+import { Product } from "@/lib/types";
 
 // Icon components
 const IconGear = ({ className = "h-5 w-5", ...props }: { className?: string; [key: string]: any }) => (

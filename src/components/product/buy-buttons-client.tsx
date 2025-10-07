@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Product } from '@/lib/types'
 import { formatPrice } from '@/lib/utils'
+import { addToCart } from '@/lib/cart'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -31,9 +32,7 @@ export function BuyButtonsClient({
   }
 
   const handleAddToCart = () => {
-    // TODO: Implement cart functionality
-    console.log('Add to cart:', product, quantity)
-    // You can implement actual cart logic here
+    addToCart(product, quantity)
   }
 
   const handleToggleWishlist = () => {
