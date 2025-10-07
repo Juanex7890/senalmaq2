@@ -1,5 +1,5 @@
 module.exports = {
-fi  extends: ["next/core-web-vitals"],
+  extends: ["next/core-web-vitals"],
   ignorePatterns: [
     "node_modules/**",
     ".next/**",
