@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter, usePathname } from 'next/navigation'
 import { SearchBarOverlay } from '@/components/catalog/search-bar-overlay'
 import { Button } from '@/components/ui/button'
@@ -22,19 +23,33 @@ export function Header({ categories }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [cartCount, setCartCount] = useState(0)
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(false)
   const categoriesButtonRef = useRef<HTMLButtonElement>(null)
   const topBarRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
+  const contactInfoRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const pathname = usePathname()
 
   const isDesktopViewport = () =>
     typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches
 
+  const isMobileViewport = () =>
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches
+
   const openCategoriesIfDesktop = () => {
     if (isDesktopViewport()) {
       setIsCategoriesOpen(true)
+    }
+  }
+
+  const checkForOverflow = () => {
+    if (contactInfoRef.current) {
+      const container = contactInfoRef.current
+      const isOverflowing = container.scrollWidth > container.clientWidth
+      setShouldAutoScroll(isOverflowing && isMobile)
     }
   }
 
@@ -111,13 +126,14 @@ export function Header({ categories }: HeaderProps) {
             <div className="flex items-center gap-6 flex-shrink-0">
               {/* Logo */}
               <Link href="/" className="flex items-center space-x-2">
-                <div className="w-10 h-10 rounded-full overflow-hidden">
-                  <img 
-                    src="/images/logosenalmaq.png" 
-                    alt="Senalmaq Logo" 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+                <Image
+                  src="/images/logosenalmaq.png"
+                  alt="Senalmaq Logo"
+                  width={40}
+                  height={40}
+                  className="h-10 w-10 rounded-full object-cover"
+                  priority
+                />
                 <span className="text-xl font-bold text-gray-900">Senalmaq</span>
               </Link>
 

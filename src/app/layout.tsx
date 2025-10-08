@@ -1,77 +1,91 @@
 import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { SmoothToast } from '@/components/ui/smooth-toast'
+import { ConnectionStatus } from '@/components/ui/connection-status'
 
 const inter = Inter({ subsets: ['latin'] })
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.senalmaq.com'
+const metadataDescription =
+  'Maquinas de coser industriales, repuestos y soporte especializado para talleres y hogar en Colombia.'
+const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Senalmaq',
+  url: siteUrl,
+  logo: new URL('/logo-512.png', siteUrl).toString(),
+}
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
-    default: 'Senalmaq - Máquinas de Coser Industriales y Hogar',
-    template: '%s | Senalmaq'
+    default: 'Senalmaq | Maquinas de coser y soluciones textiles',
+    template: '%s | Senalmaq',
   },
-  description: 'Encuentra las mejores máquinas de coser industriales y para hogar en Senalmaq. Amplio catálogo de productos, garantía y envío gratis.',
-  keywords: 'máquinas de coser, industrial, hogar, singer, fileteadoras, cortadoras, planchas',
-  authors: [{ name: 'Senalmaq' }],
-  creator: 'Senalmaq',
-  publisher: 'Senalmaq',
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://senalmaq.com'),
-  alternates: {
-    canonical: '/',
+  description: metadataDescription,
+  keywords: [
+    'maquinas de coser',
+    'maquinaria textil',
+    'senalmaq',
+    'repuestos de costura',
+  ],
+  robots: {
+    index: true,
+    follow: true,
   },
   openGraph: {
     type: 'website',
-    locale: 'es_ES',
+    locale: 'es_CO',
     url: '/',
     siteName: 'Senalmaq',
-    title: 'Senalmaq - Máquinas de Coser Industriales y Hogar',
-    description: 'Encuentra las mejores máquinas de coser industriales y para hogar en Senalmaq. Amplio catálogo de productos, garantía y envío gratis.',
+    title: 'Senalmaq | Maquinas de coser y soluciones textiles',
+    description: metadataDescription,
     images: [
       {
-        url: '/og-image.jpg',
+        url: '/og-default.jpg',
         width: 1200,
         height: 630,
-        alt: 'Senalmaq - Máquinas de Coser',
+        alt: 'Senalmaq',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Senalmaq - Máquinas de Coser Industriales y Hogar',
-    description: 'Encuentra las mejores máquinas de coser industriales y para hogar en Senalmaq. Amplio catálogo de productos, garantía y envío gratis.',
-    images: ['/og-image.jpg'],
+    title: 'Senalmaq | Maquinas de coser y soluciones textiles',
+    description: metadataDescription,
+    images: ['/og-default.jpg'],
   },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/logo-512.png', type: 'image/png', sizes: '512x512' },
+    ],
+    shortcut: ['/favicon.ico'],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
   },
   verification: {
-    google: 'your-google-verification-code',
+    google: 'GOOGLE_VERIFICATION_CODE',
   },
 }
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: ReactNode
 }) {
   return (
     <html lang="es" className="h-full" suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
+      </head>
       <body className={`${inter.className} h-full antialiased`}>
         {children}
         <SmoothToast />
+        <ConnectionStatus />
       </body>
     </html>
   )

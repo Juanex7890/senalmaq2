@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import { getBestsellerProducts } from '@/lib/actions/products'
 import { getSiteMedia } from '@/lib/actions/media'
@@ -21,20 +22,43 @@ import {
   Youtube
 } from 'lucide-react'
 import { getYouTubeEmbedUrl, getYouTubeThumbnail } from '@/lib/utils'
-import { generateMetadata } from '@/lib/seo'
-
-export const metadata = generateMetadata({
-  title: 'Senalmaq - Maquinas de Coser Industriales y Hogar',
-  description: 'Encuentra las mejores maquinas de coser industriales y para hogar en Senalmaq. Amplio catalogo de productos, garantia y envio gratis.',
-  keywords: 'maquinas de coser, industrial, hogar, singer, fileteadoras, cortadoras, planchas',
-})
+export const metadata: Metadata = {
+  title: 'Inicio',
+  description:
+    'Descubre maquinas de coser industriales, repuestos y soporte integral con Senalmaq.',
+  openGraph: {
+    title: 'Inicio',
+    description:
+      'Descubre maquinas de coser industriales, repuestos y soporte integral con Senalmaq.',
+    images: ['/og-default.jpg'],
+  },
+  twitter: {
+    title: 'Inicio',
+    description:
+      'Descubre maquinas de coser industriales, repuestos y soporte integral con Senalmaq.',
+    images: ['/og-default.jpg'],
+  },
+}
 
 async function HomePageContent() {
-  const [bestsellers, siteMedia, categories] = await Promise.all([
-    getBestsellerProducts(8),
-    getSiteMedia(),
-    getCategories(),
-  ])
+  let bestsellers: any[] = []
+  let siteMedia: any = null
+  let categories: any[] = []
+
+  try {
+    const [bestsellersResult, siteMediaResult, categoriesResult] = await Promise.allSettled([
+      getBestsellerProducts(8),
+      getSiteMedia(),
+      getCategories(),
+    ])
+
+    bestsellers = bestsellersResult.status === 'fulfilled' ? bestsellersResult.value : []
+    siteMedia = siteMediaResult.status === 'fulfilled' ? siteMediaResult.value : null
+    categories = categoriesResult.status === 'fulfilled' ? categoriesResult.value : []
+  } catch (error) {
+    console.error('Error loading page data:', error)
+    // Continue with empty data - the page will still render
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -186,7 +210,7 @@ async function HomePageContent() {
                 autoPlay={false}
                 className="max-w-7xl mx-auto"
               >
-                {siteMedia.youtubeShortIds.slice(0, 6).map((videoId, index) => (
+                {siteMedia.youtubeShortIds.slice(0, 6).map((videoId: string, index: number) => (
                   <div
                     key={videoId}
                     className="min-w-[240px] max-w-[260px] snap-start bg-white rounded-2xl shadow border border-green-100 p-2"
@@ -230,7 +254,7 @@ async function HomePageContent() {
           phone: '+601 6976689',
           whatsapp1: '+57 317 669 3030',
           whatsapp2: '+57 318 296 9963',
-          email: 'info@senalmaq.com',
+          email: 'cosersenalmaq@gmail.com',
           address: 'Cra 108a # 139-05 / Calle 139 # 103f 13, Suba, Bogota, Colombia.'
         }}
       />

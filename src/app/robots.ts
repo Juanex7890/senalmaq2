@@ -1,7 +1,9 @@
 import { MetadataRoute } from 'next'
 
+const FALLBACK_BASE_URL = 'https://senalmaq.com'
+
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://senalmaq.com'
+  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || FALLBACK_BASE_URL).replace(/\/+$/, '')
   
   return {
     rules: [

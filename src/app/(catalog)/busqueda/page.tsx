@@ -1,4 +1,3 @@
-import { Suspense } from 'react'
 import { searchProducts } from '@/lib/actions/products'
 import { getCategories } from '@/lib/actions/categories'
 import { Header } from '@/components/layout/header'
@@ -8,13 +7,22 @@ import { generateMetadata } from '@/lib/seo'
 import { SearchFilters } from '@/lib/types'
 
 interface SearchPageProps {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
-async function SearchContent({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
-  const resolvedSearchParams = await searchParams
-  const query = resolvedSearchParams.q as string
+export const metadata = generateMetadata({
+  title: 'BA�squeda de productos',
+  description: 'Busca entre nuestra amplia gama de mA�quinas de coser, fileteadoras, cortadoras y accesorios industriales.',
+  keywords: 'bA�squeda, mA�quinas de coser, fileteadoras, cortadoras, planchas, accesorios',
+})
+
+export const revalidate = 300
+
+export default async function SearchPage({ searchParams }: SearchPageProps) {
   const categories = await getCategories()
+  const resolvedSearchParams = searchParams ? await searchParams : {}
+  const queryParam = resolvedSearchParams.q
+  const query = Array.isArray(queryParam) ? queryParam[0] : queryParam
 
   if (!query) {
     return (
@@ -25,10 +33,10 @@ async function SearchContent({ searchParams }: { searchParams: Promise<{ [key: s
           <div className="container mx-auto px-4">
             <div className="text-center">
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Búsqueda de productos
+                BA�squeda de productos
               </h1>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                Utiliza la barra de búsqueda para encontrar los productos que necesitas
+                Utiliza la barra de bA�squeda para encontrar los productos que necesitas
               </p>
             </div>
           </div>
@@ -39,22 +47,35 @@ async function SearchContent({ searchParams }: { searchParams: Promise<{ [key: s
     )
   }
 
-  // Parse search params
+  const minPriceParam = resolvedSearchParams.minPrice
+  const maxPriceParam = resolvedSearchParams.maxPrice
+  const brandParam = resolvedSearchParams.brand
+  const sortByParam = resolvedSearchParams.sortBy
+  const pageParam = resolvedSearchParams.page
+
+  const minPriceValue = Array.isArray(minPriceParam) ? minPriceParam[0] : minPriceParam
+  const maxPriceValue = Array.isArray(maxPriceParam) ? maxPriceParam[0] : maxPriceParam
+  const brandValue = Array.isArray(brandParam) ? brandParam[0] : brandParam
+  const sortByValue = Array.isArray(sortByParam) ? sortByParam[0] : sortByParam
+  const pageValue = Array.isArray(pageParam) ? pageParam[0] : pageParam
+
+  const page = pageValue ? Number(pageValue) : 1
+  const limit = 20
+
   const filters: SearchFilters = {
-    minPrice: resolvedSearchParams.minPrice ? Number(resolvedSearchParams.minPrice) : undefined,
-    maxPrice: resolvedSearchParams.maxPrice ? Number(resolvedSearchParams.maxPrice) : undefined,
-    brand: resolvedSearchParams.brand as string,
-    sortBy: (resolvedSearchParams.sortBy as any) || 'relevance',
-    page: resolvedSearchParams.page ? Number(resolvedSearchParams.page) : 1,
-    limit: 20,
+    minPrice: minPriceValue ? Number(minPriceValue) : undefined,
+    maxPrice: maxPriceValue ? Number(maxPriceValue) : undefined,
+    brand: brandValue || undefined,
+    sortBy: (sortByValue as any) || 'relevance',
+    page,
+    limit,
   }
 
   const { products, pagination } = await searchProducts(query, filters, {
-    page: filters.page || 1,
-    limit: filters.limit || 20,
+    page,
+    limit,
   })
 
-  // Get unique brands for filter
   const brands = Array.from(new Set(products.map(p => p.brand).filter(Boolean))) as string[]
 
   return (
@@ -63,10 +84,9 @@ async function SearchContent({ searchParams }: { searchParams: Promise<{ [key: s
       
       <main className="py-8">
         <div className="container mx-auto px-4">
-          {/* Search Header */}
           <div className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Resultados de búsqueda
+              Resultados de bA�squeda
             </h1>
             <p className="text-lg text-gray-600">
               {pagination.total} {pagination.total === 1 ? 'resultado' : 'resultados'} para "{query}"
@@ -86,39 +106,5 @@ async function SearchContent({ searchParams }: { searchParams: Promise<{ [key: s
 
       <Footer />
     </div>
-  )
-}
-
-export const metadata = generateMetadata({
-  title: 'Búsqueda de productos',
-  description: 'Busca entre nuestra amplia gama de máquinas de coser, fileteadoras, cortadoras y accesorios industriales.',
-  keywords: 'búsqueda, máquinas de coser, fileteadoras, cortadoras, planchas, accesorios',
-})
-
-export default function SearchPage({ searchParams }: SearchPageProps) {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gray-50">
-        <div className="animate-pulse">
-          <div className="h-16 bg-gray-200"></div>
-          <div className="container mx-auto px-4 py-8">
-            <div className="h-12 bg-gray-200 rounded mb-8"></div>
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-              <div className="h-96 bg-gray-200 rounded-2xl"></div>
-              <div className="lg:col-span-3">
-                <div className="h-8 bg-gray-200 rounded mb-6"></div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} className="h-64 bg-gray-200 rounded-2xl"></div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    }>
-      <SearchContent searchParams={searchParams} />
-    </Suspense>
   )
 }

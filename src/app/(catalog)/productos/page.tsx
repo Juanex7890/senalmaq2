@@ -1,4 +1,3 @@
-﻿import { Suspense } from 'react'
 import { getProductsWithPagination } from '@/lib/actions/products'
 import { getCategories } from '@/lib/actions/categories'
 import { Header } from '@/components/layout/header'
@@ -9,19 +8,21 @@ import { SearchFilters } from '@/lib/types'
 
 export const metadata = generateMetadata({
   title: 'Todos los Productos',
-  description: 'Explora nuestro catÃ¡logo completo de mÃ¡quinas de coser, fileteadoras, cortadoras y accesorios industriales.',
-  keywords: 'productos, mÃ¡quinas de coser, fileteadoras, cortadoras, planchas, accesorios, catÃ¡logo',
+  description: 'Explora nuestro catA�logo completo de mA�quinas de coser, fileteadoras, cortadoras y accesorios industriales.',
+  keywords: 'productos, mA�quinas de coser, fileteadoras, cortadoras, planchas, accesorios, catA�logo',
 })
 
+export const revalidate = 300
+
 interface ProductsPageProps {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
-async function ProductsContent({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
+export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const categories = await getCategories()
-  const resolvedSearchParams = await searchParams
 
-  // Parse search params
+  const resolvedSearchParams = searchParams ? await searchParams : {}
+
   const categorySlugParam = resolvedSearchParams.categorySlug
   const categoryNameParam = resolvedSearchParams.categoryName
   const brandParam = resolvedSearchParams.brand
@@ -63,7 +64,6 @@ async function ProductsContent({ searchParams }: { searchParams: Promise<{ [key:
     limit,
   })
 
-  // Get unique brands for filter
   const brands = Array.from(new Set(products.map(p => p.brand).filter(Boolean))) as string[]
 
   return (
@@ -72,7 +72,6 @@ async function ProductsContent({ searchParams }: { searchParams: Promise<{ [key:
       
       <main className="py-8">
         <div className="container mx-auto px-4">
-          {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Todos los Productos
@@ -96,34 +95,3 @@ async function ProductsContent({ searchParams }: { searchParams: Promise<{ [key:
     </div>
   )
 }
-
-export default function ProductsPage({ searchParams }: ProductsPageProps) {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gray-50">
-        <div className="animate-pulse">
-          <div className="h-16 bg-gray-200"></div>
-          <div className="container mx-auto px-4 py-8">
-            <div className="h-12 bg-gray-200 rounded mb-8"></div>
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-              <div className="h-96 bg-gray-200 rounded-2xl"></div>
-              <div className="lg:col-span-3">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} className="h-64 bg-gray-200 rounded-2xl"></div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    }>
-      <ProductsContent searchParams={searchParams} />
-    </Suspense>
-  )
-}
-
-
-
-

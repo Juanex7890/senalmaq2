@@ -12,13 +12,23 @@ const nextConfig: NextConfig = {
       'via.placeholder.com',
       'picsum.photos',
       'cdn.pixabay.com',
-      'images.pexels.com'
+      'images.pexels.com',
+      'i.postimg.cc'
     ],
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**',
+        hostname: 'firebasestorage.googleapis.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'storage.googleapis.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.pixabay.com',
+      },
+      // TODO: add project-specific CDN domains, e.g. { protocol: 'https', hostname: 'cdn.senalmaq.com' }
     ],
   },
   serverExternalPackages: ['firebase-admin']
