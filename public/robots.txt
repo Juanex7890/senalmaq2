@@ -25,7 +25,7 @@ User-agent: Claude-Web
 Disallow: /
 
 # Host
-Host: https://senalmaq.com
+Host: https://www.senalmaq.com
 
 # Sitemaps
-Sitemap: https://senalmaq.com/sitemap.xml
+Sitemap: https://www.senalmaq.com/sitemap.xml

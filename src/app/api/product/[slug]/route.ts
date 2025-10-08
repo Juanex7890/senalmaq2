@@ -9,9 +9,10 @@ const stripHtml = (value?: string): string =>
 const truncate = (value: string, length: number): string =>
   value.length > length ? `${value.slice(0, length - 1).trimEnd()}...` : value
 
-export async function GET(_request: NextRequest, { params }: { params: { slug: string } }) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   try {
-    const product = await getProductBySlug(params.slug)
+    const { slug } = await params
+    const product = await getProductBySlug(slug)
 
     if (!product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })

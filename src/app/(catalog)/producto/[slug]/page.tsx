@@ -14,7 +14,7 @@ import { getCategories } from '@/lib/actions/categories'
 import { getImageUrl } from '@/lib/utils'
 
 interface ProductPageProps {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 type ProductApiResult = {
@@ -241,7 +241,7 @@ async function ProductContent({ slug }: { slug: string }) {
 }
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
-  const slug = params.slug
+  const { slug } = await params
   const safeSlug = encodeURIComponent(slug)
   const endpoint = `/api/product/${safeSlug}`
 
@@ -258,7 +258,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     const metadataDescription = shortDescription ?? 'Producto Senalmaq'
     const rawImage = product.images?.[0] || '/og-default.jpg'
     const proxiedImage = rawImage
-    const pageUrl = `/producto/${params.slug}`
+    const pageUrl = `/producto/${slug}`
     const ogTitle = productTitle ?? 'Producto Senalmaq'
     const ogDescription = shortDescription ?? ''
 
@@ -292,7 +292,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     const fallbackDescription = 'Producto Senalmaq'
     const rawFallbackImage = '/og-default.jpg'
     const proxiedFallbackImage = rawFallbackImage
-    const pageUrl = `/producto/${params.slug}`
+    const pageUrl = `/producto/${slug}`
 
     return {
       title: fallbackTitle,
@@ -323,6 +323,8 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
+  const { slug } = await params
+  
   return (
     <Suspense
       fallback={
@@ -345,7 +347,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
       }
     >
-      <ProductContent slug={params.slug} />
+      <ProductContent slug={slug} />
     </Suspense>
   )
 }
