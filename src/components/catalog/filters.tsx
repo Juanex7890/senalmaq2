@@ -116,12 +116,12 @@ export function Filters({ filters, onFiltersChange, brands, categories }: Filter
       }`}>
         {/* Category Filter */}
         <Select
-          label="CategorÃ­a"
-          placeholder="Todas las categorÃ­as"
+          label="Categori­a"
+          placeholder="Todas las categori­as"
           value={filters?.categorySlug || ''}
           onChange={(e) => handleFilterChange('categorySlug', e.target.value || undefined)}
           options={[
-            { value: '', label: 'Todas las categorÃ­as' },
+            { value: '', label: 'Todas las categori­as' },
             ...categories.map(cat => ({ value: cat.slug, label: cat.name }))
           ]}
         />
@@ -147,7 +147,7 @@ export function Filters({ filters, onFiltersChange, brands, categories }: Filter
             <div className="relative">
               <Input
                 type="number"
-                placeholder="MÃ­nimo"
+                placeholder="Mi­nimo"
                 value={minPrice}
                 onChange={(e) => handleMinPriceChange(e.target.value)}
                 className="pr-8"
@@ -169,16 +169,26 @@ export function Filters({ filters, onFiltersChange, brands, categories }: Filter
               </span>
             </div>
           </div>
-          {(filters?.minPrice !== undefined || filters?.maxPrice !== undefined) && (
-            <div className="text-xs text-gray-500 bg-gray-50 px-3 py-2 rounded-lg">
-              {filters?.minPrice !== undefined && filters?.maxPrice !== undefined
-                ? `$${filters.minPrice!.toLocaleString()} - $${filters.maxPrice!.toLocaleString()}`
-                : filters?.minPrice !== undefined
-                  ? `Desde $${filters.minPrice!.toLocaleString()}`
-                  : filters?.maxPrice !== undefined
-                    ? `Hasta $${filters.maxPrice!.toLocaleString()}`
-                    : null}
-            </div>
+          {(filters?.minPrice !== undefined || filters?.maxPrice !== undefined) && (
+
+            <div className="text-xs text-gray-500 bg-gray-50 px-3 py-2 rounded-lg">
+
+              {filters?.minPrice !== undefined && filters?.maxPrice !== undefined
+
+                ? `$${filters.minPrice!.toLocaleString()} - $${filters.maxPrice!.toLocaleString()}`
+
+                : filters?.minPrice !== undefined
+
+                  ? `Desde $${filters.minPrice!.toLocaleString()}`
+
+                  : filters?.maxPrice !== undefined
+
+                    ? `Hasta $${filters.maxPrice!.toLocaleString()}`
+
+                    : null}
+
+            </div>
+
           )}
         </div>
 

@@ -9,6 +9,9 @@ const inter = Inter({ subsets: ['latin'] })
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.senalmaq.com'
 const metadataDescription =
   'Maquinas de coser industriales, repuestos y soporte especializado para talleres y hogar en Colombia.'
+const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+const bingVerification = process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION
+const yandexVerification = process.env.NEXT_PUBLIC_YANDEX_SITE_VERIFICATION
 const organizationJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
@@ -65,7 +68,9 @@ export const metadata: Metadata = {
     apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
   },
   verification: {
-    google: 'GOOGLE_VERIFICATION_CODE',
+    ...(googleVerification ? { google: googleVerification } : {}),
+    ...(bingVerification ? { bing: bingVerification } : {}),
+    ...(yandexVerification ? { yandex: yandexVerification } : {}),
   },
 }
 

@@ -1,7 +1,44 @@
 import { Metadata } from 'next'
 import { Product, Category } from './types'
+import { generateSlug, getImageUrl } from './utils'
 
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://senalmaq.com'
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.senalmaq.com'
+const defaultOgImage = getImageUrl('/og-default.jpg')
+
+const toAbsoluteUrl = (value?: string) => {
+  if (!value) {
+    return baseUrl
+  }
+
+  try {
+    return new URL(value, baseUrl).toString()
+  } catch {
+    return `${baseUrl}${value.startsWith('/') ? value : `/${value}`}`
+  }
+}
+
+const stripHtml = (value?: string) =>
+  value ? value.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim() : ''
+
+const truncate = (value: string, maxLength = 160) => {
+  if (value.length <= maxLength) {
+    return value
+  }
+
+  return `${value.slice(0, maxLength - 1).trimEnd()}...`
+}
+
+const collectProductImages = (product: Product) => {
+  const candidates = [
+    ...(Array.isArray(product.images) ? product.images : []),
+    ...(Array.isArray(product.imagePaths) ? product.imagePaths : []),
+    product.imageUrl,
+    product.image,
+  ].filter((value): value is string => Boolean(value && value.trim()))
+
+  const unique = Array.from(new Set(candidates))
+  return unique.map((path) => getImageUrl(path))
+}
 
 export function generateMetadata({
   title,
@@ -19,8 +56,8 @@ export function generateMetadata({
   type?: 'website' | 'article'
 }): Metadata {
   const fullTitle = title.includes('Senalmaq') ? title : `${title} | Senalmaq`
-  const fullUrl = url ? `${baseUrl}${url}` : baseUrl
-  const fullImage = image ? (image.startsWith('http') ? image : `${baseUrl}${image}`) : `${baseUrl}/og-image.jpg`
+  const canonicalUrl = toAbsoluteUrl(url)
+  const fullImage = image ? getImageUrl(image) : defaultOgImage
 
   return {
     title: fullTitle,
@@ -29,7 +66,7 @@ export function generateMetadata({
     openGraph: {
       title: fullTitle,
       description,
-      url: fullUrl,
+      url: canonicalUrl,
       siteName: 'Senalmaq',
       images: [
         {
@@ -48,41 +85,72 @@ export function generateMetadata({
       images: [fullImage],
     },
     alternates: {
-      canonical: fullUrl,
+      canonical: canonicalUrl,
     },
   }
 }
 
 export function generateProductMetadata(product: Product): Metadata {
-  const price = product.compareAtPrice || product.price
-  const discount = product.compareAtPrice ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100) : 0
+  const shortDescription = stripHtml((product as { shortDescription?: string }).shortDescription)
+  const descriptionSource = shortDescription || stripHtml(product.description)
+  const description = truncate(descriptionSource || 'Producto Senalmaq')
+
+  const keywords = [
+    'maquina de coser',
+    product.brand,
+    product.name,
+    'industrial',
+    'hogar',
+  ]
+    .filter((value): value is string => Boolean(value && value.trim()))
+    .join(', ')
+
+  const slug = product.slug?.trim() || generateSlug(product.name)
+  const images = collectProductImages(product)
 
   return generateMetadata({
     title: product.name,
-    description: product.description.substring(0, 160),
-    keywords: `máquina de coser, ${product.brand}, ${product.name}, industrial, hogar`,
-    image: product.imagePaths && product.imagePaths.length > 0 ? product.imagePaths[0] : '/placeholder-product.svg',
-    url: `/producto/${product.slug}`,
+    description,
+    keywords,
+    image: images[0] ?? defaultOgImage,
+    url: `/producto/${slug}`,
     type: 'website',
   })
 }
 
 export function generateCategoryMetadata(category: Category): Metadata {
+  const categoryDescription =
+    category.description || `Encuentra las mejores ${category.name.toLowerCase()} en Senalmaq`
+  const keywords = [
+    'maquinas de coser',
+    category.name.toLowerCase(),
+    'industrial',
+    'hogar',
+  ].join(', ')
+
   return generateMetadata({
     title: category.name,
-    description: category.description || `Encuentra las mejores ${category.name.toLowerCase()} en Senalmaq`,
-    keywords: `máquinas de coser, ${category.name.toLowerCase()}, industrial, hogar`,
+    description: truncate(categoryDescription),
+    keywords,
     image: category.heroImagePath,
     url: `/categoria/${category.slug}`,
   })
 }
 
 export function generateProductJsonLd(product: Product, category?: Category) {
-  const offers: any = {
+  const slug = product.slug?.trim() || generateSlug(product.name)
+  const description =
+    stripHtml((product as { shortDescription?: string }).shortDescription) ||
+    stripHtml(product.description) ||
+    'Producto Senalmaq'
+  const images = collectProductImages(product)
+
+  const offers: Record<string, any> = {
     '@type': 'Offer',
     price: product.price,
     priceCurrency: 'COP',
     availability: product.active ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+    url: toAbsoluteUrl(`/producto/${slug}`),
     seller: {
       '@type': 'Organization',
       name: 'Senalmaq',
@@ -90,21 +158,28 @@ export function generateProductJsonLd(product: Product, category?: Category) {
   }
 
   if (product.compareAtPrice) {
-    offers.priceValidUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+    offers.priceSpecification = {
+      '@type': 'UnitPriceSpecification',
+      priceCurrency: 'COP',
+      price: product.compareAtPrice,
+    }
   }
 
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
-    description: product.description,
-    image: product.imagePaths,
-    brand: product.brand ? {
-      '@type': 'Brand',
-      name: product.brand,
-    } : undefined,
+    description,
+    image: images.length > 0 ? images.slice(0, 10) : [defaultOgImage],
+    brand: product.brand
+      ? {
+          '@type': 'Brand',
+          name: product.brand,
+        }
+      : undefined,
     sku: product.sku,
     category: category?.name,
+    url: toAbsoluteUrl(`/producto/${slug}`),
     offers,
     aggregateRating: {
       '@type': 'AggregateRating',
@@ -122,7 +197,7 @@ export function generateBreadcrumbJsonLd(items: Array<{ name: string; url: strin
       '@type': 'ListItem',
       position: index + 1,
       name: item.name,
-      item: `${baseUrl}${item.url}`,
+      item: toAbsoluteUrl(item.url),
     })),
   }
 }

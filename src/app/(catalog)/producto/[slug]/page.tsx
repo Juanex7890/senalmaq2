@@ -9,48 +9,18 @@ import { Gallery } from '@/components/product/gallery'
 import { SpecsTable } from '@/components/product/specs-table'
 import { BuyButtonsClient } from '@/components/product/buy-buttons-client'
 import { ProductCardServer } from '@/components/catalog/product-card-server'
-import { generateProductMetadata, generateProductJsonLd, generateBreadcrumbJsonLd } from '@/lib/seo'
+import {
+  generateBreadcrumbJsonLd,
+  generateMetadata as buildSharedMetadata,
+  generateProductJsonLd,
+  generateProductMetadata,
+} from '@/lib/seo'
 import { getCategories } from '@/lib/actions/categories'
-import { getImageUrl } from '@/lib/utils'
+import { generateSlug } from '@/lib/utils'
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
 }
-
-type ProductApiResult = {
-  title?: string
-  shortDescription?: string
-  images?: string[] | string
-  price?: number
-}
-
-const FALLBACK_IMAGE = '/placeholder-product.svg'
-
-const stripHtml = (value?: string): string =>
-  value ? value.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim() : ''
-
-const toSlug = (name: string, explicitSlug?: string | null): string => {
-  if (explicitSlug) {
-    return explicitSlug
-  }
-
-  return name
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .trim()
-}
-
-const toAbsoluteUrl = (baseUrl: string, path: string): string => {
-  if (path.startsWith('http')) {
-    return path
-  }
-  return `${baseUrl}${path.startsWith('/') ? path : `/${path}`}`
-}
-
 async function ProductContent({ slug }: { slug: string }) {
   const product = await getProductBySlug(slug)
 
@@ -59,7 +29,7 @@ async function ProductContent({ slug }: { slug: string }) {
   }
 
   const categories = await getCategories()
-  const category = resolveCategoryForProduct(product, categories)
+  const category = resolveCategoryForProduct(product, categories) || undefined
 
   // Get related products (same category, excluding current product)
   const { products: relatedProducts } = await getProductsWithPagination(
@@ -74,42 +44,15 @@ async function ProductContent({ slug }: { slug: string }) {
   )
   const filteredRelated = relatedProducts.filter((p) => p.id !== product.id).slice(0, 4)
 
-  const productSlug = toSlug(product.name, product.slug)
+  const productSlug = product.slug?.trim() || generateSlug(product.name)
   const breadcrumbItems = [
     { name: 'Inicio', url: '/' },
-     { name: 'Categorías', url: '/categorias' },
+    { name: 'Categorias', url: '/categorias' },
     ...(category ? [{ name: category.name, url: `/categoria/${category.slug}` }] : []),
     { name: product.name, url: `/producto/${productSlug}` },
   ]
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.senalmaq.com'
-  const imageCandidates = [
-    ...(Array.isArray(product.images) ? product.images : []),
-    ...(Array.isArray(product.imagePaths) ? product.imagePaths.map((path) => getImageUrl(path)) : []),
-    product.imageUrl,
-  ].filter((value): value is string => Boolean(value))
-  const uniqueImages = Array.from(new Set(imageCandidates))
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: product.name,
-    image: uniqueImages.length > 0 ? uniqueImages.slice(0, 4) : [FALLBACK_IMAGE],
-    description:
-      stripHtml((product as { shortDescription?: string }).shortDescription) ||
-      stripHtml(product.description) ||
-      'Descubre mA�s sobre este producto Senalmaq.',
-    brand: {
-      '@type': 'Brand',
-      name: 'Senalmaq',
-    },
-    offers: {
-      '@type': 'Offer',
-      priceCurrency: 'COP',
-      price: Number.isFinite(product.price) ? product.price.toString() : '0',
-      availability: 'https://schema.org/InStock',
-      url: `${baseUrl}/producto/${productSlug}`,
-    },
-  }
+  const jsonLd = generateProductJsonLd(product, category)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -242,84 +185,23 @@ async function ProductContent({ slug }: { slug: string }) {
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params
-  const safeSlug = encodeURIComponent(slug)
-  const endpoint = `/api/product/${safeSlug}`
 
   try {
-    const response = await fetch(endpoint, { next: { revalidate: 300 } })
-    if (!response.ok) {
-      throw new Error(`Failed to fetch product metadata for ${slug}`)
-    }
+    const product = await getProductBySlug(slug)
 
-    const product: ProductApiResult = await response.json()
-    const productTitle = product.title?.trim()
-    const shortDescription = product.shortDescription?.trim()
-    const metadataTitle = productTitle ? `${productTitle} | Senalmaq` : 'Producto | Senalmaq'
-    const metadataDescription = shortDescription ?? 'Producto Senalmaq'
-    const rawImage = product.images?.[0] || '/og-default.jpg'
-    const proxiedImage = rawImage
-    const pageUrl = `/producto/${slug}`
-    const ogTitle = productTitle ?? 'Producto Senalmaq'
-    const ogDescription = shortDescription ?? ''
-
-    return {
-      title: metadataTitle,
-      description: metadataDescription,
-      openGraph: {
-        type: 'website',
-        title: ogTitle,
-        description: ogDescription,
-        url: pageUrl,
-        images: [
-          {
-            url: proxiedImage,
-            secureUrl: proxiedImage,
-            width: 1200,
-            height: 630,
-            alt: ogTitle,
-          },
-        ],
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: ogTitle,
-        description: ogDescription,
-        images: [proxiedImage],
-      },
+    if (product) {
+      return generateProductMetadata(product)
     }
   } catch (error) {
-    const fallbackTitle = 'Producto | Senalmaq'
-    const fallbackDescription = 'Producto Senalmaq'
-    const rawFallbackImage = '/og-default.jpg'
-    const proxiedFallbackImage = rawFallbackImage
-    const pageUrl = `/producto/${slug}`
-
-    return {
-      title: fallbackTitle,
-      description: fallbackDescription,
-      openGraph: {
-        type: 'website',
-        title: fallbackTitle,
-        description: fallbackDescription,
-        url: pageUrl,
-        images: [
-          {
-            url: proxiedFallbackImage,
-            secureUrl: proxiedFallbackImage,
-            width: 1200,
-            height: 630,
-            alt: fallbackTitle,
-          },
-        ],
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: fallbackTitle,
-        description: fallbackDescription,
-        images: [proxiedFallbackImage],
-      },
-    }
+    console.error('[producto/[slug]] generateMetadata', error)
   }
+
+  return buildSharedMetadata({
+    title: 'Producto | Senalmaq',
+    description: 'Producto Senalmaq',
+    image: '/og-default.jpg',
+    url: `/producto/${slug}`,
+  })
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {

@@ -2,19 +2,6 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   images: {
-    domains: [
-      'firebasestorage.googleapis.com',
-      'storage.googleapis.com',
-      'lh3.googleusercontent.com',
-      'yt3.ggpht.com',
-      'i.ytimg.com',
-      'images.unsplash.com',
-      'via.placeholder.com',
-      'picsum.photos',
-      'cdn.pixabay.com',
-      'images.pexels.com',
-      'i.postimg.cc'
-    ],
     remotePatterns: [
       {
         protocol: 'https',
@@ -26,9 +13,44 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'yt3.ggpht.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.ytimg.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'via.placeholder.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+      },
+      {
+        protocol: 'https',
         hostname: 'cdn.pixabay.com',
       },
-      // TODO: add project-specific CDN domains, e.g. { protocol: 'https', hostname: 'cdn.senalmaq.com' }
+      {
+        protocol: 'https',
+        hostname: 'images.pexels.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.postimg.cc',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.senalmaq.com',
+      },
     ],
   },
   serverExternalPackages: ['firebase-admin']

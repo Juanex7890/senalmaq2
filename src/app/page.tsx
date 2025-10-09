@@ -232,7 +232,7 @@ async function HomePageContent() {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto prose prose-lg">
               <h2 className="text-3xl font-bold text-gray-900 mb-6">
-                Especialistas en Maquinas de Coser
+                Nuestra Historia
               </h2>
               <p className="text-gray-600 leading-relaxed mb-6">
               Justo Pastor Calderón empezó en el mundo de las máquinas de coser a los 16 años, cuando ingresó a una ensambladora. Al principio hacía tareas básicas como contar tornillos —y no le iba muy bien—, pero una importación desde Brasil le abrió la puerta a trabajar en bodega. Desde allí recorrió distintas áreas de la empresa y aprendió a fondo el funcionamiento de las máquinas, acumulando una experiencia que, para 2015, ya sumaba 41 años.

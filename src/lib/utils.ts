@@ -1,5 +1,8 @@
 import { type ClassValue, clsx } from 'clsx'
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.senalmaq.com'
+const DEFAULT_IMAGE_PATH = '/og-default.jpg'
+
 export function cn(...inputs: ClassValue[]) {
   return clsx(inputs)
 }
@@ -44,16 +47,25 @@ export function debounce<T extends (...args: any[]) => any>(
   }
 }
 
-export function getImageUrl(path: string): string {
-  // If it's already a full URL, return as is
-  if (path.startsWith('http')) return path
-  
-  // If it's a relative path or just a filename, assume it's an external URL
-  // You can modify this logic based on where your images are hosted
-  if (path.startsWith('/')) return path
-  
-  // For now, return the path as is (assuming it's a complete URL)
-  return path
+const ensureLeadingSlash = (value: string) => (value.startsWith('/') ? value : `/${value}`)
+
+export function getImageUrl(path?: string | null): string {
+  const fallback = `${siteUrl}${ensureLeadingSlash(DEFAULT_IMAGE_PATH)}`
+  if (!path || typeof path !== 'string') {
+    return fallback
+  }
+
+  const trimmed = path.trim()
+  if (!trimmed) {
+    return fallback
+  }
+
+  try {
+    const url = new URL(trimmed, siteUrl)
+    return url.toString()
+  } catch {
+    return `${siteUrl}${ensureLeadingSlash(trimmed)}`
+  }
 }
 
 export function getYouTubeEmbedUrl(videoId: string, isShort = false): string {

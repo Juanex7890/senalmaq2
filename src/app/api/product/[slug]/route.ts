@@ -18,18 +18,25 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
-    const images = [
+    const imageCandidates = [
       ...(Array.isArray(product.images) ? product.images : []),
-      ...(Array.isArray(product.imagePaths) ? product.imagePaths.map((path) => getImageUrl(path)) : []),
+      ...(Array.isArray(product.imagePaths) ? product.imagePaths : []),
       product.imageUrl,
-    ].filter((value): value is string => Boolean(value))
+      product.image,
+    ]
+      .filter((value): value is string => Boolean(value && value.trim()))
+      .map((value) => getImageUrl(value))
 
-    const description = truncate(stripHtml((product as { shortDescription?: string }).shortDescription) || stripHtml(product.description), 180)
+    const images = Array.from(new Set(imageCandidates)).filter((url) => url.startsWith('http'))
+    const description = truncate(
+      stripHtml((product as { shortDescription?: string }).shortDescription) || stripHtml(product.description),
+      180
+    )
 
     return NextResponse.json({
       title: product.name,
       shortDescription: description || undefined,
-      images: Array.from(new Set(images)),
+      images,
       price: Number.isFinite(product.price) ? product.price : undefined,
     })
   } catch (error) {
