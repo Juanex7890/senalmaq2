@@ -1,61 +1,81 @@
-import { MetadataRoute } from 'next'
-import { getCategories } from '@/lib/actions/categories'
+import type { MetadataRoute } from "next";
 
-const FALLBACK_BASE_URL = 'https://senalmaq.com'
+const BASE =
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ||
+  "https://www.senalmaq.com";
 
-const normalizeBaseUrl = (url?: string | null) => {
-  if (!url) return FALLBACK_BASE_URL
-  return url.replace(/\/+$/, '')
-}
+type ChangeFrequency = NonNullable<MetadataRoute.Sitemap[number]["changeFrequency"]>;
 
-const fetchProductSlugs = async (baseUrl: string): Promise<string[]> => {
+const CHANGE_FREQUENCY: ChangeFrequency = "weekly";
+const ONE_HOUR = 3600;
+
+const isNonEmptyString = (value: unknown): value is string =>
+  typeof value === "string" && value.trim().length > 0;
+
+const buildUrl = (path: string) =>
+  path.startsWith("http") ? path : `${BASE}${path.startsWith("/") ? "" : "/"}${path}`;
+
+async function fetchSlugs(endpoint: string): Promise<string[]> {
   try {
-    const response = await fetch(`${baseUrl}/api/product-slugs`, {
-      next: { revalidate: 300 },
-    })
-
+    const response = await fetch(endpoint, { next: { revalidate: ONE_HOUR } });
     if (!response.ok) {
-      throw new Error(`Unexpected response: ${response.status}`)
+      throw new Error(`Unexpected response: ${response.status}`);
     }
 
-    const data = await response.json()
+    const data = (await response.json()) as unknown;
     if (!Array.isArray(data)) {
-      return []
+      return [];
     }
 
     return Array.from(
       new Set(
         data
-          .map((slug) => (typeof slug === 'string' ? slug.trim() : ''))
-          .filter(Boolean)
-      )
-    )
+          .filter(isNonEmptyString)
+          .map((slug) => slug.trim())
+          .filter(Boolean),
+      ),
+    );
   } catch (error) {
-    console.error('Error fetching product slugs for sitemap:', error)
-    return []
+    console.error(`Error fetching slugs from ${endpoint}:`, error);
+    return [];
   }
 }
 
+interface RouteConfig {
+  path: string;
+  priority: number;
+}
+
+const STATIC_ROUTES: RouteConfig[] = [
+  { path: "/", priority: 1.0 },
+  { path: "/catalogo", priority: 0.6 },
+  { path: "/categorias", priority: 0.6 },
+  { path: "/carrito", priority: 0.6 },
+];
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = normalizeBaseUrl(process.env.NEXT_PUBLIC_SITE_URL)
-  const categories = await getCategories()
-  const productSlugs = await fetchProductSlugs(baseUrl)
+  const [categorySlugs, productSlugs] = await Promise.all([
+    fetchSlugs(`${BASE}/api/category-slugs`),
+    fetchSlugs(`${BASE}/api/product-slugs`),
+  ]);
 
-  const staticEntries: MetadataRoute.Sitemap = [
-    { url: `${baseUrl}/`, changeFrequency: 'daily' },
-    { url: `${baseUrl}/categorias`, changeFrequency: 'weekly' },
-    { url: `${baseUrl}/busqueda`, changeFrequency: 'daily' },
-  ]
+  const entries = new Map<string, MetadataRoute.Sitemap[number]>();
+  const lastModified = new Date();
 
-  const categoryEntries: MetadataRoute.Sitemap = categories.map((category) => ({
-    url: `${baseUrl}/categoria/${category.slug}`,
-    changeFrequency: 'weekly',
-  }))
+  const register = (path: string, priority: number) => {
+    const url = buildUrl(path);
+    entries.set(url, {
+      url,
+      lastModified,
+      changeFrequency: CHANGE_FREQUENCY,
+      priority,
+    });
+  };
 
-  const productEntries: MetadataRoute.Sitemap = productSlugs.map((slug) => ({
-    url: `${baseUrl}/producto/${slug}`,
-    changeFrequency: 'weekly',
-  }))
+  STATIC_ROUTES.forEach((route) => register(route.path, route.priority));
 
-  return [...staticEntries, ...categoryEntries, ...productEntries]
+  categorySlugs.forEach((slug) => register(`/categoria/${slug}`, 0.7));
+  productSlugs.forEach((slug) => register(`/producto/${slug}`, 0.8));
+
+  return Array.from(entries.values());
 }

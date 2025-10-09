@@ -1,44 +1,19 @@
-import { MetadataRoute } from 'next'
+import type { MetadataRoute } from "next";
 
-const FALLBACK_BASE_URL = 'https://senalmaq.com'
+const BASE =
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ||
+  "https://www.senalmaq.com";
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || FALLBACK_BASE_URL).replace(/\/+$/, '')
-  
   return {
     rules: [
       {
-        userAgent: '*',
-        allow: '/',
-        disallow: [
-          '/admin/',
-          '/api/',
-          '/_next/',
-          '/static/',
-        ],
-      },
-      {
-        userAgent: 'GPTBot',
-        disallow: '/',
-      },
-      {
-        userAgent: 'ChatGPT-User',
-        disallow: '/',
-      },
-      {
-        userAgent: 'CCBot',
-        disallow: '/',
-      },
-      {
-        userAgent: 'anthropic-ai',
-        disallow: '/',
-      },
-      {
-        userAgent: 'Claude-Web',
-        disallow: '/',
+        userAgent: "*",
+        allow: "/",
+        disallow: ["/admin", "/login"],
       },
     ],
-    sitemap: `${baseUrl}/sitemap.xml`,
-    host: baseUrl,
-  }
+    sitemap: `${BASE}/sitemap.xml`,
+    host: BASE,
+  };
 }
