@@ -12,6 +12,7 @@ import { CartItem, Product } from '@/lib/types'
 import { formatPrice } from '@/lib/utils'
 import { getCategories } from '@/lib/actions/categories'
 import { CART_UPDATED_EVENT } from '@/lib/cart'
+import { CheckoutButton } from '@/components/CheckoutButton'
 import { 
   ShoppingCart, 
   Trash2, 
@@ -275,14 +276,12 @@ export default function CartPage() {
                     </div>
                   </div>
 
-                  <div className="mt-6 space-y-3">
-                    <Button className="w-full h-12 text-lg">
-                      Proceder al pago
-                    </Button>
-                    
-                    <Button
-                      variant="outline"
-                      className="w-full h-12 bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+                    <div className="mt-6 space-y-3">
+                      <CheckoutButton className="w-full h-12 text-lg" />
+
+                      <Button
+                        variant="outline"
+                        className="w-full h-12 bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
                       onClick={() => {
                         const message = `Hola! Me interesa realizar una compra. Tengo ${totalItems} productos en el carrito por un total de ${formatPrice(total)}.`
                         window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank')

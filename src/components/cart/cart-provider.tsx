@@ -27,6 +27,7 @@ export type CheckoutCartItem = {
 type CartContextValue = {
   items: CheckoutCartItem[]
   cartId?: string
+  total: number
   refresh: () => CheckoutCartItem[]
   isEmpty: boolean
 }
@@ -145,6 +146,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     () => ({
       items,
       cartId,
+      total: items.reduce(
+        (sum, item) => sum + item.unit_price * (item.quantity > 0 ? item.quantity : 0),
+        0
+      ),
       refresh,
       isEmpty: items.length === 0,
     }),

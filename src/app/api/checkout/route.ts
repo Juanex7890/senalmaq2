@@ -46,27 +46,20 @@ const checkoutSchema = z.object({
   }),
 })
 
-const getMercadoPagoPreference = () => {
-  const accessToken = process.env.MP_ACCESS_TOKEN
-
-  if (!accessToken) {
-    throw new Error('Mercado Pago access token is not configured')
-  }
-
-  const client = new MercadoPagoConfig({ accessToken })
-  return new Preference(client)
-}
-
-const getSiteUrl = () => {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
-  if (!siteUrl) {
-    throw new Error('NEXT_PUBLIC_SITE_URL is not configured')
-  }
-
-  return siteUrl.endsWith('/') ? siteUrl.slice(0, -1) : siteUrl
-}
-
 export async function POST(request: NextRequest) {
+  const accessToken = process.env.MP_ACCESS_TOKEN
+  const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL
+
+  if (!accessToken || !rawSiteUrl) {
+    console.error('Missing Mercado Pago environment variables', {
+      hasAccessToken: Boolean(accessToken),
+      hasSiteUrl: Boolean(rawSiteUrl),
+    })
+    return NextResponse.json({ error: 'env missing' }, { status: 500 })
+  }
+
+  const siteUrl = rawSiteUrl.endsWith('/') ? rawSiteUrl.slice(0, -1) : rawSiteUrl
+
   let payload: z.infer<typeof checkoutSchema>
 
   try {
@@ -80,19 +73,8 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  let preference: Preference
-  let siteUrl: string
-
-  try {
-    preference = getMercadoPagoPreference()
-    siteUrl = getSiteUrl()
-  } catch (error) {
-    console.error('Mercado Pago configuration error', error)
-    return NextResponse.json(
-      { error: 'Error de configuracion de Mercado Pago' },
-      { status: 500 }
-    )
-  }
+  const client = new MercadoPagoConfig({ accessToken })
+  const preference = new Preference(client)
 
   const normalizedItems = payload.items.map(item => ({
     ...item,
@@ -101,6 +83,13 @@ export async function POST(request: NextRequest) {
   }))
 
   try {
+    console.log(
+      'Creating MP preference for cart:',
+      payload?.metadata?.cartId,
+      'items:',
+      payload?.items?.length
+    )
+
     const preferenceResponse = await preference.create({
       body: {
         items: normalizedItems,

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { useAuthState } from 'react-firebase-hooks/auth'
 
@@ -10,6 +10,7 @@ import { auth } from '@/lib/firebase'
 
 type CheckoutResponse = {
   init_point?: string
+  id?: string
 }
 
 type CheckoutButtonProps = {
@@ -24,31 +25,50 @@ const formatCOP = (value: number) =>
     maximumFractionDigits: 0,
   }).format(value)
 
-const toCOP = (value: number): string => formatCOP(value)
+const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+  if (typeof window === 'undefined') {
+    return
+  }
 
-export function CheckoutButton({ className, label = 'Pagar con Mercado Pago' }: CheckoutButtonProps) {
-  const { items, cartId, refresh, isEmpty } = useCart()
+  window.dispatchEvent(
+    new CustomEvent('showToast', {
+      detail: {
+        message,
+        type,
+        duration: 4000,
+      },
+    })
+  )
+}
+
+export function CheckoutButton({ className, label = 'Proceder al pago' }: CheckoutButtonProps) {
+  const { items, cartId, total } = useCart()
   const [user] = useAuthState(auth)
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
-  const currentTotal = items.reduce(
-    (total, item) => total + item.unit_price * (item.quantity > 0 ? item.quantity : 1),
-    0
+  const formattedTotal = useMemo(() => (total > 0 ? formatCOP(total) : null), [total])
+
+  const mappedItems = useMemo(
+    () =>
+      items.map(item => ({
+        id: item.id,
+        title: item.title,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+      })),
+    [items]
   )
 
-  const handleCheckout = async () => {
-    setError(null)
+  const hasItems = mappedItems.length > 0
 
-    const latestItems = refresh()
-
-    if (latestItems.length === 0) {
-      setError('Tu carrito esta vacio.')
+  const handleCheckout = useCallback(async () => {
+    if (!hasItems) {
+      showToast('No se pudo iniciar el pago', 'error')
       return
     }
 
     if (!cartId) {
-      setError('No pudimos identificar tu carrito. Intenta nuevamente.')
+      showToast('No se pudo iniciar el pago', 'error')
       return
     }
 
@@ -61,7 +81,7 @@ export function CheckoutButton({ className, label = 'Pagar con Mercado Pago' }: 
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          items: latestItems,
+          items: mappedItems,
           payer: {
             email: user?.email ?? undefined,
           },
@@ -72,46 +92,42 @@ export function CheckoutButton({ className, label = 'Pagar con Mercado Pago' }: 
       })
 
       if (!response.ok) {
-        const errorPayload = await response.json().catch(() => null)
-        const message: string =
-          (errorPayload?.error && String(errorPayload.error)) ||
-          'No pudimos iniciar el pago. Intenta nuevamente.'
-        throw new Error(message)
+        const errorText = await response.text().catch(() => 'No se pudo iniciar el pago')
+        throw new Error(errorText || 'No se pudo iniciar el pago')
       }
 
-      const payload = (await response.json()) as CheckoutResponse
+      const data = (await response.json()) as CheckoutResponse
+      console.log('MP preference:', data)
 
-      if (!payload?.init_point) {
-        throw new Error('Mercado Pago no entrego la URL del pago.')
+      if (data?.init_point) {
+        window.location.href = data.init_point
+        return
       }
 
-      window.location.href = payload.init_point
-    } catch (checkoutError) {
-      console.error('Checkout error', checkoutError)
-      setError(
-        checkoutError instanceof Error
-          ? checkoutError.message
-          : 'Ocurrio un error inesperado al iniciar el pago.'
-      )
+      throw new Error('No init_point')
+    } catch (error) {
+      console.error('Checkout error', error)
+      showToast('No se pudo iniciar el pago', 'error')
+      if (typeof window !== 'undefined' && typeof window.dispatchEvent !== 'function') {
+        alert('No se pudo iniciar el pago')
+      }
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [cartId, hasItems, mappedItems, user?.email])
 
   return (
-    <div className={className}>
-      <Button onClick={handleCheckout} loading={isLoading} disabled={isEmpty || isLoading}>
-        {label}
-        {currentTotal > 0 && (
-          <span className="ml-2 text-sm font-normal text-white/80">{toCOP(currentTotal)}</span>
-        )}
-      </Button>
-      {error && (
-        <p className="mt-2 text-sm text-red-600" role="alert">
-          {error}
-        </p>
+    <Button
+      className={className}
+      onClick={handleCheckout}
+      disabled={isLoading || !hasItems}
+      loading={isLoading}
+    >
+      {isLoading ? 'Procesando...' : label}
+      {!isLoading && formattedTotal && (
+        <span className="ml-2 text-sm font-normal text-white/80">{formattedTotal}</span>
       )}
-    </div>
+    </Button>
   )
 }
 
