@@ -1,20 +1,24 @@
-import mercadopago from 'mercadopago'
+import { MercadoPagoConfig, Payment, MerchantOrder } from 'mercadopago'
 
 if (!process.env.MP_ACCESS_TOKEN) {
   throw new Error('MP_ACCESS_TOKEN is not configured')
 }
 
-mercadopago.configure({ access_token: process.env.MP_ACCESS_TOKEN })
+const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN })
+const payment = new Payment(client)
+const merchantOrder = new MerchantOrder(client)
 
-export type MercadoPagoPayment = Awaited<ReturnType<typeof mercadopago.payment.findById>>['body']
-export type MercadoPagoMerchantOrder = Awaited<ReturnType<typeof mercadopago.merchant_orders.get>>['body']
+export type MercadoPagoPayment = any
+export type MercadoPagoMerchantOrder = any
 
 export async function getPayment(id: string): Promise<MercadoPagoPayment> {
-  return (await mercadopago.payment.findById(id)).body
+  const response = await payment.get({ id })
+  return (response as any).body || response
 }
 
 export async function getMerchantOrder(id: string): Promise<MercadoPagoMerchantOrder> {
-  return (await mercadopago.merchant_orders.get(id)).body
+  const response = await merchantOrder.get({ merchantOrderId: id })
+  return (response as any).body || response
 }
 
 export async function markOrderPaid(externalRef?: string): Promise<void> {

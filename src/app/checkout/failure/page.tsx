@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button'
 import { resolveCartId, type SearchParams } from '../utils'
 
 interface CheckoutFailurePageProps {
-  searchParams: SearchParams
+  searchParams: Promise<SearchParams>
 }
 
-export default function CheckoutFailurePage({ searchParams }: CheckoutFailurePageProps) {
-  const cartId = resolveCartId(searchParams)
+export default async function CheckoutFailurePage({ searchParams }: CheckoutFailurePageProps) {
+  const resolvedSearchParams = await searchParams
+  const cartId = resolveCartId(resolvedSearchParams)
 
   return (
     <main className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">

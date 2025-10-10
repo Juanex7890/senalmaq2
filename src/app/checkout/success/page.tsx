@@ -10,11 +10,12 @@ import {
 import { CartSummary } from '../components/cart-summary'
 
 interface CheckoutSuccessPageProps {
-  searchParams: SearchParams
+  searchParams: Promise<SearchParams>
 }
 
-export default function CheckoutSuccessPage({ searchParams }: CheckoutSuccessPageProps) {
-  const cartId = resolveCartId(searchParams)
+export default async function CheckoutSuccessPage({ searchParams }: CheckoutSuccessPageProps) {
+  const resolvedSearchParams = await searchParams
+  const cartId = resolveCartId(resolvedSearchParams)
   const customWhatsApp = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER
 
   const whatsappMessage = cartId ? `Orden ${cartId}` : 'Orden sin referencia'

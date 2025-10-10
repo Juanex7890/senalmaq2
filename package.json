@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "postbuild": "next-sitemap",
     "seed": "tsx scripts/seed.ts",
     "migrate": "tsx scripts/migrate-data.ts",
@@ -40,6 +40,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
     "eslint": "^8",
     "eslint-config-next": "^15.5.4",
     "tsx": "^4.7.0"

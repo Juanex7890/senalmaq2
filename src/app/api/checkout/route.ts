@@ -36,7 +36,7 @@ const checkoutSchema = z.object({
         .object({
           zip_code: z.string().optional(),
           street_name: z.string().optional(),
-          street_number: z.number().optional(),
+          street_number: z.string().optional(),
         })
         .optional(),
     })
