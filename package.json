@@ -27,6 +27,7 @@
     "firebase": "^10.12.2",
     "firebase-admin": "^12.0.0",
     "lucide-react": "^0.544.0",
+    "mercadopago": "^2.9.0",
     "next": "^15.5.4",
     "next-sitemap": "^4.2.3",
     "postcss": "^8",

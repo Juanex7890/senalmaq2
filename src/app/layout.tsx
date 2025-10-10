@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { SmoothToast } from '@/components/ui/smooth-toast'
 import { ConnectionStatus } from '@/components/ui/connection-status'
+import { CartProvider } from '@/components/cart/cart-provider'
 
 const inter = Inter({ subsets: ['latin'] })
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.senalmaq.com'
@@ -88,9 +89,11 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.className} h-full antialiased`}>
-        {children}
-        <SmoothToast />
-        <ConnectionStatus />
+        <CartProvider>
+          {children}
+          <SmoothToast />
+          <ConnectionStatus />
+        </CartProvider>
       </body>
     </html>
   )

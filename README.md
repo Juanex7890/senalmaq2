@@ -71,6 +71,25 @@ REVALIDATE_TOKEN=your_secure_random_token_here
 
 # Site URL (opcional)
 NEXT_PUBLIC_SITE_URL=https://your-domain.com
+
+# Mercado Pago (Checkout Pro)
+NEXT_PUBLIC_MP_PUBLIC_KEY=TEST-12345678-ABCD-9876-WXYZ
+MP_ACCESS_TOKEN=TEST-12345678-ABCD-9876-WXYZ-ACCESS
+
+# Opcional: numero de WhatsApp usado en las paginas de estado de checkout
+NEXT_PUBLIC_WHATSAPP_NUMBER=+57 317 669 3030
+```
+
+> **Importante:** `MP_ACCESS_TOKEN` es una credencial privada; configurala solo en el lado servidor (sin prefijo `NEXT_PUBLIC`) y nunca la expongas en el cliente.
+
+### Mercado Pago (modo prueba)
+
+- Dashboard -> Webhooks (modo prueba)
+- URL: https://www.senalmaq.com/api/mercadopago/webhook
+- Eventos: Pagos y Ordenes comerciales (opcional: Alertas de fraude, Contracargos).
+
+```bash
+curl -X POST "$NEXT_PUBLIC_SITE_URL/api/mercadopago/webhook?type=payment&data.id=123" -H "Content-Type: application/json" -d '{}'
 ```
 
 ### 4. Configurar Firebase
@@ -152,6 +171,11 @@ npm run lint
 1. Ve a [Vercel Dashboard](https://vercel.com/dashboard)
 2. Importa tu proyecto desde GitHub
 3. Configura las variables de entorno en Vercel
+   - `NEXT_PUBLIC_MP_PUBLIC_KEY`
+   - `MP_ACCESS_TOKEN` (variable privada)
+   - `NEXT_PUBLIC_SITE_URL`
+   - `NEXT_PUBLIC_WHATSAPP_NUMBER` (opcional)
+   - Las variables existentes de Firebase
 4. Despliega
 
 ### 3. Configurar dominio personalizado

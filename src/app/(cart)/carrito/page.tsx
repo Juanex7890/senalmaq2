@@ -11,6 +11,7 @@ import { ProductCard } from '@/components/catalog/product-card'
 import { CartItem, Product } from '@/lib/types'
 import { formatPrice } from '@/lib/utils'
 import { getCategories } from '@/lib/actions/categories'
+import { CART_UPDATED_EVENT } from '@/lib/cart'
 import { 
   ShoppingCart, 
   Trash2, 
@@ -38,6 +39,12 @@ export default function CartPage() {
   const updateCart = (newCart: CartItem[]) => {
     setCart(newCart)
     localStorage.setItem('cart', JSON.stringify(newCart))
+
+    window.dispatchEvent(
+      new CustomEvent(CART_UPDATED_EVENT, {
+        detail: { cart: newCart },
+      })
+    )
   }
 
   const updateQuantity = (productId: string, quantity: number) => {
