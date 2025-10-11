@@ -151,9 +151,57 @@ export function generateProductJsonLd(product: Product, category?: Category) {
     priceCurrency: 'COP',
     availability: product.active ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
     url: toAbsoluteUrl(`/producto/${slug}`),
+    priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 1 year from now
     seller: {
       '@type': 'Organization',
       name: 'Senalmaq',
+    },
+    shippingDetails: {
+      '@type': 'OfferShippingDetails',
+      shippingRate: {
+        '@type': 'MonetaryAmount',
+        value: '0',
+        currency: 'COP',
+      },
+      shippingDestination: {
+        '@type': 'DefinedRegion',
+        addressCountry: 'CO',
+      },
+      deliveryTime: {
+        '@type': 'ShippingDeliveryTime',
+        businessDays: {
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+        },
+        cutoffTime: '14:00',
+        handlingTime: {
+          '@type': 'QuantitativeValue',
+          minValue: 1,
+          maxValue: 2,
+          unitCode: 'DAY',
+        },
+        transitTime: {
+          '@type': 'QuantitativeValue',
+          minValue: 1,
+          maxValue: 5,
+          unitCode: 'DAY',
+        },
+      },
+    },
+    hasMerchantReturnPolicy: {
+      '@type': 'MerchantReturnPolicy',
+      applicableCountry: 'CO',
+      returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+      merchantReturnDays: 30,
+      returnMethod: 'https://schema.org/ReturnByMail',
+      returnFees: 'https://schema.org/FreeReturn',
+      returnPolicySeasonalOverride: {
+        '@type': 'MerchantReturnPolicySeasonalOverride',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: 30,
+        returnMethod: 'https://schema.org/ReturnByMail',
+        returnFees: 'https://schema.org/FreeReturn',
+      },
     },
   }
 
