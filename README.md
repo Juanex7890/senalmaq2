@@ -69,12 +69,12 @@ FIREBASE_ADMIN_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_HERE\n
 # Revalidation
 REVALIDATE_TOKEN=your_secure_random_token_here
 
-# Site URL (opcional)
-NEXT_PUBLIC_SITE_URL=https://your-domain.com
+# Site URL (producción)
+NEXT_PUBLIC_SITE_URL=https://www.senalmaq.com
 
-# Mercado Pago (Checkout Pro)
-NEXT_PUBLIC_MP_PUBLIC_KEY=TEST-12345678-ABCD-9876-WXYZ
-MP_ACCESS_TOKEN=TEST-12345678-ABCD-9876-WXYZ-ACCESS
+# Mercado Pago (Checkout Pro) - PRODUCTION
+NEXT_PUBLIC_MP_PUBLIC_KEY=YOUR_PRODUCTION_PUBLIC_KEY
+MP_ACCESS_TOKEN=YOUR_PRODUCTION_ACCESS_TOKEN
 
 # Opcional: numero de WhatsApp usado en las paginas de estado de checkout
 NEXT_PUBLIC_WHATSAPP_NUMBER=+57 317 669 3030
@@ -82,15 +82,22 @@ NEXT_PUBLIC_WHATSAPP_NUMBER=+57 317 669 3030
 
 > **Importante:** `MP_ACCESS_TOKEN` es una credencial privada; configurala solo en el lado servidor (sin prefijo `NEXT_PUBLIC`) y nunca la expongas en el cliente.
 
-### Mercado Pago (modo prueba)
+### Mercado Pago (Producción)
 
-- Dashboard -> Webhooks (modo prueba)
-- URL: https://www.senalmaq.com/api/mercadopago/webhook
-- Eventos: Pagos y Ordenes comerciales (opcional: Alertas de fraude, Contracargos).
+1. **Obtener credenciales de producción:**
+   - Ve a [MercadoPago Dashboard](https://www.mercadopago.com.co/developers/panel/credentials)
+   - Cambia a modo "Producción"
+   - Copia tu Public Key y Access Token
 
-```bash
-curl -X POST "$NEXT_PUBLIC_SITE_URL/api/mercadopago/webhook?type=payment&data.id=123" -H "Content-Type: application/json" -d '{}'
-```
+2. **Configurar Webhooks:**
+   - Dashboard -> Webhooks (modo producción)
+   - URL: https://www.senalmaq.com/api/mercadopago/webhook
+   - Eventos: Pagos y Ordenes comerciales (opcional: Alertas de fraude, Contracargos)
+
+3. **Configurar URLs de retorno:**
+   - Success: https://www.senalmaq.com/checkout/success
+   - Failure: https://www.senalmaq.com/checkout/failure
+   - Pending: https://www.senalmaq.com/checkout/pending
 
 ### 4. Configurar Firebase
 
