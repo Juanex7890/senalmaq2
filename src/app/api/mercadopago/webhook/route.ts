@@ -56,6 +56,7 @@ const handleWebhookEvent = async (request: NextRequest, payload?: WebhookPayload
         const payment = await getPayment(eventInfo.id)
         if (payment?.status === 'approved' && payment.external_reference) {
           await markOrderPaid(payment.external_reference)
+          // TODO: disparar limpieza del carrito en el cliente cuando detecte status=paid
           safeLog('Mercado Pago payment approved', {
             status: payment.status,
             externalReferencePresent: Boolean(payment.external_reference),

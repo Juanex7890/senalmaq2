@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from 'clsx'
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.senalmaq.com'
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://www.senalmaq.com')
 const DEFAULT_IMAGE_PATH = '/og-default.jpg'
 
 export function cn(...inputs: ClassValue[]) {

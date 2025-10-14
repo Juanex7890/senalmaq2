@@ -11,6 +11,10 @@ interface CheckoutFailurePageProps {
 export default async function CheckoutFailurePage({ searchParams }: CheckoutFailurePageProps) {
   const resolvedSearchParams = await searchParams
   const cartId = resolveCartId(resolvedSearchParams)
+  const whatsappMessage = cartId
+    ? `Hola, mi orden ${cartId} fue rechazada. Puedo obtener ayuda para completar el pago?`
+    : 'Hola, mi pago fue rechazado. Puedo obtener ayuda para completar la compra?'
+  const whatsappLink = `https://wa.me/573001234567?text=${encodeURIComponent(whatsappMessage)}`
 
   return (
     <main className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
@@ -28,6 +32,16 @@ export default async function CheckoutFailurePage({ searchParams }: CheckoutFail
           <Link href="/carrito" className="sm:w-auto">
             <Button className="w-full sm:w-auto">Volver al carrito</Button>
           </Link>
+          <a
+            href={whatsappLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="sm:w-auto"
+          >
+            <Button className="w-full sm:w-auto" variant="outline">
+              Necesito ayuda por WhatsApp
+            </Button>
+          </a>
         </div>
       </div>
     </main>

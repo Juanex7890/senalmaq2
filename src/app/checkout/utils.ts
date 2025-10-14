@@ -4,6 +4,14 @@ export const DEFAULT_WHATSAPP = '+57 317 669 3030'
 
 export const sanitizePhoneNumber = (value: string) => value.replace(/[^\d]/g, '')
 
+export const getSingleSearchParam = (searchParams: SearchParams, key: string) => {
+  const raw = searchParams[key]
+  if (Array.isArray(raw)) {
+    return raw.find(Boolean)
+  }
+  return typeof raw === 'string' && raw.length > 0 ? raw : undefined
+}
+
 export const resolveCartId = (searchParams: SearchParams) => {
   const candidates = [
     'cartId',

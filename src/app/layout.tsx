@@ -7,7 +7,7 @@ import { ConnectionStatus } from '@/components/ui/connection-status'
 import { CartProvider } from '@/components/cart/cart-provider'
 
 const inter = Inter({ subsets: ['latin'] })
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.senalmaq.com'
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://www.senalmaq.com')
 const metadataDescription =
   'Maquinas de coser industriales, repuestos y soporte especializado para talleres y hogar en Colombia.'
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION

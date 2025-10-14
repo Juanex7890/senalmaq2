@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { Product, Category } from './types'
 import { generateSlug, getImageUrl } from './utils'
 
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.senalmaq.com'
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://www.senalmaq.com')
 const defaultOgImage = getImageUrl('/og-default.jpg')
 
 const toAbsoluteUrl = (value?: string) => {

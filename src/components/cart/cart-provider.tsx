@@ -101,31 +101,57 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return
     }
 
-    let currentCartId = ensureCartId()
-    setCartId(currentCartId)
-    refresh()
+    // Use setTimeout to defer initialization and prevent chunk loading issues
+    const initCart = () => {
+      try {
+        let currentCartId = ensureCartId()
+        setCartId(currentCartId)
+        refresh()
+      } catch (error) {
+        console.error('Error initializing cart:', error)
+      }
+    }
+
+    const timeoutId = setTimeout(initCart, 0)
 
     const handleStorage = (event: StorageEvent) => {
-      if (event.key === 'cart') {
-        refresh()
-      }
+      try {
+        if (event.key === 'cart') {
+          refresh()
+        }
 
-      if (event.key === CART_ID_STORAGE_KEY && event.newValue) {
-        currentCartId = event.newValue
-        setCartId(currentCartId)
+        if (event.key === CART_ID_STORAGE_KEY && event.newValue) {
+          setCartId(event.newValue)
+        }
+      } catch (error) {
+        console.error('Error handling storage event:', error)
       }
     }
 
     const handleCartUpdated = () => {
-      refresh()
+      try {
+        refresh()
+      } catch (error) {
+        console.error('Error handling cart update:', error)
+      }
     }
 
-    window.addEventListener('storage', handleStorage)
-    window.addEventListener(CART_UPDATED_EVENT, handleCartUpdated as EventListener)
+    // Add event listeners with error handling
+    try {
+      window.addEventListener('storage', handleStorage)
+      window.addEventListener(CART_UPDATED_EVENT, handleCartUpdated as EventListener)
+    } catch (error) {
+      console.error('Error adding event listeners:', error)
+    }
 
     return () => {
-      window.removeEventListener('storage', handleStorage)
-      window.removeEventListener(CART_UPDATED_EVENT, handleCartUpdated as EventListener)
+      clearTimeout(timeoutId)
+      try {
+        window.removeEventListener('storage', handleStorage)
+        window.removeEventListener(CART_UPDATED_EVENT, handleCartUpdated as EventListener)
+      } catch (error) {
+        console.error('Error removing event listeners:', error)
+      }
     }
   }, [refresh])
 
@@ -134,12 +160,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return
     }
 
-    try {
-      const payload = JSON.stringify(items)
-      window.localStorage.setItem(serializeCartKey(cartId), payload)
-    } catch (error) {
-      console.error('Unable to persist cart summary', error)
-    }
+    // Use setTimeout to defer localStorage operations and prevent chunk loading issues
+    const timeoutId = setTimeout(() => {
+      try {
+        const payload = JSON.stringify(items)
+        window.localStorage.setItem(serializeCartKey(cartId), payload)
+      } catch (error) {
+        console.error('Unable to persist cart summary', error)
+      }
+    }, 0)
+
+    return () => clearTimeout(timeoutId)
   }, [cartId, items])
 
   const contextValue = useMemo<CartContextValue>(

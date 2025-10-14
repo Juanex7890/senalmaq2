@@ -1,4 +1,4 @@
-export const BASE = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.senalmaq.com'
+export const BASE = process.env.NEXT_PUBLIC_SITE_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://www.senalmaq.com')
 
 export const toAbs = (u?: string) => {
   if (!u) return undefined

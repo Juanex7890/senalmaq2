@@ -11,6 +11,10 @@ interface CheckoutPendingPageProps {
 export default async function CheckoutPendingPage({ searchParams }: CheckoutPendingPageProps) {
   const resolvedSearchParams = await searchParams
   const cartId = resolveCartId(resolvedSearchParams)
+  const whatsappMessage = cartId
+    ? `Hola, mi orden ${cartId} aparece como pendiente. Me ayudan a confirmarla?`
+    : 'Hola, mi pago aparece como pendiente. Me ayudan a confirmarlo?'
+  const whatsappLink = `https://wa.me/573001234567?text=${encodeURIComponent(whatsappMessage)}`
 
   return (
     <main className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
@@ -28,6 +32,16 @@ export default async function CheckoutPendingPage({ searchParams }: CheckoutPend
           <Link href="/carrito" className="sm:w-auto">
             <Button className="w-full sm:w-auto">Volver al carrito</Button>
           </Link>
+          <a
+            href={whatsappLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="sm:w-auto"
+          >
+            <Button className="w-full sm:w-auto" variant="outline">
+              Escribir por WhatsApp
+            </Button>
+          </a>
         </div>
       </div>
     </main>
