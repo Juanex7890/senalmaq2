@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+// Card components replaced with divs since Card component doesn't exist
 import { Badge } from '@/components/ui/badge'
 import { CheckCircle, XCircle, Search, Copy, ExternalLink } from 'lucide-react'
 
@@ -107,17 +107,17 @@ export default function VerificarCodigoPage() {
         </p>
       </div>
 
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <div className="bg-white border border-gray-200 rounded-lg shadow-sm mb-8">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <Search className="h-5 w-5" />
             Buscar Código
-          </CardTitle>
-          <CardDescription>
+          </h2>
+          <p className="text-sm text-gray-600 mt-1">
             Ingresa el código de compra (ej: SENAL-ABC123-XYZ789)
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </p>
+        </div>
+        <div className="p-6">
           <div className="flex gap-4">
             <Input
               placeholder="SENAL-ABC123-XYZ789"
@@ -134,22 +134,22 @@ export default function VerificarCodigoPage() {
               {isLoading ? 'Verificando...' : 'Verificar'}
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {result && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
               {result.isValid ? (
                 <CheckCircle className="h-5 w-5 text-green-500" />
               ) : (
                 <XCircle className="h-5 w-5 text-red-500" />
               )}
               Resultado de Verificación
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+            </h2>
+          </div>
+          <div className="p-6">
             {result.isValid ? (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
@@ -246,8 +246,8 @@ export default function VerificarCodigoPage() {
                 </p>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       <div className="mt-8 p-4 bg-blue-50 rounded-lg">
