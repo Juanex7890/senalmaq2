@@ -1,5 +1,7 @@
 import Link from 'next/link'
 
+import { CheckCircle2 } from 'lucide-react'
+
 import { Button } from '@/components/ui/button'
 
 import {
@@ -26,56 +28,74 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
     getSingleSearchParam(resolvedSearchParams, 'external_reference') ??
     getSingleSearchParam(resolvedSearchParams, 'cartId')
 
-  const displayedExternalReference = externalReference ?? 'sin referencia'
+  const displayedOrderId = externalReference ?? cartId ?? 'sin referencia'
   const displayedPaymentId = paymentId ?? 'sin referencia'
-  const whatsappLink = `https://wa.me/573001234567?text=${encodeURIComponent(
-    `Orden ${displayedExternalReference} (pago ${displayedPaymentId})`
-  )}`
+  const displayedStatus = status ?? 'procesando'
+
+  const whatsappOrderRef = cartId ?? displayedOrderId
+  const whatsappMessage = `Hola, mi orden ${whatsappOrderRef} (pago ${displayedPaymentId}). Podemos coordinar el envío?`
+  const whatsappLink = `https://wa.me/573001234567?text=${encodeURIComponent(whatsappMessage)}`
 
   return (
-    <main className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
-      <div className="flex w-full max-w-2xl flex-col items-center space-y-6">
-        <h1 className="text-3xl font-bold text-gray-900">Gracias por tu compra</h1>
-        <p className="text-lg text-gray-600">
-          Registramos tu pago correctamente. Apenas confirmemos el despacho te contactaremos por WhatsApp o correo.
-        </p>
-        <dl className="grid w-full gap-2 text-sm text-gray-600 sm:grid-cols-3">
-          <div>
-            <dt className="font-medium uppercase tracking-wide">Orden</dt>
-            <dd className="font-mono text-gray-900">{displayedExternalReference}</dd>
-          </div>
-          <div>
-            <dt className="font-medium uppercase tracking-wide">Pago</dt>
-            <dd className="font-mono text-gray-900">{displayedPaymentId}</dd>
-          </div>
-          {status && (
-            <div>
-              <dt className="font-medium uppercase tracking-wide">Estado</dt>
-              <dd className="capitalize text-gray-900">{status}</dd>
-            </div>
-          )}
-        </dl>
-        {cartId && (
-          <div className="w-full space-y-4 text-left">
-            <p className="text-sm text-gray-500 text-center sm:text-left">
-              Referencia de carrito:{' '}
-              <span className="font-mono font-semibold">{cartId}</span>
+    <main className="relative flex min-h-[70vh] w-full items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-sky-100 px-4 py-16">
+      <div className="relative flex w-full max-w-4xl flex-col gap-8 rounded-2xl border border-white/50 bg-white/80 p-8 shadow-xl backdrop-blur">
+        <section className="flex flex-col items-center gap-4 text-center">
+          <span className="inline-flex items-center justify-center rounded-full bg-emerald-100/80 p-4 shadow-inner">
+            <CheckCircle2 className="h-12 w-12 text-emerald-500" aria-hidden="true" />
+          </span>
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">¡Gracias por tu compra!</h1>
+            <p className="max-w-xl text-base text-gray-600 sm:text-lg">
+              Contáctanos por WhatsApp para poder realizar el envío de tu compra. Nuestro equipo está listo para ayudarte.
             </p>
-            <CartSummary cartId={cartId} />
           </div>
-        )}
+        </section>
+
+        <section className="grid gap-4 sm:grid-cols-3">
+          <div className="rounded-2xl border border-emerald-100 bg-white/90 p-5 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Orden</p>
+            <p className="mt-2 font-mono text-sm text-gray-900">{displayedOrderId}</p>
+          </div>
+          <div className="rounded-2xl border border-emerald-100 bg-white/90 p-5 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Pago</p>
+            <p className="mt-2 font-mono text-sm text-gray-900">{displayedPaymentId}</p>
+          </div>
+          <div className="rounded-2xl border border-emerald-100 bg-white/90 p-5 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Estado</p>
+            <p className="mt-2 text-sm font-medium capitalize text-gray-900">{displayedStatus}</p>
+          </div>
+        </section>
+
+        <section className="space-y-4 rounded-2xl border border-slate-100 bg-white/90 p-6 shadow-inner">
+          <header className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">Resumen de tu pedido</h2>
+            {cartId && (
+              <span className="text-sm text-gray-500">
+                Carrito: <span className="font-mono font-medium text-gray-800">{cartId}</span>
+              </span>
+            )}
+          </header>
+          {cartId ? (
+            <CartSummary cartId={cartId} />
+          ) : (
+            <p className="text-sm text-gray-500">
+              No encontramos los detalles del carrito. Si necesitas asistencia, comunícate con nosotros por WhatsApp.
+            </p>
+          )}
+          <p className="text-xs text-gray-400">
+            * El carrito se vaciará automáticamente una vez recibamos la confirmación definitiva del pago desde Mercado Pago.
+          </p>
+        </section>
+
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Link href="/" className="sm:w-auto">
-            <Button className="w-full sm:w-auto">Volver</Button>
-          </Link>
           <a
             href={whatsappLink}
             target="_blank"
             rel="noopener noreferrer"
             className="sm:w-auto"
           >
-            <Button className="w-full sm:w-auto" variant="outline">
-              Contactar por WhatsApp
+            <Button className="w-full sm:w-auto bg-emerald-500 text-white hover:bg-emerald-600">
+              Escribir por WhatsApp
             </Button>
           </a>
           <a href="tel:+573001234567" className="sm:w-auto">
@@ -83,6 +103,11 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
               Llamar
             </Button>
           </a>
+          <Link href="/" className="sm:w-auto">
+            <Button className="w-full sm:w-auto" variant="outline">
+              Volver a la tienda
+            </Button>
+          </Link>
         </div>
       </div>
     </main>
