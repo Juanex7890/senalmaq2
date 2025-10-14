@@ -111,7 +111,7 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
             status={displayedStatus}
             cartId={cartId}
           />
-          <a href="tel:+573001234567" className="sm:w-auto">
+          <a href="tel:+573176693030" className="sm:w-auto">
             <Button className="w-full sm:w-auto" variant="secondary">
               Llamar
             </Button>
