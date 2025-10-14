@@ -10,6 +10,7 @@ import {
   type SearchParams,
 } from '../utils'
 import { CartSummary } from '../components/cart-summary'
+import { WhatsAppButton } from '../components/whatsapp-button'
 
 interface CheckoutSuccessPageProps {
   searchParams: Promise<SearchParams>
@@ -32,8 +33,18 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
   const displayedPaymentId = paymentId ?? 'sin referencia'
   const displayedStatus = status ?? 'procesando'
 
+  // Generar código único para el comprador
+  const generateUniqueCode = () => {
+    const timestamp = Date.now().toString(36)
+    const random = Math.random().toString(36).substring(2, 8)
+    return `SENAL-${timestamp}-${random}`.toUpperCase()
+  }
+  
+  const uniqueCode = generateUniqueCode()
   const whatsappOrderRef = cartId ?? displayedOrderId
-  const whatsappMessage = `Hola, mi orden ${whatsappOrderRef} (pago ${displayedPaymentId}). Podemos coordinar el envío?`
+  
+  // Crear mensaje más detallado con información del producto
+  const whatsappMessage = `Hola! Mi código de compra es: ${uniqueCode}\n\n📋 Detalles de la compra:\nOrden: ${whatsappOrderRef}\nPago: ${displayedPaymentId}\nEstado: ${displayedStatus}\n\n📦 Productos comprados:\n[Se mostrarán los productos en el resumen]\n\n¿Podemos coordinar el envío?`
   const whatsappLink = `https://wa.me/573001234567?text=${encodeURIComponent(whatsappMessage)}`
 
   return (
@@ -51,7 +62,12 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
           </div>
         </section>
 
-        <section className="grid gap-4 sm:grid-cols-3">
+        <section className="grid gap-4 sm:grid-cols-4">
+          <div className="rounded-2xl border border-emerald-100 bg-white/90 p-5 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Código de Compra</p>
+            <p className="mt-2 font-mono text-sm font-bold text-emerald-700">{uniqueCode}</p>
+            <p className="text-xs text-gray-500 mt-1">Comparte este código por WhatsApp</p>
+          </div>
           <div className="rounded-2xl border border-emerald-100 bg-white/90 p-5 shadow-sm">
             <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Orden</p>
             <p className="mt-2 font-mono text-sm text-gray-900">{displayedOrderId}</p>
@@ -88,16 +104,13 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
         </section>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <a
-            href={whatsappLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="sm:w-auto"
-          >
-            <Button className="w-full sm:w-auto bg-emerald-500 text-white hover:bg-emerald-600">
-              Escribir por WhatsApp
-            </Button>
-          </a>
+          <WhatsAppButton 
+            uniqueCode={uniqueCode}
+            orderId={whatsappOrderRef}
+            paymentId={displayedPaymentId}
+            status={displayedStatus}
+            cartId={cartId}
+          />
           <a href="tel:+573001234567" className="sm:w-auto">
             <Button className="w-full sm:w-auto" variant="secondary">
               Llamar

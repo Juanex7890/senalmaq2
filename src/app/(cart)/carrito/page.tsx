@@ -251,15 +251,18 @@ export default function CartPage() {
                       <span className="font-medium">{formatPrice(subtotal)}</span>
                     </div>
 
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Envíos </span>
-                      <span className="font-medium">
-                        {shipping === 0 ? (
-                          <span className="text-green-600">a toda colombia</span>
-                        ) : (
-                          formatPrice(shipping)
+                    <div className="text-sm">
+                      <div className="flex justify-between items-start mb-1">
+                        <span className="text-gray-600 font-medium">Envíos</span>
+                        {shipping > 0 && (
+                          <span className="font-medium">{formatPrice(shipping)}</span>
                         )}
-                      </span>
+                      </div>
+                      {shipping === 0 && (
+                        <div className="text-green-600 text-xs leading-relaxed">
+                          Se define dependiendo de la medida del producto, se acuerda al final de la compra
+                        </div>
+                      )}
                     </div>
 
                     {shipping > 0 && (

@@ -1011,13 +1011,21 @@ export default function AdminPanel() {
                 Sesión iniciada como {user.email}
               </span>
             )}
-            <button
-              className="inline-flex items-center justify-center rounded-xl border border-red-200 bg-red-50 px-4 py-2 font-semibold text-red-600 shadow-sm transition hover:bg-red-100"
-              onClick={() => signOut(auth)}
-              type="button"
-            >
-              Cerrar sesión
-            </button>
+            <div className="flex gap-2">
+              <a
+                href="/admin/verificar-codigo"
+                className="inline-flex items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 font-semibold text-blue-600 shadow-sm transition hover:bg-blue-100"
+              >
+                🔍 Verificar Códigos
+              </a>
+              <button
+                className="inline-flex items-center justify-center rounded-xl border border-red-200 bg-red-50 px-4 py-2 font-semibold text-red-600 shadow-sm transition hover:bg-red-100"
+                onClick={() => signOut(auth)}
+                type="button"
+              >
+                Cerrar sesión
+              </button>
+            </div>
           </div>
         </div>
       </header>

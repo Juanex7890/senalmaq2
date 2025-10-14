@@ -87,7 +87,7 @@ export function CartSummary({ cartId }: CartSummaryProps) {
         {items.map(item => (
           <li key={`${item.id}-${item.unit_price}`} className="flex items-center justify-between text-sm text-gray-700">
             <span className="font-medium">
-              {item.title}{' '}
+              {item.title || `Producto ${item.id}`}{' '}
               <span className="font-normal text-gray-500">x {item.quantity}</span>
             </span>
             <span>{toCOP(item.unit_price * item.quantity)}</span>
