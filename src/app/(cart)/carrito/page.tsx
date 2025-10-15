@@ -260,7 +260,7 @@ export default function CartPage() {
                       </div>
                       {shipping === 0 && (
                         <div className="text-green-600 text-xs leading-relaxed">
-                          Se define dependiendo de la medida del producto, se acuerda al final de la compra
+                          El costo del envio se define dependiendo de la medida del producto, se acuerda al final de la compra
                         </div>
                       )}
                     </div>
