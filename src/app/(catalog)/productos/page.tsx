@@ -8,8 +8,8 @@ import { SearchFilters } from '@/lib/types'
 
 export const metadata = generateMetadata({
   title: 'Todos los Productos',
-  description: 'Explora nuestro catA�logo completo de mA�quinas de coser, fileteadoras, cortadoras y accesorios industriales.',
-  keywords: 'productos, mA�quinas de coser, fileteadoras, cortadoras, planchas, accesorios, catA�logo',
+  description: 'Explora nuestro catalogo completo de maquinas de coser, fileteadoras, cortadoras y accesorios industriales.',
+  keywords: 'productos, maquinas de coser, fileteadoras, cortadoras, planchas, accesorios, catalogo',
 })
 
 export const revalidate = 300

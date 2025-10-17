@@ -96,7 +96,6 @@ export async function POST(request: NextRequest) {
         payer: payload.payer,
         metadata: payload.metadata,
         external_reference: payload.metadata.cartId,
-        currency_id: 'COP',
         payment_methods: {
           excluded_payment_types: [],
           installments: 12,
