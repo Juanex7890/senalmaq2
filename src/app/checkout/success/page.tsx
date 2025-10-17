@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import {
   getSingleSearchParam,
   resolveCartId,
+  buildWhatsAppLink,
   type SearchParams,
 } from '../utils'
 import { CartSummary } from '../components/cart-summary'
@@ -45,7 +46,7 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
   
   // Crear mensaje más detallado con información del producto
   const whatsappMessage = `Hola! Mi código de compra es: ${uniqueCode}\n\n📋 Detalles de la compra:\nOrden: ${whatsappOrderRef}\nPago: ${displayedPaymentId}\nEstado: ${displayedStatus}\n\n📦 Productos comprados:\n[Se mostrarán los productos en el resumen]\n\n¿Podemos coordinar el envío?`
-  const whatsappLink = `https://wa.me/573001234567?text=${encodeURIComponent(whatsappMessage)}`
+  const whatsappLink = buildWhatsAppLink(whatsappMessage, process.env.NEXT_PUBLIC_WHATSAPP_NUMBER)
 
   return (
     <main className="relative flex min-h-[70vh] w-full items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-sky-100 px-4 py-16">

@@ -8,17 +8,13 @@ import { getImageUrl, formatPrice } from '@/lib/utils'
 import { addToCart } from '@/lib/cart'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { ShoppingCart, Heart, CreditCard } from 'lucide-react'
+import { ShoppingCart, CreditCard } from 'lucide-react'
 
 interface ProductCardClientProps {
   product: Product
-  isInWishlist?: boolean
 }
 
-export function ProductCardClient({ 
-  product, 
-  isInWishlist = false 
-}: ProductCardClientProps) {
+export function ProductCardClient({ product }: ProductCardClientProps) {
   const [isAddingToCart, setIsAddingToCart] = useState(false)
   
   const discount = product.compareAtPrice 
@@ -37,11 +33,6 @@ export function ProductCardClient({
       // Reset button state after a short delay
       setTimeout(() => setIsAddingToCart(false), 1000)
     }
-  }
-
-  const handleToggleWishlist = () => {
-    // TODO: Implement wishlist functionality
-    console.log('Toggle wishlist:', product)
   }
 
   const handleBuyNow = async () => {
@@ -92,18 +83,6 @@ export function ProductCardClient({
             </Badge>
           )}
         </div>
-
-        {/* Wishlist Button */}
-        <button
-          onClick={handleToggleWishlist}
-          className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-colors"
-        >
-          <Heart 
-            className={`h-4 w-4 ${
-              isInWishlist ? 'fill-red-500 text-red-500' : 'text-gray-400'
-            }`} 
-          />
-        </button>
 
         {/* Product Image */}
         <Link href={`/producto/${product.slug}`}>

@@ -3,17 +3,13 @@ import Image from 'next/image'
 import { Product } from '@/lib/types'
 import { getImageUrl, formatPrice } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
-import { ShoppingCart, Heart } from 'lucide-react'
+import { ShoppingCart } from 'lucide-react'
 
 interface ProductCardServerProps {
   product: Product
-  isInWishlist?: boolean
 }
 
-export function ProductCardServer({ 
-  product, 
-  isInWishlist = false 
-}: ProductCardServerProps) {
+export function ProductCardServer({ product }: ProductCardServerProps) {
   const discount = product.compareAtPrice 
     ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
     : 0
@@ -42,16 +38,6 @@ export function ProductCardServer({
             </Badge>
           )}
         </div>
-
-        {/* Wishlist Button - Static for server component */}
-        <div className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/80 backdrop-blur-sm">
-          <Heart 
-            className={`h-4 w-4 ${
-              isInWishlist ? 'fill-red-500 text-red-500' : 'text-gray-400'
-            }`} 
-          />
-        </div>
-
         {/* Product Image */}
         <Link href={`/producto/${product.slug}`}>
           <div className="aspect-square relative">

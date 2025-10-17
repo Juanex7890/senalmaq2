@@ -72,12 +72,26 @@ REVALIDATE_TOKEN=your_secure_random_token_here
 # Site URL (producción)
 NEXT_PUBLIC_SITE_URL=https://www.senalmaq.com
 
-# Mercado Pago (Checkout Pro) - PRODUCTION
-NEXT_PUBLIC_MP_PUBLIC_KEY=YOUR_PRODUCTION_PUBLIC_KEY
-MP_ACCESS_TOKEN=YOUR_PRODUCTION_ACCESS_TOKEN
-
-# Opcional: numero de WhatsApp usado en las paginas de estado de checkout
-NEXT_PUBLIC_WHATSAPP_NUMBER=+57 317 669 3030
+  # Mercado Pago (Checkout Pro) - PRODUCTION
+  NEXT_PUBLIC_MP_PUBLIC_KEY=YOUR_PRODUCTION_PUBLIC_KEY
+  MP_ACCESS_TOKEN=YOUR_PRODUCTION_ACCESS_TOKEN
+  # Opcional: configuración adicional de Mercado Pago
+  # MP_DIFFERENTIAL_PRICING_ID=123456
+  # MP_INTEGRATOR_ID=tu_integrator_id
+  # MP_PLATFORM_ID=tu_platform_id
+  # MP_CORPORATION_ID=tu_corporation_id
+  # MP_TIMEOUT_MS=10000
+  # MP_DEFAULT_INSTALLMENTS=1
+  # MP_MAX_INSTALLMENTS=12
+  # MP_BINARY_MODE=false
+  # MP_AUTO_RETURN=approved
+  # MP_NOTIFICATION_URL=https://www.senalmaq.com/api/mercadopago/webhook
+  # MP_EXCLUDED_PAYMENT_METHODS=amex,debmaster
+  # MP_EXCLUDED_PAYMENT_TYPES=atm
+  # MP_STATEMENT_DESCRIPTOR=SENALMAQ
+  
+  # Opcional: numero de WhatsApp usado en las paginas de estado de checkout
+  NEXT_PUBLIC_WHATSAPP_NUMBER=+57 317 669 3030
 ```
 
 > **Importante:** `MP_ACCESS_TOKEN` es una credencial privada; configurala solo en el lado servidor (sin prefijo `NEXT_PUBLIC`) y nunca la expongas en el cliente.
@@ -177,12 +191,13 @@ npm run lint
 
 1. Ve a [Vercel Dashboard](https://vercel.com/dashboard)
 2. Importa tu proyecto desde GitHub
-3. Configura las variables de entorno en Vercel
-   - `NEXT_PUBLIC_MP_PUBLIC_KEY`
-   - `MP_ACCESS_TOKEN` (variable privada)
-   - `NEXT_PUBLIC_SITE_URL`
-   - `NEXT_PUBLIC_WHATSAPP_NUMBER` (opcional)
-   - Las variables existentes de Firebase
+ 3. Configura las variables de entorno en Vercel
+     - `NEXT_PUBLIC_MP_PUBLIC_KEY`
+     - `MP_ACCESS_TOKEN` (variable privada)
+     - `MP_DIFFERENTIAL_PRICING_ID`, `MP_INTEGRATOR_ID`, `MP_PLATFORM_ID`, `MP_CORPORATION_ID`, `MP_TIMEOUT_MS`, `MP_DEFAULT_INSTALLMENTS`, `MP_MAX_INSTALLMENTS`, `MP_BINARY_MODE`, `MP_AUTO_RETURN`, `MP_NOTIFICATION_URL`, `MP_EXCLUDED_PAYMENT_METHODS`, `MP_EXCLUDED_PAYMENT_TYPES`, `MP_STATEMENT_DESCRIPTOR` (opcionales)
+     - `NEXT_PUBLIC_SITE_URL`
+     - `NEXT_PUBLIC_WHATSAPP_NUMBER` (opcional)
+     - Las variables existentes de Firebase
 4. Despliega
 
 ### 3. Configurar dominio personalizado

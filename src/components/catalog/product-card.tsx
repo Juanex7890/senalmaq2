@@ -7,21 +7,14 @@ import { getImageUrl, formatPrice } from '@/lib/utils'
 import { addToCart } from '@/lib/cart'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { ShoppingCart, Heart } from 'lucide-react'
+import { ShoppingCart } from 'lucide-react'
 
 interface ProductCardProps {
   product: Product
   onAddToCart?: (product: Product) => void
-  onToggleWishlist?: (product: Product) => void
-  isInWishlist?: boolean
 }
 
-export function ProductCard({ 
-  product, 
-  onAddToCart, 
-  onToggleWishlist, 
-  isInWishlist = false 
-}: ProductCardProps) {
+export function ProductCard({ product, onAddToCart }: ProductCardProps) {
   const discount = product.compareAtPrice 
     ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
     : 0
@@ -49,18 +42,6 @@ export function ProductCard({
             </Badge>
           )}
         </div>
-
-        {/* Wishlist Button */}
-        <button
-          onClick={() => onToggleWishlist?.(product)}
-          className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-colors"
-        >
-          <Heart 
-            className={`h-4 w-4 transition-colors ${
-              isInWishlist ? 'fill-red-500 text-red-500' : 'text-gray-400 hover:text-red-500'
-            }`} 
-          />
-        </button>
 
         {/* Product Image */}
         <Link href={`/producto/${product.slug}`}>

@@ -7,17 +7,13 @@ import { addToCart } from '@/lib/cart'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { ShoppingCart, Heart, MessageCircle, Truck, Shield, RotateCcw, CreditCard } from 'lucide-react'
+import { ShoppingCart, MessageCircle, Truck, Shield, RotateCcw, CreditCard } from 'lucide-react'
 
 interface BuyButtonsClientProps {
   product: Product
-  isInWishlist?: boolean
 }
 
-export function BuyButtonsClient({ 
-  product, 
-  isInWishlist = false 
-}: BuyButtonsClientProps) {
+export function BuyButtonsClient({ product }: BuyButtonsClientProps) {
   const [quantity, setQuantity] = useState(1)
 
   const discount = product.compareAtPrice 
@@ -33,12 +29,6 @@ export function BuyButtonsClient({
 
   const handleAddToCart = () => {
     addToCart(product, quantity)
-  }
-
-  const handleToggleWishlist = () => {
-    // TODO: Implement wishlist functionality
-    console.log('Toggle wishlist:', product)
-    // You can implement actual wishlist logic here
   }
 
   const handleBuyNow = () => {
@@ -113,18 +103,6 @@ export function BuyButtonsClient({
           >
             <ShoppingCart className="h-5 w-5 mr-2" />
             {product.active ? 'Agregar al carrito' : 'No disponible'}
-          </Button>
-
-          <Button
-            variant="outline"
-            onClick={handleToggleWishlist}
-            className="h-12 px-6"
-          >
-            <Heart 
-              className={`h-5 w-5 ${
-                isInWishlist ? 'fill-red-500 text-red-500' : ''
-              }`} 
-            />
           </Button>
         </div>
 

@@ -6,21 +6,14 @@ import { formatPrice } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { ShoppingCart, Heart, MessageCircle, Truck, Shield, RotateCcw } from 'lucide-react'
+import { ShoppingCart, MessageCircle, Truck, Shield, RotateCcw } from 'lucide-react'
 
 interface BuyButtonsProps {
   product: Product
   onAddToCart: (product: Product, quantity: number) => void
-  onToggleWishlist: (product: Product) => void
-  isInWishlist?: boolean
 }
 
-export function BuyButtons({ 
-  product, 
-  onAddToCart, 
-  onToggleWishlist, 
-  isInWishlist = false 
-}: BuyButtonsProps) {
+export function BuyButtons({ product, onAddToCart }: BuyButtonsProps) {
   const [quantity, setQuantity] = useState(1)
 
   const discount = product.compareAtPrice 
@@ -88,18 +81,6 @@ export function BuyButtons({
           >
             <ShoppingCart className="h-5 w-5 mr-2" />
             {product.active ? 'Agregar al carrito' : 'No disponible'}
-          </Button>
-
-          <Button
-            variant="outline"
-            onClick={() => onToggleWishlist(product)}
-            className="h-12 px-6"
-          >
-            <Heart 
-              className={`h-5 w-5 ${
-                isInWishlist ? 'fill-red-500 text-red-500' : ''
-              }`} 
-            />
           </Button>
         </div>
 

@@ -11,7 +11,7 @@ import {
 } from 'react'
 
 import { CART_UPDATED_EVENT, getCartItems } from '@/lib/cart'
-import type { CartItem } from '@/lib/types'
+import type { CartItem, Product } from '@/lib/types'
 import { toCOP } from '@/lib/currency'
 
 const CART_ID_STORAGE_KEY = 'checkoutCartId'
@@ -22,6 +22,9 @@ export type CheckoutCartItem = {
   title: string
   quantity: number
   unit_price: number
+  description?: string
+  picture_url?: string
+  category_id?: string
 }
 
 type CartContextValue = {
@@ -53,6 +56,44 @@ const ensureCartId = () => {
 
 const serializeCartKey = (cartId: string) => `${CART_CACHE_PREFIX}${cartId}`
 
+const isAbsoluteUrl = (value: string) => /^https?:\/\//i.test(value)
+
+const resolveProductImageUrl = (product: Product): string | undefined => {
+  const candidate =
+    product.imageUrl ??
+    product.images?.[0] ??
+    product.image ??
+    product.imagePaths?.[0]
+
+  if (!candidate || typeof candidate !== 'string') {
+    return undefined
+  }
+
+  if (isAbsoluteUrl(candidate)) {
+    return candidate
+  }
+
+  const base =
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    (typeof window !== 'undefined' ? window.location.origin : undefined)
+
+  if (!base) {
+    return undefined
+  }
+
+  try {
+    const normalizedPath = candidate.startsWith('/') ? candidate : `/${candidate}`
+    return new URL(normalizedPath, base).toString()
+  } catch (error) {
+    console.warn('Unable to resolve product image URL for checkout item', {
+      candidate,
+      productId: product.id ?? 'unknown',
+      error,
+    })
+    return undefined
+  }
+}
+
 const mapCartItems = (cart: CartItem[]): CheckoutCartItem[] =>
   cart
     .map(item => {
@@ -75,6 +116,9 @@ const mapCartItems = (cart: CartItem[]): CheckoutCartItem[] =>
         title: product.name,
         quantity,
         unit_price: price,
+        category_id: product.category ?? product.categorySlug,
+        description: product.description,
+        picture_url: resolveProductImageUrl(product),
       }
     })
     .filter((value): value is CheckoutCartItem => value !== null)

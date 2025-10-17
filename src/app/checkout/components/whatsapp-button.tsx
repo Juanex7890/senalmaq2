@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 
+import { buildWhatsAppLink } from '../utils'
+
 type CartSummaryItem = {
   id: string
   title: string
@@ -108,7 +110,8 @@ ${productsText}${totalText}
   }
 
   const whatsappMessage = generateWhatsAppMessage()
-  const whatsappLink = `https://wa.me/573001234567?text=${encodeURIComponent(whatsappMessage)}`
+  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER
+  const whatsappLink = buildWhatsAppLink(whatsappMessage, whatsappNumber)
 
   return (
     <a
