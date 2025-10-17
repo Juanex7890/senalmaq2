@@ -1,7 +1,7 @@
 import { MercadoPagoConfig, Payment, MerchantOrder, Preference } from 'mercadopago'
 import type { Options } from 'mercadopago/dist/types'
 import type { PaymentResponse } from 'mercadopago/dist/clients/payment/commonTypes'
-import type { OrderResponse } from 'mercadopago/dist/clients/order/commonTypes'
+import type { MerchantOrderResponse } from 'mercadopago/dist/clients/merchantOrder/commonTypes'
 import type {
   PreferenceRequest,
   PreferenceResponse,
@@ -64,7 +64,7 @@ const unwrapResponse = <T>(value: T | { body?: T }) => {
 }
 
 export type MercadoPagoPayment = PaymentResponse
-export type MercadoPagoMerchantOrder = OrderResponse
+export type MercadoPagoMerchantOrder = MerchantOrderResponse
 
 export async function createPreference(body: PreferenceRequest): Promise<PreferenceResponse> {
   const response = await preference.create({ body })
@@ -76,7 +76,7 @@ export async function getPayment(id: string): Promise<MercadoPagoPayment> {
   return unwrapResponse(response)
 }
 
-export async function getMerchantOrder(id: string): Promise<MercadoPagoMerchantOrder> {
+export async function getMerchantOrder(id: string | number): Promise<MercadoPagoMerchantOrder> {
   const response = await merchantOrder.get({ merchantOrderId: id })
   return unwrapResponse(response)
 }
