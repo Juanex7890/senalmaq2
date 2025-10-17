@@ -99,6 +99,10 @@ export async function POST(request: NextRequest) {
         payment_methods: {
           excluded_payment_types: [],
           installments: 12,
+          default_installments: 1,
+        },
+        differential_pricing: {
+          id: 0
         },
         auto_return: 'approved',
         back_urls: {
