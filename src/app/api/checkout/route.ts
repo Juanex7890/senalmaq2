@@ -49,6 +49,7 @@ const checkoutSchema = z.object({
 export async function POST(request: NextRequest) {
   const accessToken = process.env.MP_ACCESS_TOKEN
   const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL
+  const rawDifferentialPricingId = process.env.MP_DIFFERENTIAL_PRICING_ID
 
   if (!accessToken || !rawSiteUrl) {
     console.error('Missing Mercado Pago environment variables', {
@@ -90,29 +91,58 @@ export async function POST(request: NextRequest) {
       payload?.items?.length
     )
 
-    const preferenceResponse = await preference.create({
-      body: {
-        items: normalizedItems,
-        payer: payload.payer,
-        metadata: payload.metadata,
-        external_reference: payload.metadata.cartId,
-        payment_methods: {
-          excluded_payment_types: [],
-          installments: 12,
-          default_installments: 1,
-        },
-        differential_pricing: {
-          id: 0
-        },
-        auto_return: 'approved',
-        back_urls: {
-          success: `${siteUrl}/checkout/success`,
-          pending: `${siteUrl}/checkout/pending`,
-          failure: `${siteUrl}/checkout/failure`,
-        },
-        notification_url: `${siteUrl}/api/mercadopago/webhook`,
-        binary_mode: false,
+    const preferenceBody: {
+      items: typeof normalizedItems
+      payer: typeof payload.payer
+      metadata: typeof payload.metadata
+      external_reference: string
+      payment_methods: {
+        excluded_payment_types: never[]
+        installments: number
+        default_installments: number
+      }
+      differential_pricing?: { id: number }
+      auto_return: 'approved'
+      back_urls: {
+        success: string
+        pending: string
+        failure: string
+      }
+      notification_url: string
+      binary_mode: boolean
+    } = {
+      items: normalizedItems,
+      payer: payload.payer,
+      metadata: payload.metadata,
+      external_reference: payload.metadata.cartId,
+      payment_methods: {
+        excluded_payment_types: [],
+        installments: 12,
+        default_installments: 1,
       },
+      auto_return: 'approved',
+      back_urls: {
+        success: `${siteUrl}/checkout/success`,
+        pending: `${siteUrl}/checkout/pending`,
+        failure: `${siteUrl}/checkout/failure`,
+      },
+      notification_url: `${siteUrl}/api/mercadopago/webhook`,
+      binary_mode: false,
+    }
+
+    if (rawDifferentialPricingId) {
+      const differentialPricingId = Number(rawDifferentialPricingId)
+      if (Number.isFinite(differentialPricingId) && differentialPricingId > 0) {
+        preferenceBody.differential_pricing = { id: differentialPricingId }
+      } else {
+        console.warn('Ignoring invalid Mercado Pago differential pricing id', {
+          rawDifferentialPricingId,
+        })
+      }
+    }
+
+    const preferenceResponse = await preference.create({
+      body: preferenceBody,
     })
 
     if (!preferenceResponse || !preferenceResponse.id || !preferenceResponse.init_point) {
