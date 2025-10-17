@@ -282,6 +282,10 @@ export default function CartPage() {
                     <div className="mt-6 space-y-3">
                       <CheckoutButton className="w-full h-12 text-lg" />
 
+                    <p className="text-xs text-gray-500">
+                      Para ver PSE y Efecty, inicia sesión con tu cuenta de Mercado Pago. También asegúrate de tener habilitados estos métodos en la configuración de tu cuenta vendedora.
+                    </p>
+
                       <Button
                         variant="outline"
                         className="w-full h-12 bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
