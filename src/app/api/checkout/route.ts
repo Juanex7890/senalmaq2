@@ -194,6 +194,25 @@ export async function POST(request: NextRequest) {
   const differentialPricingId = resolveDifferentialPricingId()
   const statementDescriptor = resolveStatementDescriptor()
   const binaryMode = resolveBinaryMode()
+  const isProduction = process.env.VERCEL_ENV === 'production'
+  const accessToken = process.env.MP_ACCESS_TOKEN ?? ''
+  const mpPublicKey = process.env.NEXT_PUBLIC_MP_PUBLIC_KEY ?? ''
+
+  if (
+    isProduction &&
+    (!accessToken.startsWith('APP_USR-') || mpPublicKey.startsWith('TEST-'))
+  ) {
+    console.error('Mercado Pago production credential mismatch', {
+      hasAccessToken: Boolean(accessToken),
+      hasPublicKey: Boolean(mpPublicKey),
+      accessTokenPrefixValid: accessToken.startsWith('APP_USR-'),
+      publicKeyIsTest: mpPublicKey.startsWith('TEST-'),
+    })
+    return NextResponse.json(
+      { error: 'MP prod keys missing/mismatch' },
+      { status: 500 }
+    )
+  }
 
   let payload: z.infer<typeof checkoutSchema>
 
@@ -269,10 +288,18 @@ export async function POST(request: NextRequest) {
       },
       notification_url: notificationUrl,
       binary_mode: binaryMode,
+      payment_methods: {
+        excluded_payment_types: [],
+        installments: 12,
+      },
     }
 
     if (paymentMethods) {
-      preferenceBody.payment_methods = paymentMethods
+      preferenceBody.payment_methods = {
+        excluded_payment_types: [],
+        installments: 12,
+        ...paymentMethods,
+      }
     }
 
     if (differentialPricingId) {

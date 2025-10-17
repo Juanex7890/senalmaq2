@@ -71,7 +71,7 @@ export async function createPreference(body: PreferenceRequest): Promise<Prefere
   return unwrapResponse(response)
 }
 
-export async function getPayment(id: string): Promise<MercadoPagoPayment> {
+export async function getPayment(id: string | number): Promise<MercadoPagoPayment> {
   const response = await payment.get({ id })
   return unwrapResponse(response)
 }
