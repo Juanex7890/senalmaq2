@@ -136,7 +136,7 @@ const buildPaymentMethodsConfig = (): PreferenceRequest['payment_methods'] => {
   const excludedPaymentMethods = parseCsvEnv(process.env.MP_EXCLUDED_PAYMENT_METHODS)
   const excludedPaymentTypes = parseCsvEnv(process.env.MP_EXCLUDED_PAYMENT_TYPES)
   const maxInstallments = parsePositiveInt(process.env.MP_MAX_INSTALLMENTS)
-  const defaultInstallments = parsePositiveInt(process.env.MP_DEFAULT_INSTALLMENTS) ?? 1
+  const defaultInstallments = parsePositiveInt(process.env.MP_DEFAULT_INSTALLMENTS)
 
   const paymentMethods: NonNullable<PreferenceRequest['payment_methods']> = {}
 
@@ -148,11 +148,11 @@ const buildPaymentMethodsConfig = (): PreferenceRequest['payment_methods'] => {
     paymentMethods.excluded_payment_types = excludedPaymentTypes.map(id => ({ id }))
   }
 
-  if (maxInstallments) {
+  if (typeof maxInstallments === 'number') {
     paymentMethods.installments = maxInstallments
   }
 
-  if (defaultInstallments) {
+  if (typeof defaultInstallments === 'number') {
     paymentMethods.default_installments = defaultInstallments
   }
 
@@ -288,18 +288,10 @@ export async function POST(request: NextRequest) {
       },
       notification_url: notificationUrl,
       binary_mode: binaryMode,
-      payment_methods: {
-        excluded_payment_types: [],
-        installments: 12,
-      },
     }
 
     if (paymentMethods) {
-      preferenceBody.payment_methods = {
-        excluded_payment_types: [],
-        installments: 12,
-        ...paymentMethods,
-      }
+      preferenceBody.payment_methods = paymentMethods
     }
 
     if (differentialPricingId) {
