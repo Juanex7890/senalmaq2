@@ -94,34 +94,37 @@ const resolveProductImageUrl = (product: Product): string | undefined => {
   }
 }
 
-const mapCartItems = (cart: CartItem[]): CheckoutCartItem[] =>
-  cart
-    .map(item => {
-      const product = item.product
-      if (!product) {
-        console.warn('Cart item missing product data', item)
-        return null
-      }
+const mapCartItems = (cart: CartItem[]): CheckoutCartItem[] => {
+  const mapped: CheckoutCartItem[] = []
 
-      const price = toCOP(product.price ?? 0)
-      if (price <= 0) {
-        console.warn('Skipping cart item with invalid price', product)
-        return null
-      }
+  for (const item of cart) {
+    const product = item.product
+    if (!product) {
+      console.warn('Cart item missing product data', item)
+      continue
+    }
 
-      const quantity = Number.isFinite(item.quantity) && item.quantity > 0 ? item.quantity : 1
+    const price = toCOP(product.price ?? 0)
+    if (price <= 0) {
+      console.warn('Skipping cart item with invalid price', product)
+      continue
+    }
 
-      return {
-        id: product.id ?? item.productId,
-        title: product.name,
-        quantity,
-        unit_price: price,
-        category_id: product.category ?? product.categorySlug,
-        description: product.description,
-        picture_url: resolveProductImageUrl(product),
-      }
+    const quantity = Number.isFinite(item.quantity) && item.quantity > 0 ? item.quantity : 1
+
+    mapped.push({
+      id: product.id ?? item.productId,
+      title: product.name,
+      quantity,
+      unit_price: price,
+      category_id: product.category ?? product.categorySlug,
+      description: product.description,
+      picture_url: resolveProductImageUrl(product),
     })
-    .filter((value): value is CheckoutCartItem => value !== null)
+  }
+
+  return mapped
+}
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cartId, setCartId] = useState<string>()
