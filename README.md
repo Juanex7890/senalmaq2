@@ -72,46 +72,45 @@ REVALIDATE_TOKEN=your_secure_random_token_here
 # Site URL (producción)
 NEXT_PUBLIC_SITE_URL=https://www.senalmaq.com
 
-  # Mercado Pago (Checkout Pro) - PRODUCTION
-  NEXT_PUBLIC_MP_PUBLIC_KEY=YOUR_PRODUCTION_PUBLIC_KEY
-  MP_ACCESS_TOKEN=YOUR_PRODUCTION_ACCESS_TOKEN
-  # Opcional: configuración adicional de Mercado Pago
-  # MP_DIFFERENTIAL_PRICING_ID=123456
-  # MP_INTEGRATOR_ID=tu_integrator_id
-  # MP_PLATFORM_ID=tu_platform_id
-  # MP_CORPORATION_ID=tu_corporation_id
-  # MP_TIMEOUT_MS=10000
-  # MP_DEFAULT_INSTALLMENTS=1
-  # MP_MAX_INSTALLMENTS=12
-  # MP_BINARY_MODE=false
-  # MP_AUTO_RETURN=approved
-  # MP_NOTIFICATION_URL=https://www.senalmaq.com/api/mercadopago/webhook
-  # MP_EXCLUDED_PAYMENT_METHODS=amex,debmaster
-  # MP_EXCLUDED_PAYMENT_TYPES=atm
-  # MP_STATEMENT_DESCRIPTOR=SENALMAQ
-  
+  # Bold payment button
+  NEXT_PUBLIC_BOLD_API_KEY=pk_test_or_live_from_bold
+  BOLD_SECRET_KEY=sk_from_bold
+
   # Opcional: numero de WhatsApp usado en las paginas de estado de checkout
   NEXT_PUBLIC_WHATSAPP_NUMBER=+57 317 669 3030
 ```
 
-> **Importante:** `MP_ACCESS_TOKEN` es una credencial privada; configurala solo en el lado servidor (sin prefijo `NEXT_PUBLIC`) y nunca la expongas en el cliente.
+> **Importante:** `BOLD_SECRET_KEY` es confidencial y solo debe configurarse en el servidor (sin prefijo `NEXT_PUBLIC`).
 
-### Mercado Pago (Producción)
+### Bold (Botón de pagos)
 
-1. **Obtener credenciales de producción:**
-   - Ve a [MercadoPago Dashboard](https://www.mercadopago.com.co/developers/panel/credentials)
-   - Cambia a modo "Producción"
-   - Copia tu Public Key y Access Token
+1. **Obtener llaves de Bold**
+   - Ingresa al panel de Bold → Comercios → Integraciones → API Keys.
+   - Copia la `Public API Key` (`NEXT_PUBLIC_BOLD_API_KEY`) y la `Secret Key` (`BOLD_SECRET_KEY`).
+   - Configura `NEXT_PUBLIC_SITE_URL` con la URL pública del sitio (sin slash final).
 
-2. **Configurar Webhooks:**
-   - Dashboard -> Webhooks (modo producción)
-   - URL: https://www.senalmaq.com/api/mercadopago/webhook
-   - Eventos: Pagos y Ordenes comerciales (opcional: Alertas de fraude, Contracargos)
+2. **Registrar el webhook**
+   - Panel Bold → Comercios → Integraciones → Webhook.
+   - URL: `https://www.senalmaq.com/api/bold/webhook`.
+   - Bold firma cada petición con `x-bold-signature`. La verificación usa HMAC-SHA256 del cuerpo crudo (`req.text()`) con `BOLD_SECRET_KEY` y comparación en tiempo constante.
 
-3. **Configurar URLs de retorno:**
-   - Success: https://www.senalmaq.com/checkout/success
-   - Failure: https://www.senalmaq.com/checkout/failure
-   - Pending: https://www.senalmaq.com/checkout/pending
+3. **Firma de integridad para montos definidos**
+   - El frontend solicita `POST /api/bold/signature` con `{ orderId, amount, currency }`.
+   - `amount` debe enviarse como cadena numérica sin separadores ni símbolos (ejemplo: `39400` o `39400.50`).
+   - La cadena firmada es `{orderId}{amount}{currency}{BOLD_SECRET_KEY}` (ejemplo: `INV0334` + `39400` + `COP` + `<secret>`).
+   - El endpoint responde `{ signature }` y el valor se pasa como `data-integrity-signature` al botón Bold.
+
+4. **Redirección y render-mode**
+   - `data-redirection-url` debe ser HTTPS (por ejemplo `${NEXT_PUBLIC_SITE_URL}/checkout/success?orderId=<cartId>`).
+   - `data-render-mode` puede ser `redirect` (por defecto) o `embedded` si deseas la pasarela embebida.
+
+5. **Unicidad del `orderId`**
+   - Usa el `cartId` del cliente (persistido en el navegador) para crear identificadores únicos y evitar cobros duplicados.
+
+6. **Prueba end-to-end**
+   - Visita `/admin/bold-check` para generar firmas manualmente y renderizar el botón Bold con montos de prueba.
+   - Realiza un pago de prueba y confirma que el webhook registre un evento `SALE_APPROVED` (la orden debe pasar a estado `paid`).
+   - En `/checkout/success`, verifica que el CTA de WhatsApp incluya el `orderId` y que el carrito se limpie automáticamente cuando la orden esté pagada.
 
 ### 4. Configurar Firebase
 
@@ -192,9 +191,8 @@ npm run lint
 1. Ve a [Vercel Dashboard](https://vercel.com/dashboard)
 2. Importa tu proyecto desde GitHub
  3. Configura las variables de entorno en Vercel
-     - `NEXT_PUBLIC_MP_PUBLIC_KEY`
-     - `MP_ACCESS_TOKEN` (variable privada)
-     - `MP_DIFFERENTIAL_PRICING_ID`, `MP_INTEGRATOR_ID`, `MP_PLATFORM_ID`, `MP_CORPORATION_ID`, `MP_TIMEOUT_MS`, `MP_DEFAULT_INSTALLMENTS`, `MP_MAX_INSTALLMENTS`, `MP_BINARY_MODE`, `MP_AUTO_RETURN`, `MP_NOTIFICATION_URL`, `MP_EXCLUDED_PAYMENT_METHODS`, `MP_EXCLUDED_PAYMENT_TYPES`, `MP_STATEMENT_DESCRIPTOR` (opcionales)
+     - `NEXT_PUBLIC_BOLD_API_KEY`
+     - `BOLD_SECRET_KEY` (variable privada)
      - `NEXT_PUBLIC_SITE_URL`
      - `NEXT_PUBLIC_WHATSAPP_NUMBER` (opcional)
      - Las variables existentes de Firebase

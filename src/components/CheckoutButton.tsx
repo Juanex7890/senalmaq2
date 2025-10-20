@@ -2,219 +2,217 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { useAuthState } from 'react-firebase-hooks/auth'
-
+import {
+  BoldPayButton,
+  type BoldPaymentMode,
+  type BoldRenderMode,
+} from '@/components/BoldPayButton'
 import { Button } from '@/components/ui/button'
 import { useCart } from '@/components/cart/cart-provider'
-import { auth } from '@/lib/firebase'
-import { MercadoPagoWallet } from '@/components/MercadoPagoWallet'
-
-type CheckoutResponse = {
-  init_point?: string
-  sandbox_init_point?: string
-  id?: string
-}
 
 type CheckoutButtonProps = {
   className?: string
   label?: string
+  mode?: BoldPaymentMode
+  renderMode?: BoldRenderMode
 }
 
-const formatCOP = (value: number) =>
-  new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    maximumFractionDigits: 0,
-  }).format(value)
+type SignatureResponse = {
+  signature: string
+  amount?: string
+  currency?: string
+}
 
-const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
-  if (typeof window === 'undefined') {
-    return
+const DEFAULT_DESCRIPTION = 'Compra en Senalmaq'
+const CURRENCY = 'COP' as const
+
+const resolveConfiguredSite = () => {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim()
+  if (configured && configured.length > 0) {
+    return configured.endsWith('/') ? configured.slice(0, -1) : configured
   }
-
-  window.dispatchEvent(
-    new CustomEvent('showToast', {
-      detail: {
-        message,
-        type,
-        duration: 4000,
-      },
-    })
-  )
+  return ''
 }
 
-const MP_WALLET_AVAILABLE =
-  typeof process.env.NEXT_PUBLIC_MP_PUBLIC_KEY === 'string' &&
-  process.env.NEXT_PUBLIC_MP_PUBLIC_KEY.length > 0
+export function CheckoutButton({
+  className,
+  label = 'Proceder al pago',
+  mode = 'defined',
+  renderMode = 'redirect',
+}: CheckoutButtonProps) {
+  const { items, cartId, total, refresh, isEmpty } = useCart()
+  const [integritySignature, setIntegritySignature] = useState<string | null>(null)
+  const [isLoadingSignature, setIsLoadingSignature] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-export function CheckoutButton({ className, label = 'Proceder al pago' }: CheckoutButtonProps) {
-  const { items, cartId, total, refresh } = useCart()
-  const [user] = useAuthState(auth)
-  const [isLoading, setIsLoading] = useState(false)
-  const [preferenceId, setPreferenceId] = useState<string | null>(null)
-  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null)
+  const configuredSite = useMemo(resolveConfiguredSite, [])
 
-  const formattedTotal = useMemo(() => (total > 0 ? formatCOP(total) : null), [total])
-
-  const hasItems = items.length > 0
-
-  useEffect(() => {
-    if (!hasItems) {
-      setPreferenceId(null)
-      setCheckoutUrl(null)
+  const amountValue = useMemo(() => {
+    if (!Number.isFinite(total) || total <= 0) {
+      return 0
     }
-  }, [hasItems])
 
-  const handleCheckout = useCallback(async () => {
-    setPreferenceId(null)
-    setCheckoutUrl(null)
+    const rounded = Math.round(total * 100) / 100
+    return rounded % 1 === 0 ? rounded : Number(rounded.toFixed(2))
+  }, [total])
 
-    const latestItems = refresh()
-    const itemsToSubmit = (latestItems.length > 0 ? latestItems : items).map(item => ({
-      id: item.id,
-      title: item.title,
-      quantity: item.quantity,
-      unit_price: item.unit_price,
-      description: item.description,
-      picture_url: item.picture_url,
-      category_id: item.category_id,
-    }))
-
-    if (itemsToSubmit.length === 0) {
-      showToast('No se pudo iniciar el pago', 'error')
-      return
+  const amountString = useMemo(() => {
+    if (amountValue <= 0) {
+      return undefined
     }
+
+    return Number.isInteger(amountValue)
+      ? String(Math.trunc(amountValue))
+      : amountValue.toFixed(2)
+  }, [amountValue])
+
+  const description = useMemo(() => {
+    if (items.length === 0) {
+      return DEFAULT_DESCRIPTION
+    }
+
+    if (items.length === 1) {
+      return `Compra: ${items[0]?.title ?? DEFAULT_DESCRIPTION}`
+    }
+
+    if (items.length === 2) {
+      return `Compra: ${items[0]?.title ?? 'Producto'} y ${items.length - 1} artículo`
+    }
+
+    return `Compra con ${items.length} productos`
+  }, [items])
+
+  const redirectionUrl = useMemo(() => {
+    const fallbackOrigin =
+      typeof window !== 'undefined' ? window.location.origin.replace(/\/$/, '') : ''
+    const base = (configuredSite || fallbackOrigin).replace(/\/$/, '')
+    const successBase = base ? `${base}/checkout/success` : '/checkout/success'
 
     if (!cartId) {
-      showToast('No se pudo iniciar el pago', 'error')
+      return successBase
+    }
+
+    return `${successBase}?orderId=${encodeURIComponent(cartId)}`
+  }, [cartId, configuredSite])
+
+  const fetchSignature = useCallback(async () => {
+    if (mode !== 'defined') {
+      setIntegritySignature(null)
       return
     }
 
-    setIsLoading(true)
+    if (!cartId || !amountString) {
+      setIntegritySignature(null)
+      return
+    }
 
     try {
-      const cartTotalAmount = itemsToSubmit.reduce(
-        (sum, item) => sum + item.unit_price * item.quantity,
-        0
-      )
+      setIsLoadingSignature(true)
+      setError(null)
 
-      const response = await fetch('/api/checkout', {
+      refresh()
+
+      const response = await fetch('/api/bold/signature', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          items: itemsToSubmit,
-          payer: {
-            email: user?.email ?? undefined,
-          },
-          metadata: {
-            cartId,
-            itemsCount: itemsToSubmit.length,
-            cartTotal: cartTotalAmount,
-          },
+          orderId: cartId,
+          amount: amountString,
+          currency: CURRENCY,
         }),
       })
 
       if (!response.ok) {
-        const errorText = await response.text().catch(() => 'No se pudo iniciar el pago')
-        throw new Error(errorText || 'No se pudo iniciar el pago')
+        const text = await response.text().catch(() => undefined)
+        throw new Error(text || 'No se pudo generar la firma de integridad.')
       }
 
-      const data = (await response.json()) as CheckoutResponse
-      console.log('MP preference:', data)
+      const json = (await response.json()) as SignatureResponse
 
-      const redirectUrl =
-        data?.init_point ??
-        (process.env.NODE_ENV !== 'production' ? data?.sandbox_init_point : undefined)
-
-      if (MP_WALLET_AVAILABLE && data?.id) {
-        setPreferenceId(data.id)
-        setCheckoutUrl(redirectUrl ?? null)
-        showToast('Selecciona tu medio de pago preferido.', 'success')
-        return
+      if (!json?.signature) {
+        throw new Error('La firma de integridad no está disponible.')
       }
 
-      if (redirectUrl) {
-        window.location.href = redirectUrl
-        return
-      }
-
-      throw new Error('No init_point')
-    } catch (error) {
-      console.error('Checkout error', error)
-      setPreferenceId(null)
-      setCheckoutUrl(null)
-      showToast('No se pudo iniciar el pago', 'error')
-      if (typeof window !== 'undefined' && typeof window.dispatchEvent !== 'function') {
-        alert('No se pudo iniciar el pago')
-      }
+      setIntegritySignature(json.signature)
+    } catch (signatureError) {
+      console.error('Error al generar la firma de integridad para Bold', signatureError)
+      setIntegritySignature(null)
+      setError(
+        'No pudimos preparar el botón de pago. Verifica tu conexión e intenta nuevamente.'
+      )
     } finally {
-      setIsLoading(false)
+      setIsLoadingSignature(false)
     }
-  }, [cartId, items, refresh, user?.email])
+  }, [amountString, cartId, mode, refresh])
 
-  const handleOpenCheckout = useCallback(() => {
-    if (!checkoutUrl) {
-      return
-    }
-    window.open(checkoutUrl, '_blank', 'noopener,noreferrer')
-  }, [checkoutUrl])
+  useEffect(() => {
+    void fetchSignature()
+  }, [fetchSignature])
 
-  const handleCloseWallet = useCallback(() => {
-    setPreferenceId(null)
-    setCheckoutUrl(null)
-  }, [])
+  if (isEmpty || !cartId) {
+    return (
+      <Button className={className} disabled>
+        Agrega productos al carrito para pagar
+      </Button>
+    )
+  }
+
+  const isDefinedModeReady = mode !== 'defined' || Boolean(integritySignature)
+
+  if (!isDefinedModeReady) {
+    return (
+      <div className="space-y-2">
+        <Button className={className} disabled={isLoadingSignature} loading>
+          {label}
+        </Button>
+        {error && (
+          <div className="text-sm text-red-600">
+            {error}{' '}
+            <button
+              type="button"
+              className="font-semibold underline"
+              onClick={() => {
+                void fetchSignature()
+              }}
+            >
+              Reintentar
+            </button>
+          </div>
+        )}
+      </div>
+    )
+  }
 
   return (
-    <>
-      <Button
+    <div className="space-y-2">
+      <BoldPayButton
         className={className}
-        onClick={handleCheckout}
-        disabled={isLoading || !hasItems}
-        loading={isLoading}
-      >
-        {isLoading ? 'Procesando...' : label}
-        {!isLoading && formattedTotal && (
-          <span className="ml-2 text-sm font-normal text-white/80">{formattedTotal}</span>
-        )}
-      </Button>
-
-      {preferenceId && (
-        <div className="mt-4 space-y-3 rounded-lg border border-emerald-100 bg-white/90 p-4 shadow-sm">
-          <div>
-            <p className="text-sm font-medium text-emerald-700">
-              Opciones de pago Mercado Pago
-            </p>
-            <p className="text-xs text-gray-500">
-              Selecciona tu medio de pago preferido. Si la ventana no aparece, usa el botón de
-              respaldo o vuelve a intentarlo.
-            </p>
-          </div>
-          <MercadoPagoWallet preferenceId={preferenceId} className="w-full" />
-          <div className="flex flex-col gap-2 sm:flex-row">
-            {checkoutUrl && (
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full sm:flex-1"
-                onClick={handleOpenCheckout}
-              >
-                Abrir checkout completo
-              </Button>
-            )}
-            <Button
-              type="button"
-              variant="ghost"
-              className="w-full sm:flex-1"
-              onClick={handleCloseWallet}
-            >
-              Cancelar
-            </Button>
-          </div>
+        mode={mode}
+        orderId={cartId}
+        amount={mode === 'defined' ? amountString : undefined}
+        currency={CURRENCY}
+        description={description}
+        integritySignature={mode === 'defined' ? integritySignature ?? undefined : undefined}
+        redirectionUrl={redirectionUrl}
+        renderMode={renderMode}
+      />
+      {error && (
+        <div className="text-sm text-red-600">
+          {error}{' '}
+          <button
+            type="button"
+            className="font-semibold underline"
+            onClick={() => {
+              void fetchSignature()
+            }}
+          >
+            Reintentar
+          </button>
         </div>
       )}
-    </>
+    </div>
   )
 }
 

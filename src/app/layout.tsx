@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import { Inter } from 'next/font/google'
+import Script from 'next/script'
 import './globals.css'
 import { SmoothToast } from '@/components/ui/smooth-toast'
 import { ConnectionStatus } from '@/components/ui/connection-status'
@@ -83,6 +84,10 @@ export default function RootLayout({
   return (
     <html lang="es" className="h-full" suppressHydrationWarning>
       <head>
+        <Script
+          src="https://checkout.bold.co/library/boldPaymentButton.js"
+          strategy="afterInteractive"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
