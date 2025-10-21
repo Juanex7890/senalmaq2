@@ -123,6 +123,8 @@ export function BoldPayButton({
 
     const script = document.createElement('script')
     script.type = 'text/javascript'
+    script.src = BOLD_BUTTON_SRC
+    script.async = true
 
     attributeMap.forEach((value, key) => {
       if (value) {
@@ -155,3 +157,4 @@ export function BoldPayButton({
 }
 
 export default BoldPayButton
+const BOLD_BUTTON_SRC = 'https://checkout.bold.co/library/boldPaymentButton.js'
