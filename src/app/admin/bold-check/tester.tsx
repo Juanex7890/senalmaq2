@@ -78,17 +78,18 @@ export function BoldTester({ initialEvents }: BoldTesterProps) {
         }
 
         const json = (await response.json()) as { signature?: string }
-        if (!json.signature) {
+        const signatureValue = json.signature
+        if (typeof signatureValue !== 'string' || signatureValue.length === 0) {
           throw new Error('La respuesta no incluye la firma')
         }
 
-        setSignature(json.signature)
+        setSignature(signatureValue)
         setLogs(prev => [
           {
             orderId,
             amount,
             currency: CURRENCY,
-            signature: json.signature,
+            signature: signatureValue,
             generatedAt: new Date().toISOString(),
           },
           ...prev,

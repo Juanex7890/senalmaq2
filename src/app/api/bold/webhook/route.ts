@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Buffer } from 'node:buffer'
 import { createHmac, timingSafeEqual } from 'crypto'
 
 import { markOrderPaid, markOrderRejected, markOrderVoided, recordBoldEvent } from '@/lib/orders'
