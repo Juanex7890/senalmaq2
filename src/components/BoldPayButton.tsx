@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useMemo, useRef } from 'react'
 
@@ -26,6 +26,7 @@ type BaseProps = {
 }
 
 const DEFAULT_BUTTON_STYLE = 'dark-L'
+const BOLD_BUTTON_SRC = 'https://checkout.bold.co/library/boldPaymentButton.js'
 
 const resolveApiKey = () => {
   const apiKey = process.env.NEXT_PUBLIC_BOLD_API_KEY?.trim()
@@ -63,7 +64,18 @@ export function BoldPayButton({
     attributes.set('data-description', description)
     attributes.set('data-render-mode', renderMode)
     attributes.set('data-redirection-url', redirectionUrl)
-    attributes.set('data-mode', mode)
+
+    if (mode === 'defined') {
+      attributes.set('data-mode', 'defined')
+      if (amount) {
+        attributes.set('data-amount', amount)
+      }
+      if (integritySignature) {
+        attributes.set('data-integrity-signature', integritySignature)
+      }
+    } else {
+      attributes.set('data-mode', 'open')
+    }
 
     if (orderId) {
       attributes.set('data-order-id', orderId)
@@ -79,15 +91,6 @@ export function BoldPayButton({
 
     if (billingAddress) {
       attributes.set('data-billing-address', billingAddress)
-    }
-
-    if (mode === 'defined') {
-      if (amount) {
-        attributes.set('data-amount', amount)
-      }
-      if (integritySignature) {
-        attributes.set('data-integrity-signature', integritySignature)
-      }
     }
 
     return attributes
@@ -121,18 +124,18 @@ export function BoldPayButton({
 
     container.innerHTML = ''
 
-    const script = document.createElement('script')
-    script.type = 'text/javascript'
-    script.src = BOLD_BUTTON_SRC
-    script.async = true
+    const buttonScript = document.createElement('script')
+    buttonScript.type = 'text/javascript'
+    buttonScript.src = BOLD_BUTTON_SRC
+    buttonScript.async = true
 
     attributeMap.forEach((value, key) => {
       if (value) {
-        script.setAttribute(key, value)
+        buttonScript.setAttribute(key, value)
       }
     })
 
-    container.appendChild(script)
+    container.appendChild(buttonScript)
 
     return () => {
       container.innerHTML = ''
@@ -157,4 +160,3 @@ export function BoldPayButton({
 }
 
 export default BoldPayButton
-const BOLD_BUTTON_SRC = 'https://checkout.bold.co/library/boldPaymentButton.js'

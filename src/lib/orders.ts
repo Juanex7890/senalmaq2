@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto'
+import { randomUUID, createHash } from 'crypto'
 
 export type OrderStatus = 'pending' | 'paid' | 'rejected' | 'voided'
 
@@ -12,6 +12,8 @@ export type OrderRecord = {
   status: OrderStatus
   updatedAt: string
   history: OrderHistoryEntry[]
+  verificationCode: string
+  items: string[]
 }
 
 export type BoldEventRecord = {
@@ -30,20 +32,30 @@ const boldEvents: BoldEventRecord[] = []
 
 const normalizeReference = (reference?: string) => reference?.trim() ?? ''
 
+const generateVerificationCode = (reference: string) => {
+  const seed = `${reference}-${randomUUID()}`
+  const hash = createHash('sha256').update(seed).digest('hex').slice(0, 6).toUpperCase()
+  return `SEN-${hash}`
+}
+
 const ensureOrderRecord = (reference: string): OrderRecord => {
-  const existing = orderStore.get(reference)
+  const normalized = normalizeReference(reference)
+  const existing = orderStore.get(normalized)
   if (existing) {
     return existing
   }
 
   const now = new Date().toISOString()
   const record: OrderRecord = {
-    reference,
+    reference: normalized,
     status: 'pending',
     updatedAt: now,
     history: [{ status: 'pending', updatedAt: now }],
+    verificationCode: generateVerificationCode(normalized),
+    items: [],
   }
-  orderStore.set(reference, record)
+
+  orderStore.set(normalized, record)
   return record
 }
 
@@ -64,6 +76,23 @@ const updateOrderStatus = (reference: string, status: OrderStatus) => {
     record.history.length = MAX_HISTORY
   }
 
+  orderStore.set(normalized, record)
+}
+
+export const registerOrderDraft = (reference: string, items?: string[]) => {
+  const normalized = normalizeReference(reference)
+  if (!normalized) {
+    return
+  }
+
+  const record = ensureOrderRecord(normalized)
+  const now = new Date().toISOString()
+
+  if (Array.isArray(items) && items.length > 0) {
+    record.items = items.map(item => item.trim()).filter(Boolean)
+  }
+
+  record.updatedAt = now
   orderStore.set(normalized, record)
 }
 
@@ -93,6 +122,20 @@ export const getOrderStatus = (reference?: string): OrderRecord | undefined => {
     return undefined
   }
   return orderStore.get(reference.trim())
+}
+
+export const getOrderByVerificationCode = (code?: string): OrderRecord | undefined => {
+  if (!code) {
+    return undefined
+  }
+
+  const normalized = code.trim().toUpperCase()
+  for (const record of orderStore.values()) {
+    if (record.verificationCode.toUpperCase() === normalized) {
+      return record
+    }
+  }
+  return undefined
 }
 
 export async function markOrderPaid(reference?: string): Promise<void> {

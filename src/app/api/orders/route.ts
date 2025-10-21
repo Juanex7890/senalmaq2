@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 
 import { getOrderStatus } from '@/lib/orders'
 
@@ -27,6 +27,8 @@ export async function GET(request: NextRequest) {
       status: record?.status ?? 'pending',
       updatedAt: record?.updatedAt ?? null,
       history: record?.history ?? [],
+      verificationCode: record?.verificationCode ?? null,
+      items: record?.items ?? [],
     },
     {
       status: 200,

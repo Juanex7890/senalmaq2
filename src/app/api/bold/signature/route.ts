@@ -2,6 +2,8 @@ import { createHash } from 'crypto'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
+import { registerOrderDraft } from '@/lib/orders'
+
 const signatureSchema = z.object({
   orderId: z
     .string()
@@ -18,6 +20,10 @@ const signatureSchema = z.object({
     .refine(value => value === 'COP' || value === 'USD', {
       message: 'currency must be COP or USD',
     }),
+  items: z
+    .array(z.string().trim().min(1))
+    .max(50)
+    .optional(),
 })
 
 export const runtime = 'nodejs'
@@ -73,6 +79,8 @@ export async function POST(request: Request) {
     Number.isInteger(amountNumber) && !payload.amount.includes('.')
       ? String(Math.trunc(amountNumber))
       : payload.amount
+
+  registerOrderDraft(payload.orderId, payload.items)
 
   const signatureBase = `${payload.orderId}${amountString}${payload.currency}${secretKey}`
   const signature = createHash('sha256').update(signatureBase).digest('hex')

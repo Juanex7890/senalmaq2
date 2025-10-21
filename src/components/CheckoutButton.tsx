@@ -10,6 +10,17 @@ import {
 import { Button } from '@/components/ui/button'
 import { useCart } from '@/components/cart/cart-provider'
 
+const DEFAULT_DESCRIPTION = 'Compra en Senalmaq'
+const CURRENCY = 'COP' as const
+
+const resolveConfiguredSite = () => {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim()
+  if (configured && configured.length > 0) {
+    return configured.endsWith('/') ? configured.slice(0, -1) : configured
+  }
+  return ''
+}
+
 type CheckoutButtonProps = {
   className?: string
   label?: string
@@ -23,24 +34,13 @@ type SignatureResponse = {
   currency?: string
 }
 
-const DEFAULT_DESCRIPTION = 'Compra en Senalmaq'
-const CURRENCY = 'COP' as const
-
-const resolveConfiguredSite = () => {
-  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim()
-  if (configured && configured.length > 0) {
-    return configured.endsWith('/') ? configured.slice(0, -1) : configured
-  }
-  return ''
-}
-
 export function CheckoutButton({
   className,
   label = 'Proceder al pago',
   mode = 'defined',
   renderMode = 'redirect',
 }: CheckoutButtonProps) {
-  const { items, cartId, total, refresh, isEmpty } = useCart()
+  const { items, cartId, total, isEmpty } = useCart()
   const [integritySignature, setIntegritySignature] = useState<string | null>(null)
   const [isLoadingSignature, setIsLoadingSignature] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -65,6 +65,14 @@ export function CheckoutButton({
       ? String(Math.trunc(amountValue))
       : amountValue.toFixed(2)
   }, [amountValue])
+
+  const itemNames = useMemo(
+    () =>
+      items
+        .map(item => item.title)
+        .filter((title): title is string => Boolean(title && title.length > 0)),
+    [items]
+  )
 
   const description = useMemo(() => {
     if (items.length === 0) {
@@ -110,8 +118,6 @@ export function CheckoutButton({
       setIsLoadingSignature(true)
       setError(null)
 
-      refresh()
-
       const response = await fetch('/api/bold/signature', {
         method: 'POST',
         headers: {
@@ -121,6 +127,7 @@ export function CheckoutButton({
           orderId: cartId,
           amount: amountString,
           currency: CURRENCY,
+          items: itemNames,
         }),
       })
 
@@ -145,7 +152,7 @@ export function CheckoutButton({
     } finally {
       setIsLoadingSignature(false)
     }
-  }, [amountString, cartId, mode, refresh])
+  }, [amountString, cartId, itemNames, mode])
 
   useEffect(() => {
     void fetchSignature()
