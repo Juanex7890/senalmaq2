@@ -63,6 +63,15 @@ const readCart = (): CartItem[] => {
 
 export const addToCart = (product: Product, quantity: number = 1): void => {
   try {
+    if (product.consultRequired) {
+      dispatchToast({
+        message: 'Este producto requiere hablar con un asesor antes de comprar.',
+        type: 'info',
+        duration: 4000,
+      })
+      return
+    }
+
     const cart = readCart()
 
     const existingItemIndex = cart.findIndex(item => item.productId === product.id)

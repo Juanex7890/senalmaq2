@@ -3,11 +3,12 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Product } from '@/lib/types'
-import { getImageUrl, formatPrice } from '@/lib/utils'
+import { getImageUrl } from '@/lib/utils'
 import { addToCart } from '@/lib/cart'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ShoppingCart } from 'lucide-react'
+import { PriceOrConsult } from '@/components/PriceOrConsult'
 
 interface ProductCardProps {
   product: Product
@@ -15,9 +16,13 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onAddToCart }: ProductCardProps) {
-  const discount = product.compareAtPrice 
-    ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
-    : 0
+  const discount =
+    !product.consultRequired && product.compareAtPrice
+      ? Math.round(
+          ((product.compareAtPrice - product.price) / product.compareAtPrice) *
+            100,
+        )
+      : 0
   const primaryImage = product.imagePaths?.[0] ?? product.images?.[0] ?? product.imageUrl
   const imageSrc = primaryImage ? getImageUrl(primaryImage) : '/placeholder-product.svg'
 
@@ -68,28 +73,27 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
             <p className="mt-1 text-sm text-gray-500">{product.brand}</p>
           )}
 
-          <div className="mt-3 flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <span className="text-lg font-bold text-gray-900">
-                {formatPrice(product.price)}
-              </span>
-              {product.compareAtPrice && (
-                <span className="text-sm text-gray-500 line-through">
-                  {formatPrice(product.compareAtPrice)}
-                </span>
-              )}
-            </div>
-          </div>
+          <PriceOrConsult
+            product={product}
+            layout={product.consultRequired ? 'stack' : 'inline'}
+            className="mt-3"
+            priceClassName="text-lg font-bold text-gray-900"
+            comparePriceClassName="text-sm text-gray-500 line-through"
+            buttonClassName="w-full justify-center"
+          />
 
-          {/* Add to Cart Button */}
-          <Button
-            onClick={() => onAddToCart ? onAddToCart(product) : addToCart(product)}
-            className="w-full mt-3"
-            size="sm"
-          >
-            <ShoppingCart className="h-4 w-4 mr-2" />
-            Agregar al carrito
-          </Button>
+          {!product.consultRequired && (
+            <Button
+              onClick={() =>
+                onAddToCart ? onAddToCart(product) : addToCart(product)
+              }
+              className="w-full mt-3"
+              size="sm"
+            >
+              <ShoppingCart className="h-4 w-4 mr-2" />
+              Agregar al carrito
+            </Button>
+          )}
         </div>
       </div>
     </div>

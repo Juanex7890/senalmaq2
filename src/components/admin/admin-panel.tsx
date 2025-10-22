@@ -83,6 +83,8 @@ interface ProductDraft {
   category: string;
   bestSeller: boolean;
   images: string[];
+  consultRequired: boolean;
+  consultNote: string;
 }
 
 interface CategoryDraft {
@@ -141,6 +143,8 @@ export default function AdminPanel() {
       category: categoryOptions[0] || "",
       bestSeller: false,
       images: [""],
+      consultRequired: false,
+      consultNote: "",
     }),
     [categoryOptions]
   );

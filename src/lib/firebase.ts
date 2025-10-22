@@ -114,13 +114,14 @@ export interface SocialData {
 
 export const PRODUCT_DEFAULTS: Pick<
   Product,
-  "bestSeller" | "images" | "imagePaths" | "active"
+  "bestSeller" | "images" | "imagePaths" | "active" | "consultRequired"
 > & { price: number } = {
   bestSeller: false,
   images: [],
   imagePaths: [],
   price: 0,
   active: true,
+  consultRequired: false,
 };
 
 export const SOCIAL_DEFAULTS: SocialData = {
@@ -149,6 +150,7 @@ export function applyProductSchema(data: unknown = {}): Partial<Product> {
   const categorySlug = sanitizeString(raw.categorySlug);
 
   const resolvedCategorySlug = categorySlug || (categoryName ? generateSlug(categoryName) : "");
+  const consultNote = sanitizeString(raw.consultNote);
 
   return {
     name,
@@ -171,6 +173,8 @@ export function applyProductSchema(data: unknown = {}): Partial<Product> {
       const value = sanitizeNumber(raw.compareAtPrice, NaN);
       return Number.isFinite(value) ? value : undefined;
     })(),
+    consultRequired: sanitizeBoolean(raw.consultRequired, PRODUCT_DEFAULTS.consultRequired),
+    consultNote: consultNote || undefined,
   };
 }
 
@@ -216,6 +220,8 @@ export function mapProductDocument(document: DocumentSnapshot<DocumentData>): Pr
     isBestseller: data.isBestseller,
     isFeatured: data.isFeatured,
     active: data.active ?? PRODUCT_DEFAULTS.active,
+    consultRequired: data.consultRequired ?? PRODUCT_DEFAULTS.consultRequired,
+    consultNote: data.consultNote,
   };
 }
 
@@ -343,6 +349,5 @@ export {
   updateDoc,
   deleteDoc,
 };
-
 
 

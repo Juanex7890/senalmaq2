@@ -32,130 +32,13 @@ Una plataforma de comercio electrónico completa para Senalmaq, especializada en
 ### 1. Clonar el repositorio
 
 ```bash
-git clone <repository-url>
-cd senalmaq-ecommerce
-```
-
-### 2. Instalar dependencias
-
-```bash
-npm install
-```
-
-### 3. Configurar variables de entorno
-
-Copia el archivo `env.example` a `.env.local` y configura las variables:
-
-```bash
-cp env.example .env.local
-```
-
-Configura las siguientes variables:
-
-```env
-# Firebase Web SDK
-NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key_here
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-
-# Firebase Admin SDK
-FIREBASE_ADMIN_PROJECT_ID=your_project_id
-FIREBASE_ADMIN_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your_project_id.iam.gserviceaccount.com
-FIREBASE_ADMIN_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_HERE\n-----END PRIVATE KEY-----\n"
-
-# Revalidation
-REVALIDATE_TOKEN=your_secure_random_token_here
-
-# Site URL (producción)
-NEXT_PUBLIC_SITE_URL=https://www.senalmaq.com
-
-  # Bold payment button
-  NEXT_PUBLIC_BOLD_API_KEY=pk_test_or_live_from_bold
-  BOLD_SECRET_KEY=sk_from_bold
-
-  # Opcional: numero de WhatsApp usado en las paginas de estado de checkout
-  NEXT_PUBLIC_WHATSAPP_NUMBER=+57 317 669 3030
-```
-
-> **Importante:** `BOLD_SECRET_KEY` es confidencial y solo debe configurarse en el servidor (sin prefijo `NEXT_PUBLIC`).
-
-### Bold (Botón de pagos)
-
-1. **Obtener llaves de Bold**
-   - Ingresa al panel de Bold → Comercios → Integraciones → API Keys.
-   - Copia la `Public API Key` (`NEXT_PUBLIC_BOLD_API_KEY`) y la `Secret Key` (`BOLD_SECRET_KEY`).
-   - Configura `NEXT_PUBLIC_SITE_URL` con la URL pública del sitio (sin slash final).
-
-2. **Registrar el webhook**
-   - Panel Bold → Comercios → Integraciones → Webhook.
-   - URL: `https://www.senalmaq.com/api/bold/webhook`.
-   - Bold firma cada petición con `x-bold-signature`. La verificación usa HMAC-SHA256 del cuerpo crudo (`req.text()`) con `BOLD_SECRET_KEY` y comparación en tiempo constante.
-
-3. **Firma de integridad para montos definidos**
-   - El frontend solicita `POST /api/bold/signature` con `{ orderId, amount, currency }`.
-   - `amount` debe enviarse como cadena numérica sin separadores ni símbolos (ejemplo: `39400` o `39400.50`).
-   - La cadena firmada es `{orderId}{amount}{currency}{BOLD_SECRET_KEY}` (ejemplo: `INV0334` + `39400` + `COP` + `<secret>`).
-   - El endpoint responde `{ signature }` y el valor se pasa como `data-integrity-signature` al botón Bold.
-
-4. **Redirección y render-mode**
-   - `data-redirection-url` debe ser HTTPS (por ejemplo `${NEXT_PUBLIC_SITE_URL}/checkout/success?orderId=<cartId>`).
-   - `data-render-mode` puede ser `redirect` (por defecto) o `embedded` si deseas la pasarela embebida.
-
-5. **Unicidad del `orderId`**
-   - Usa el `cartId` del cliente (persistido en el navegador) para crear identificadores únicos y evitar cobros duplicados.
-
-6. **Prueba end-to-end**
-   - Visita `/admin/bold-check` para generar firmas manualmente y renderizar el botón Bold con montos de prueba.
-   - Realiza un pago de prueba y confirma que el webhook registre un evento `SALE_APPROVED` (la orden debe pasar a estado `paid`).
-   - En `/checkout/success`, verifica que el CTA de WhatsApp incluya el `orderId` y que el carrito se limpie automáticamente cuando la orden esté pagada.
-
-### 4. Configurar Firebase
-
-#### 4.1 Crear proyecto en Firebase Console
-1. Ve a [Firebase Console](https://console.firebase.google.com/)
-2. Crea un nuevo proyecto
-3. Habilita Authentication y Firestore (Storage no es necesario)
-
-#### 4.2 Configurar Authentication
-1. Ve a Authentication > Sign-in method
-2. Habilita "Email/Password"
-3. Ve a Users y crea un usuario administrador
-
-#### 4.3 Configurar Firestore
-1. Ve a Firestore Database
-2. Crea la base de datos en modo de producción
-3. Aplica las reglas de seguridad del archivo `firestore.rules`
-
-#### 4.4 Configurar índices compuestos
-1. Ve a Firestore > Indexes
-2. Importa el archivo `firestore.indexes.json`
-
-#### 4.5 Configurar Admin SDK
-1. Ve a Project Settings > Service Accounts
-2. Genera una nueva clave privada
-3. Descarga el archivo JSON y usa los valores en las variables de entorno
-
-#### 4.6 Migrar datos existentes (si tienes datos)
-Si ya tienes datos en tu base de datos, ejecuta el script de migración:
-```bash
-npm run migrate
-```
-
-### 5. Configurar claims de administrador
-
-Ejecuta el siguiente script para asignar el rol de administrador:
-
-```bash
 # Instalar Firebase CLI si no lo tienes
 npm install -g firebase-tools
 
-# Iniciar sesión
+# Iniciar sesion
 firebase login
 
-# Ejecutar el script de configuración
+# Ejecutar el script de configuracion
 node scripts/setup-admin.js
 ```
 
@@ -166,11 +49,15 @@ node scripts/setup-admin.js
 npm run seed
 ```
 
+```bash
+# Establecer consultRequired = false en productos existentes
+npm run backfill-consult
+```
+
 ### 7. Ejecutar en desarrollo
 
 ```bash
 npm run dev
-```
 
 Visita [http://localhost:3000](http://localhost:3000) para ver la aplicación.
 
@@ -184,7 +71,6 @@ npm run build
 
 # Verificar que no hay errores
 npm run lint
-```
 
 ### 2. Conectar con Vercel
 
@@ -194,7 +80,7 @@ npm run lint
      - `NEXT_PUBLIC_BOLD_API_KEY`
      - `BOLD_SECRET_KEY` (variable privada)
      - `NEXT_PUBLIC_SITE_URL`
-     - `NEXT_PUBLIC_WHATSAPP_NUMBER` (opcional)
+    - `NEXT_PUBLIC_WHATSAPP_NUMBER`
      - Las variables existentes de Firebase
 4. Despliega
 
@@ -206,7 +92,6 @@ npm run lint
 
 ## 📁 Estructura del proyecto
 
-```
 src/
 ├── app/                    # App Router de Next.js
 │   ├── (catalog)/         # Páginas públicas del catálogo
@@ -232,7 +117,6 @@ src/
 │   ├── validators.ts     # Validaciones Zod
 │   └── seo.ts            # Utilidades SEO
 └── middleware.ts         # Middleware de Next.js
-```
 
 ## 🔧 Scripts disponibles
 
@@ -254,7 +138,6 @@ npm run seed
 
 # Generar sitemap
 npm run postbuild
-```
 
 ## 🗄️ Modelo de datos
 
@@ -271,7 +154,6 @@ interface Category {
   createdAt: Date
   updatedAt: Date
 }
-```
 
 ### Productos
 ```typescript
@@ -294,7 +176,6 @@ interface Product {
   updatedAt: Date
   search?: string
 }
-```
 
 ### Medios del sitio
 ```typescript
@@ -307,7 +188,6 @@ interface SiteMedia {
   youtubeUrl: string
   whatsappUrl: string
 }
-```
 
 ## 🔒 Seguridad
 
@@ -370,7 +250,6 @@ npm run test:integration
 
 # Coverage
 npm run test:coverage
-```
 
 ## 📊 Analytics
 

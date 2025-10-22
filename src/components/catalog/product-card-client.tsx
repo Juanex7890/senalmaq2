@@ -4,11 +4,12 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Product } from '@/lib/types'
-import { getImageUrl, formatPrice } from '@/lib/utils'
+import { getImageUrl } from '@/lib/utils'
 import { addToCart } from '@/lib/cart'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ShoppingCart, CreditCard } from 'lucide-react'
+import { PriceOrConsult } from '@/components/PriceOrConsult'
 
 interface ProductCardClientProps {
   product: Product
@@ -17,14 +18,18 @@ interface ProductCardClientProps {
 export function ProductCardClient({ product }: ProductCardClientProps) {
   const [isAddingToCart, setIsAddingToCart] = useState(false)
   
-  const discount = product.compareAtPrice 
-    ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
-    : 0
+  const discount =
+    !product.consultRequired && product.compareAtPrice
+      ? Math.round(
+          ((product.compareAtPrice - product.price) / product.compareAtPrice) *
+            100,
+        )
+      : 0
   const primaryImage = product.imagePaths?.[0] ?? product.images?.[0] ?? product.imageUrl
   const imageSrc = primaryImage ? getImageUrl(primaryImage) : '/placeholder-product.svg'
 
   const handleAddToCart = async () => {
-    if (isAddingToCart) return
+    if (isAddingToCart || product.consultRequired) return
     
     setIsAddingToCart(true)
     try {
@@ -36,7 +41,7 @@ export function ProductCardClient({ product }: ProductCardClientProps) {
   }
 
   const handleBuyNow = async () => {
-    if (isAddingToCart) return
+    if (isAddingToCart || product.consultRequired) return
     
     if (!product.active) {
       const event = new CustomEvent('showToast', {
@@ -109,40 +114,38 @@ export function ProductCardClient({ product }: ProductCardClientProps) {
             <p className="mt-1 text-sm text-gray-500">{product.brand}</p>
           )}
 
-          <div className="mt-3 flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <span className="text-lg font-bold text-gray-900">
-                {formatPrice(product.price)}
-              </span>
-              {product.compareAtPrice && (
-                <span className="text-sm text-gray-500 line-through">
-                  {formatPrice(product.compareAtPrice)}
-                </span>
-              )}
-            </div>
-          </div>
+          <PriceOrConsult
+            product={product}
+            layout={product.consultRequired ? 'stack' : 'inline'}
+            className="mt-3"
+            priceClassName="text-lg font-bold text-gray-900"
+            comparePriceClassName="text-sm text-gray-500 line-through"
+            buttonClassName="w-full justify-center"
+          />
 
-          {/* Add to Cart Button */}
-          <Button
-            onClick={handleAddToCart}
-            disabled={!product.active || isAddingToCart}
-            className="w-full mt-3"
-            size="sm"
-          >
-            <ShoppingCart className="h-4 w-4 mr-2" />
-            {isAddingToCart ? 'Agregando...' : 'Agregar al carrito'}
-          </Button>
+          {!product.consultRequired && (
+            <>
+              <Button
+                onClick={handleAddToCart}
+                disabled={!product.active || isAddingToCart}
+                className="w-full mt-3"
+                size="sm"
+              >
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                {isAddingToCart ? 'Agregando...' : 'Agregar al carrito'}
+              </Button>
 
-          {/* Buy Now Button */}
-          <Button
-            onClick={handleBuyNow}
-            disabled={!product.active || isAddingToCart}
-            className="w-full mt-2 bg-green-600 hover:bg-green-700 text-white"
-            size="sm"
-          >
-            <CreditCard className="h-4 w-4 mr-2" />
-            {isAddingToCart ? 'Procesando...' : 'Comprar ahora'}
-          </Button>
+              <Button
+                onClick={handleBuyNow}
+                disabled={!product.active || isAddingToCart}
+                className="w-full mt-2 bg-green-600 hover:bg-green-700 text-white"
+                size="sm"
+              >
+                <CreditCard className="h-4 w-4 mr-2" />
+                {isAddingToCart ? 'Procesando...' : 'Comprar ahora'}
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </div>

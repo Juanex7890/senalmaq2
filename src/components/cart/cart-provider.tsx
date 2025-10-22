@@ -104,6 +104,13 @@ const mapCartItems = (cart: CartItem[]): CheckoutCartItem[] => {
       continue
     }
 
+    if (product.consultRequired) {
+      console.warn('Skipping consult-only product for checkout summary', {
+        productId: product.id ?? item.productId,
+      })
+      continue
+    }
+
     const price = toCOP(product.price ?? 0)
     if (price <= 0) {
       console.warn('Skipping cart item with invalid price', product)

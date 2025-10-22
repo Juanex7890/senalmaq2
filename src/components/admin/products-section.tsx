@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { Product } from "@/lib/types";
+import { Badge } from "@/components/ui/badge";
 
 interface ProductDraft {
   name: string;
@@ -10,6 +11,8 @@ interface ProductDraft {
   category: string;
   bestSeller: boolean;
   images: string[];
+  consultRequired: boolean;
+  consultNote: string;
 }
 
 interface ProductsSectionProps {
@@ -153,6 +156,14 @@ export default function ProductsSection({
             typeof draft.bestSeller === "boolean"
               ? draft.bestSeller
               : Boolean(product.bestSeller);
+          const draftConsultRequired =
+            typeof draft.consultRequired === "boolean"
+              ? draft.consultRequired
+              : Boolean(product.consultRequired);
+          const draftConsultNote =
+            typeof draft.consultNote === "string"
+              ? draft.consultNote
+              : product.consultNote || "";
           const isSaving = Boolean(saving[product.docId]);
           const isDeleting = Boolean(deleting[product.docId]);
           const disableActions = isSaving || isDeleting;
@@ -179,6 +190,17 @@ export default function ProductsSection({
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                     {displayCategory}
                   </p>
+                  {(draftConsultRequired || product.consultRequired) && (
+                    <div className="mt-2">
+                      <Badge
+                        variant="outline"
+                        size="sm"
+                        className="border-amber-300 text-amber-700"
+                      >
+                        Consulta
+                      </Badge>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -218,6 +240,44 @@ export default function ProductsSection({
                       disabled={isDeleting}
                     />
                   </div>
+                  {draftConsultRequired && (
+                    <p className="mt-1 text-xs font-medium text-amber-600">
+                      El precio se ocultará en la tienda.
+                    </p>
+                  )}
+                </label>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    id={`consult-required-${product.docId}`}
+                    type="checkbox"
+                    checked={draftConsultRequired}
+                    onChange={(event) =>
+                      onDraftChange(product.docId, "consultRequired", event.target.checked)
+                    }
+                    className="h-4 w-4 rounded border-slate-300 text-green-600 focus:ring-green-500"
+                    disabled={isDeleting}
+                  />
+                  <label
+                    htmlFor={`consult-required-${product.docId}`}
+                    className="text-sm font-semibold text-slate-700"
+                  >
+                    Requiere consulta (ocultar precio)
+                  </label>
+                </div>
+
+                <label className="block text-sm font-semibold text-slate-700">
+                  Nota para el asesor (opcional)
+                  <input
+                    type="text"
+                    value={draftConsultNote}
+                    onChange={(event) =>
+                      onDraftChange(product.docId, "consultNote", event.target.value)
+                    }
+                    className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-green-600 focus:ring-2 focus:ring-green-100"
+                    placeholder="Precio variable por configuración"
+                    disabled={!draftConsultRequired || isDeleting}
+                  />
                 </label>
 
                 <label className="block text-sm font-semibold text-slate-700">

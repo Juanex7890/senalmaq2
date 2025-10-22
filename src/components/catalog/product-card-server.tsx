@@ -1,18 +1,23 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Product } from '@/lib/types'
-import { getImageUrl, formatPrice } from '@/lib/utils'
+import { getImageUrl } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { ShoppingCart } from 'lucide-react'
+import { PriceOrConsult } from '@/components/PriceOrConsult'
 
 interface ProductCardServerProps {
   product: Product
 }
 
 export function ProductCardServer({ product }: ProductCardServerProps) {
-  const discount = product.compareAtPrice 
-    ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
-    : 0
+  const discount =
+    !product.consultRequired && product.compareAtPrice
+      ? Math.round(
+          ((product.compareAtPrice - product.price) / product.compareAtPrice) *
+            100,
+        )
+      : 0
   const primaryImage = product.imagePaths?.[0] ?? product.images?.[0] ?? product.imageUrl
   const imageSrc = primaryImage ? getImageUrl(primaryImage) : '/placeholder-product.svg'
 
@@ -63,24 +68,22 @@ export function ProductCardServer({ product }: ProductCardServerProps) {
             <p className="mt-1 text-sm text-gray-500">{product.brand}</p>
           )}
 
-          <div className="mt-3 flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <span className="text-lg font-bold text-gray-900">
-                {formatPrice(product.price)}
-              </span>
-              {product.compareAtPrice && (
-                <span className="text-sm text-gray-500 line-through">
-                  {formatPrice(product.compareAtPrice)}
-                </span>
-              )}
-            </div>
-          </div>
+          <PriceOrConsult
+            product={product}
+            layout={product.consultRequired ? 'stack' : 'inline'}
+            className="mt-3"
+            priceClassName="text-lg font-bold text-gray-900"
+            comparePriceClassName="text-sm text-gray-500 line-through"
+            buttonClassName="w-full justify-center"
+          />
 
           {/* Add to Cart Button - Static for server component */}
-          <div className="w-full mt-3 inline-flex items-center justify-center rounded-lg font-medium transition-colors bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 px-3 py-2 text-sm">
-            <ShoppingCart className="h-4 w-4 mr-2" />
-            Agregar al carrito
-          </div>
+          {!product.consultRequired && (
+            <div className="w-full mt-3 inline-flex items-center justify-center rounded-lg font-medium transition-colors bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 px-3 py-2 text-sm">
+              <ShoppingCart className="h-4 w-4 mr-2" />
+              Agregar al carrito
+            </div>
+          )}
         </div>
       </div>
     </div>

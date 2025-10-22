@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { signOut } from "firebase/auth";
-import { addDoc, deleteDoc, updateDoc } from "firebase/firestore";
+import { addDoc, deleteDoc, deleteField, updateDoc } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useRouter } from "next/navigation";
 import {
@@ -89,6 +89,8 @@ export interface ProductDraft {
   category: string;
   bestSeller: boolean;
   images: string[];
+  consultRequired: boolean;
+  consultNote: string;
 }
 
 interface CategoryDraft {
@@ -147,6 +149,8 @@ export default function AdminPanel() {
       category: categoryOptions[0] || "",
       bestSeller: false,
       images: [""],
+      consultRequired: false,
+      consultNote: "",
     }),
     [categoryOptions]
   );
@@ -553,7 +557,9 @@ export default function AdminPanel() {
       const imagesToPersist = sanitizedImages;
       const primaryImage = imagesToPersist[0] || "";
 
-      const payload = {
+      const trimmedConsultNote = (draft.consultNote ?? "").trim();
+
+      const payload: Record<string, unknown> = {
         price: normalizedPrice,
         description: draft.description ?? "",
         name: (draft.name ?? "").trim(),
@@ -561,6 +567,8 @@ export default function AdminPanel() {
         images: imagesToPersist,
         bestSeller: Boolean(draft.bestSeller),
         imageUrl: primaryImage,
+        consultRequired: Boolean(draft.consultRequired),
+        consultNote: trimmedConsultNote ? trimmedConsultNote : deleteField(),
       };
 
       await updateDoc(getProductDoc(docId), payload);
@@ -570,12 +578,14 @@ export default function AdminPanel() {
         ...prev,
         [docId]: {
           ...(prev[docId] || {}),
-          name: payload.name,
-          category: payload.category,
+          name: payload.name as string,
+          category: payload.category as string,
           price: String(payload.price),
-          description: payload.description,
+          description: payload.description as string,
           images: imagesForDraft,
-          bestSeller: payload.bestSeller,
+          bestSeller: payload.bestSeller as boolean,
+          consultRequired: Boolean(payload.consultRequired),
+          consultNote: trimmedConsultNote,
         },
       }));
       setErrorNotice("");
@@ -688,9 +698,11 @@ export default function AdminPanel() {
     const priceValue = Number(newProduct.price);
     const normalizedPrice =
       Number.isFinite(priceValue) && priceValue >= 0 ? priceValue : 0;
+    const consultRequired = Boolean(newProduct.consultRequired);
+    const consultNoteValue = (newProduct.consultNote ?? "").trim();
 
     try {
-      await addDoc(getProductsCollection(), {
+      const payload: Record<string, unknown> = {
         name: nameValue,
         price: normalizedPrice,
         description: descriptionValue,
@@ -698,7 +710,14 @@ export default function AdminPanel() {
         images: sanitizedImages,
         imageUrl: primaryImageUrl,
         bestSeller: Boolean(newProduct.bestSeller),
-      });
+        consultRequired,
+      };
+
+      if (consultNoteValue) {
+        payload.consultNote = consultNoteValue;
+      }
+
+      await addDoc(getProductsCollection(), payload);
       setNewProduct(createEmptyForm());
       setErrorNotice("");
       setMessage({ type: "success", text: "Producto agregado con éxito." });
@@ -856,6 +875,9 @@ export default function AdminPanel() {
             const defaultDescription =
               typeof product.description === "string" ? product.description : "";
             const defaultName = typeof product.name === "string" ? product.name : "";
+            const defaultConsultRequired = Boolean(product.consultRequired);
+            const defaultConsultNote =
+              typeof product.consultNote === "string" ? product.consultNote : "";
 
             if (!nextDrafts[key]) {
               nextDrafts[key] = {
@@ -865,6 +887,8 @@ export default function AdminPanel() {
                 category: matchedCategory,
                 bestSeller: Boolean(product.bestSeller),
                 images: imagesForDraft,
+                consultRequired: defaultConsultRequired,
+                consultNote: defaultConsultNote,
               };
               return;
             }
@@ -905,6 +929,14 @@ export default function AdminPanel() {
                 typeof prevEntry.bestSeller === "boolean"
                   ? prevEntry.bestSeller
                   : Boolean(product.bestSeller),
+              consultRequired:
+                typeof prevEntry.consultRequired === "boolean"
+                  ? prevEntry.consultRequired
+                  : defaultConsultRequired,
+              consultNote:
+                typeof prevEntry.consultNote === "string"
+                  ? prevEntry.consultNote
+                  : defaultConsultNote,
             };
           });
 

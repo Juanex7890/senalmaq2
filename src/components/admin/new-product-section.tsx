@@ -64,6 +64,8 @@ export default function NewProductSection({
 
   const newProductPreviewUrl = pickFirstValidImage(newProduct.images);
   const newProductImages = ensureImageList(newProduct.images);
+  const consultRequired = Boolean(newProduct.consultRequired);
+  const consultNote = newProduct.consultNote ?? "";
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -89,6 +91,37 @@ export default function NewProductSection({
             value={newProduct.price}
             onChange={onNewProductChange("price")}
             className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-base focus:border-green-600 focus:ring-2 focus:ring-green-100"
+          />
+          {consultRequired && (
+            <p className="mt-1 text-xs font-medium text-amber-600">
+              El precio se ocultará en la tienda.
+            </p>
+          )}
+        </label>
+        <div className="flex items-center gap-2 md:col-span-2">
+          <input
+            id="new-product-consult-required"
+            type="checkbox"
+            checked={consultRequired}
+            onChange={onNewProductChange("consultRequired")}
+            className="h-4 w-4 rounded border-slate-300 text-green-600 focus:ring-green-500"
+          />
+          <label
+            htmlFor="new-product-consult-required"
+            className="text-sm font-semibold text-slate-700"
+          >
+            Requiere consulta (ocultar precio)
+          </label>
+        </div>
+        <label className="block text-sm font-semibold text-slate-700 md:col-span-2">
+          Nota para el asesor (opcional)
+          <input
+            type="text"
+            value={consultNote}
+            onChange={onNewProductChange("consultNote")}
+            placeholder="Precio variable por configuración"
+            className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-green-600 focus:ring-2 focus:ring-green-100"
+            disabled={!consultRequired}
           />
         </label>
         <div className="flex items-center gap-2 md:col-span-2">

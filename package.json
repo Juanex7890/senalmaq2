@@ -10,6 +10,8 @@
     "postbuild": "next-sitemap",
     "seed": "tsx scripts/seed.ts",
     "migrate": "tsx scripts/migrate-data.ts",
+    "backfill-consult": "tsx scripts/backfill-consult-required.ts",
+    "test:price-or-consult": "tsx tests/price-or-consult.test.tsx",
     "setup-admin": "node scripts/setup-admin.js",
     "check-data": "tsx scripts/check-data.ts",
     "fix-categories": "tsx scripts/fix-categories.ts",

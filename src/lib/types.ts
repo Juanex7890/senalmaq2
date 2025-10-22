@@ -38,6 +38,8 @@ export interface Product {
   search?: string;
   compareAtPrice?: number;
   sku?: string;
+  consultRequired: boolean;
+  consultNote?: string;
 }
 
 export interface SiteMedia {

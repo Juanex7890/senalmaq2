@@ -230,9 +230,15 @@ export function SearchBarOverlay({ placeholder = 'Buscar productos...', classNam
                         <p className="text-sm text-gray-500 truncate">
                           {product.categoryName || product.category}
                         </p>
-                        <p className="text-sm font-semibold text-green-600">
-                          {formatPrice(product.price)}
-                        </p>
+                        {product.consultRequired ? (
+                          <p className="text-sm font-semibold text-amber-700">
+                            Consultar con un asesor
+                          </p>
+                        ) : (
+                          <p className="text-sm font-semibold text-green-600">
+                            {formatPrice(product.price)}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </button>

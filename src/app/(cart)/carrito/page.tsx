@@ -21,6 +21,7 @@ import {
   ArrowLeft,
   MessageCircle
 } from 'lucide-react'
+import { PriceOrConsult } from '@/components/PriceOrConsult'
 
 export default function CartPage() {
   const [cart, setCart] = useState<CartItem[]>([])
@@ -69,10 +70,23 @@ export default function CartPage() {
     updateCart([])
   }
 
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0)
-  const subtotal = cart.reduce((sum, item) => sum + (item.product?.price || 0) * item.quantity, 0)
-  const shipping = subtotal >= 50 ? 0 : 9.99
+  const totalItems = cart.reduce((sum, item) => {
+    if (item.product?.consultRequired) {
+      return sum
+    }
+    return sum + item.quantity
+  }, 0)
+
+  const subtotal = cart.reduce((sum, item) => {
+    if (item.product?.consultRequired) {
+      return sum
+    }
+    return sum + (item.product?.price || 0) * item.quantity
+  }, 0)
+
+  const shipping = subtotal > 0 && subtotal < 50 ? 9.99 : 0
   const total = subtotal + shipping
+  const hasConsultItems = cart.some((item) => item.product?.consultRequired)
 
   if (loading) {
     return (
@@ -147,6 +161,12 @@ export default function CartPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Cart Items */}
               <div className="lg:col-span-2 space-y-4">
+                {hasConsultItems && (
+                  <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                    Algunos productos requieren consulta y no se incluyen en el total. Usa
+                    <span className="font-semibold"> "Hablar por WhatsApp"</span> para coordinar la compra con un asesor.
+                  </div>
+                )}
                 {cart.map((item) => (
                   <div
                     key={item.productId}
@@ -190,47 +210,74 @@ export default function CartPage() {
                           {item.product?.brand && (
                             <p className="text-sm text-gray-500">{item.product.brand}</p>
                           )}
-                          <p className="text-lg font-bold text-primary-600">
-                            {formatPrice(item.product?.price || 0)}
-                          </p>
+                          {item.product ? (
+                            <PriceOrConsult
+                              product={item.product}
+                              layout={item.product.consultRequired ? 'stack' : 'inline'}
+                              className="mt-2"
+                              priceClassName="text-lg font-bold text-primary-600"
+                              comparePriceClassName="text-sm text-gray-500 line-through"
+                              consultationLabelClassName="text-sm font-semibold text-amber-700"
+                              buttonClassName="mt-2 w-full justify-center sm:w-auto"
+                            />
+                          ) : (
+                            <p className="mt-2 text-lg font-bold text-primary-600">
+                              {formatPrice(0)}
+                            </p>
+                          )}
+                          {item.product?.consultRequired && (
+                            <p className="mt-2 text-xs text-amber-600">
+                              Este producto no admite compra en linea.
+                            </p>
+                          )}
                         </div>
 
                         {/* Quantity Controls */}
                         <div className="flex items-center space-x-3">
+                          {!item.product?.consultRequired ? (
+                            <>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                                className="h-8 w-8"
+                              >
+                                <Minus className="h-4 w-4" />
+                              </Button>
+                              <Input
+                                type="number"
+                                value={item.quantity}
+                                onChange={(e) =>
+                                  updateQuantity(item.productId, parseInt(e.target.value, 10) || 0)
+                                }
+                                className="w-16 text-center"
+                                min="1"
+                              />
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                                className="h-8 w-8"
+                              >
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            </>
+                          ) : (
+                            <span className="text-xs font-semibold text-amber-600">
+                              Consulta requerida
+                            </span>
+                          )}
+
+                          {/* Remove Button */}
                           <Button
-                            variant="outline"
+                            variant="ghost"
                             size="icon"
-                            onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                            className="h-8 w-8"
+                            onClick={() => removeFromCart(item.productId)}
+                            className="text-red-600 hover:text-red-700"
                           >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                          <Input
-                            type="number"
-                            value={item.quantity}
-                            onChange={(e) => updateQuantity(item.productId, parseInt(e.target.value) || 0)}
-                            className="w-16 text-center"
-                            min="1"
-                          />
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                            className="h-8 w-8"
-                          >
-                            <Plus className="h-4 w-4" />
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
-
-                        {/* Remove Button */}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeFromCart(item.productId)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
                       </div>
                     </div>
                   ))}
