@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 
 import { mapSocialDataToSiteMedia, type SiteMedia } from '@/lib/actions/media'
+import { setRuntimeWhatsappUrl } from '@/lib/whatsapp'
 import { mapSocialDocument, subscribeToSocial } from '@/lib/firebase'
 
 type FooterSocialLinks = Pick<SiteMedia, 'instagramUrl' | 'youtubeUrl' | 'tiktokUrl' | 'whatsappUrl'>
@@ -41,7 +42,9 @@ export function Footer({ siteMedia, contactInfo }: FooterProps) {
   const [socialLinks, setSocialLinks] = useState<FooterSocialLinks>(() => extractSocialLinks(siteMedia))
 
   useEffect(() => {
-    setSocialLinks(extractSocialLinks(siteMedia))
+    const nextLinks = extractSocialLinks(siteMedia)
+    setSocialLinks(nextLinks)
+    setRuntimeWhatsappUrl(nextLinks.whatsappUrl)
   }, [siteMedia])
 
   useEffect(() => {
@@ -50,16 +53,20 @@ export function Footer({ siteMedia, contactInfo }: FooterProps) {
     const unsubscribe = subscribeToSocial(
       (snapshot) => {
         if (!snapshot.exists()) {
+          const nextLinks = extractSocialLinks(undefined)
           if (isMounted) {
-            setSocialLinks(extractSocialLinks(undefined))
+            setSocialLinks(nextLinks)
           }
+          setRuntimeWhatsappUrl(nextLinks.whatsappUrl)
           return
         }
 
         const mapped = mapSocialDataToSiteMedia(mapSocialDocument(snapshot))
+        const nextLinks = extractSocialLinks(mapped)
         if (isMounted) {
-          setSocialLinks(extractSocialLinks(mapped))
+          setSocialLinks(nextLinks)
         }
+        setRuntimeWhatsappUrl(nextLinks.whatsappUrl)
       },
       (error) => {
         console.error('Error syncing footer social links:', error)

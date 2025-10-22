@@ -8,11 +8,13 @@ import { PriceOrConsult } from '@/components/PriceOrConsult'
 
 interface ProductCardServerProps {
   product: Product
+  whatsappUrl?: string | null
 }
 
-export function ProductCardServer({ product }: ProductCardServerProps) {
+export function ProductCardServer({ product, whatsappUrl }: ProductCardServerProps) {
+  const consultRequired = Boolean(product.consultRequired)
   const discount =
-    !product.consultRequired && product.compareAtPrice
+    !consultRequired && product.compareAtPrice
       ? Math.round(
           ((product.compareAtPrice - product.price) / product.compareAtPrice) *
             100,
@@ -70,7 +72,8 @@ export function ProductCardServer({ product }: ProductCardServerProps) {
 
           <PriceOrConsult
             product={product}
-            layout={product.consultRequired ? 'stack' : 'inline'}
+            whatsappUrl={whatsappUrl}
+            layout={consultRequired ? 'stack' : 'inline'}
             className="mt-3"
             priceClassName="text-lg font-bold text-gray-900"
             comparePriceClassName="text-sm text-gray-500 line-through"
@@ -78,7 +81,7 @@ export function ProductCardServer({ product }: ProductCardServerProps) {
           />
 
           {/* Add to Cart Button - Static for server component */}
-          {!product.consultRequired && (
+          {!consultRequired && (
             <div className="w-full mt-3 inline-flex items-center justify-center rounded-lg font-medium transition-colors bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 px-3 py-2 text-sm">
               <ShoppingCart className="h-4 w-4 mr-2" />
               Agregar al carrito

@@ -179,7 +179,7 @@ async function HomePageContent() {
               className="max-w-7xl mx-auto"
             >
               {bestsellers.map((product) => (
-                <ProductCardClient key={product.id} product={product} />
+                <ProductCardClient key={product.id} product={product} whatsappUrl={siteMedia?.whatsappUrl} />
               ))}
             </InfiniteSlider>
           </div>

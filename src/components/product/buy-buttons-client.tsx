@@ -19,9 +19,10 @@ import { buildWhatsAppLink } from '@/lib/whatsapp'
 
 interface BuyButtonsClientProps {
   product: Product
+  whatsappUrl?: string | null
 }
 
-export function BuyButtonsClient({ product }: BuyButtonsClientProps) {
+export function BuyButtonsClient({ product, whatsappUrl }: BuyButtonsClientProps) {
   const [quantity, setQuantity] = useState(1)
   const [isProcessing, setIsProcessing] = useState(false)
 
@@ -83,18 +84,19 @@ export function BuyButtonsClient({ product }: BuyButtonsClientProps) {
     }
   }
 
-  const whatsappLink = buildWhatsAppLink(product)
+  const whatsappLink = buildWhatsAppLink(product, { whatsappUrl })
 
   return (
     <div className="space-y-6">
       <div className="space-y-2">
         <PriceOrConsult
           product={product}
+          whatsappUrl={whatsappUrl}
           layout={consultRequired ? 'stack' : 'inline'}
           className="space-y-2"
           priceClassName="text-3xl font-bold text-gray-900"
           comparePriceClassName="text-xl text-gray-500 line-through"
-          consultationLabelClassName="text-2xl font-semibold text-amber-700"
+          consultationLabelClassName="text-2xl font-semibold text-green-700"
           buttonClassName="w-full sm:w-auto justify-center"
         />
         {!consultRequired && discount > 0 && (
@@ -178,7 +180,7 @@ export function BuyButtonsClient({ product }: BuyButtonsClientProps) {
             }}
           >
             <MessageCircle className="mr-2 h-5 w-5" />
-            Consultar por WhatsApp
+            Contactar con un asesor
           </Button>
         </div>
       ) : null}

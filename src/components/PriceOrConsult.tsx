@@ -1,4 +1,5 @@
 import React, { ReactNode } from 'react'
+import { MessageCircle } from 'lucide-react'
 import { Product } from '@/lib/types'
 import { cn, formatPrice } from '@/lib/utils'
 import { buildWhatsAppLink } from '@/lib/whatsapp'
@@ -10,6 +11,7 @@ type PriceLikeProduct = Pick<
 
 type PriceOrConsultProps = {
   product: PriceLikeProduct
+  whatsappUrl?: string | null
   className?: string
   priceClassName?: string
   comparePriceClassName?: string
@@ -22,6 +24,7 @@ type PriceOrConsultProps = {
 
 export function PriceOrConsult({
   product,
+  whatsappUrl,
   className,
   priceClassName,
   comparePriceClassName,
@@ -32,19 +35,15 @@ export function PriceOrConsult({
   extraContent,
 }: PriceOrConsultProps) {
   if (product.consultRequired) {
-    const waLink = buildWhatsAppLink(product)
-    const labelClasses =
-      consultationLabelClassName ??
-      'text-base font-semibold text-amber-700 leading-tight'
+    const waLink = buildWhatsAppLink(product, { whatsappUrl })
     const buttonClasses = cn(
-      'inline-flex items-center justify-center rounded-lg border border-green-200 bg-green-50 px-4 py-2 text-sm font-semibold text-green-700 transition hover:bg-green-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2',
-      !waLink && 'pointer-events-none opacity-60 cursor-not-allowed',
+      'flex w-full items-center justify-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-2 text-sm font-semibold text-green-700 transition hover:bg-green-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 pointer-events-auto',
+      !waLink && 'opacity-60 cursor-not-allowed',
       buttonClassName,
     )
 
     return (
       <div className={cn('flex flex-col gap-2', className)}>
-        <span className={labelClasses}>Consultar con un asesor</span>
         {product.consultNote ? (
           <p className={cn('text-sm text-slate-600', noteClassName)}>
             {product.consultNote}
@@ -55,12 +54,13 @@ export function PriceOrConsult({
           href={waLink ?? '#'}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label={`Consultar por WhatsApp sobre ${product.name}`}
+          aria-label={`Contactar por WhatsApp sobre ${product.name}`}
           title={waLink ? undefined : 'Configura NEXT_PUBLIC_WHATSAPP_NUMBER'}
           tabIndex={waLink ? 0 : -1}
           aria-disabled={!waLink}
         >
-          Hablar por WhatsApp
+          <MessageCircle className="mr-2 h-4 w-4" />
+          Contactar con un asesor
         </a>
         {extraContent}
       </div>

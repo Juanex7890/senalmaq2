@@ -13,6 +13,7 @@ interface SearchClientProps {
   brands: string[]
   categories: Category[]
   query: string
+  whatsappUrl?: string | null
 }
 
 export function SearchClient({
@@ -21,7 +22,8 @@ export function SearchClient({
   initialFilters,
   brands,
   categories,
-  query
+  query,
+  whatsappUrl,
 }: SearchClientProps) {
   const [products, setProducts] = useState(initialProducts)
   const [pagination, setPagination] = useState(initialPagination)
@@ -90,7 +92,7 @@ export function SearchClient({
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard key={product.id} product={product} whatsappUrl={whatsappUrl} />
               ))}
             </div>
 

@@ -13,13 +13,15 @@ import { PriceOrConsult } from '@/components/PriceOrConsult'
 
 interface ProductCardClientProps {
   product: Product
+  whatsappUrl?: string | null
 }
 
-export function ProductCardClient({ product }: ProductCardClientProps) {
+export function ProductCardClient({ product, whatsappUrl }: ProductCardClientProps) {
   const [isAddingToCart, setIsAddingToCart] = useState(false)
-  
+  const consultRequired = Boolean(product.consultRequired)
+
   const discount =
-    !product.consultRequired && product.compareAtPrice
+    !consultRequired && product.compareAtPrice
       ? Math.round(
           ((product.compareAtPrice - product.price) / product.compareAtPrice) *
             100,
@@ -29,7 +31,7 @@ export function ProductCardClient({ product }: ProductCardClientProps) {
   const imageSrc = primaryImage ? getImageUrl(primaryImage) : '/placeholder-product.svg'
 
   const handleAddToCart = async () => {
-    if (isAddingToCart || product.consultRequired) return
+    if (isAddingToCart || consultRequired) return
     
     setIsAddingToCart(true)
     try {
@@ -41,7 +43,7 @@ export function ProductCardClient({ product }: ProductCardClientProps) {
   }
 
   const handleBuyNow = async () => {
-    if (isAddingToCart || product.consultRequired) return
+    if (isAddingToCart || consultRequired) return
     
     if (!product.active) {
       const event = new CustomEvent('showToast', {
@@ -116,14 +118,15 @@ export function ProductCardClient({ product }: ProductCardClientProps) {
 
           <PriceOrConsult
             product={product}
-            layout={product.consultRequired ? 'stack' : 'inline'}
+            whatsappUrl={whatsappUrl}
+            layout={consultRequired ? 'stack' : 'inline'}
             className="mt-3"
             priceClassName="text-lg font-bold text-gray-900"
             comparePriceClassName="text-sm text-gray-500 line-through"
             buttonClassName="w-full justify-center"
           />
 
-          {!product.consultRequired && (
+          {!consultRequired && (
             <>
               <Button
                 onClick={handleAddToCart}

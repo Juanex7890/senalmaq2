@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getCategoryBySlug, getCategories } from '@/lib/actions/categories'
 import { getProductsWithPagination } from '@/lib/actions/products'
+import { getSiteMedia } from '@/lib/actions/media'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { CategoryClient } from '@/components/catalog/category-client'
@@ -38,6 +39,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   }
 
   const categories = await getCategories()
+  const siteMedia = await getSiteMedia().catch(() => null)
 
   const categoryNameParam = resolvedSearchParams.categoryName
   const categorySlugParam = resolvedSearchParams.categorySlug
@@ -110,11 +112,12 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
             brands={brands}
             category={category}
             categories={categories}
+            whatsappUrl={siteMedia?.whatsappUrl ?? null}
           />
         </div>
       </main>
 
-      <Footer />
+      <Footer siteMedia={siteMedia ?? undefined} />
     </div>
   )
 }

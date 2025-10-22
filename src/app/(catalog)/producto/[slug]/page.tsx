@@ -3,6 +3,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getProductBySlug, getProductsWithPagination, resolveCategoryForProduct } from '@/lib/actions/products'
+import { getSiteMedia } from '@/lib/actions/media'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Gallery } from '@/components/product/gallery'
@@ -29,6 +30,7 @@ async function ProductContent({ slug }: { slug: string }) {
   }
 
   const categories = await getCategories()
+  const siteMedia = await getSiteMedia().catch(() => null)
   const category = resolveCategoryForProduct(product, categories) || undefined
 
   // Get related products (same category, excluding current product)
@@ -99,7 +101,7 @@ async function ProductContent({ slug }: { slug: string }) {
                 <div dangerouslySetInnerHTML={{ __html: product.description }} />
               </div>
 
-              <BuyButtonsClient product={product} />
+              <BuyButtonsClient product={product} whatsappUrl={siteMedia?.whatsappUrl} />
             </div>
           </div>
 
@@ -156,7 +158,11 @@ async function ProductContent({ slug }: { slug: string }) {
               <h2 className="text-2xl font-bold text-gray-900 mb-8">Productos relacionados</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {filteredRelated.map((relatedProduct) => (
-                  <ProductCardServer key={relatedProduct.id} product={relatedProduct} />
+                  <ProductCardServer
+                    key={relatedProduct.id}
+                    product={relatedProduct}
+                    whatsappUrl={siteMedia?.whatsappUrl}
+                  />
                 ))}
               </div>
             </div>

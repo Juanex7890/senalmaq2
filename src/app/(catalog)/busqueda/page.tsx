@@ -1,5 +1,6 @@
 import { searchProducts } from '@/lib/actions/products'
 import { getCategories } from '@/lib/actions/categories'
+import { getSiteMedia } from '@/lib/actions/media'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { SearchClient } from '@/components/catalog/search-client'
@@ -20,6 +21,7 @@ export const revalidate = 300
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const categories = await getCategories()
+  const siteMedia = await getSiteMedia().catch(() => null)
   const resolvedSearchParams = searchParams ? await searchParams : {}
   const queryParam = resolvedSearchParams.q
   const query = Array.isArray(queryParam) ? queryParam[0] : queryParam
@@ -42,7 +44,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           </div>
         </main>
 
-        <Footer />
+        <Footer siteMedia={siteMedia ?? undefined} />
       </div>
     )
   }
@@ -100,11 +102,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             brands={brands}
             categories={categories}
             query={query}
+            whatsappUrl={siteMedia?.whatsappUrl ?? null}
           />
         </div>
       </main>
 
-      <Footer />
+      <Footer siteMedia={siteMedia ?? undefined} />
     </div>
   )
 }

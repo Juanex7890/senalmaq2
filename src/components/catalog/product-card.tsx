@@ -13,11 +13,13 @@ import { PriceOrConsult } from '@/components/PriceOrConsult'
 interface ProductCardProps {
   product: Product
   onAddToCart?: (product: Product) => void
+  whatsappUrl?: string | null
 }
 
-export function ProductCard({ product, onAddToCart }: ProductCardProps) {
+export function ProductCard({ product, onAddToCart, whatsappUrl }: ProductCardProps) {
+  const consultRequired = Boolean(product.consultRequired)
   const discount =
-    !product.consultRequired && product.compareAtPrice
+    !consultRequired && product.compareAtPrice
       ? Math.round(
           ((product.compareAtPrice - product.price) / product.compareAtPrice) *
             100,
@@ -75,14 +77,15 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
 
           <PriceOrConsult
             product={product}
-            layout={product.consultRequired ? 'stack' : 'inline'}
+            whatsappUrl={whatsappUrl}
+            layout={consultRequired ? 'stack' : 'inline'}
             className="mt-3"
             priceClassName="text-lg font-bold text-gray-900"
             comparePriceClassName="text-sm text-gray-500 line-through"
             buttonClassName="w-full justify-center"
           />
 
-          {!product.consultRequired && (
+          {!consultRequired && (
             <Button
               onClick={() =>
                 onAddToCart ? onAddToCart(product) : addToCart(product)

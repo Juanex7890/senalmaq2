@@ -13,6 +13,7 @@ interface CategoryClientProps {
   brands: string[]
   category: Category
   categories: Category[]
+  whatsappUrl?: string | null
 }
 
 export function CategoryClient({
@@ -22,6 +23,7 @@ export function CategoryClient({
   brands,
   category,
   categories,
+  whatsappUrl,
 }: CategoryClientProps) {
   const router = useRouter()
   const [isNavigating, setIsNavigating] = useState(false)
@@ -146,7 +148,7 @@ export function CategoryClient({
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 {products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                  <ProductCard key={product.id} product={product} whatsappUrl={whatsappUrl} />
                 ))}
               </div>
 

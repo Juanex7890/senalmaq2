@@ -1,5 +1,6 @@
 import { getProductsWithPagination } from '@/lib/actions/products'
 import { getCategories } from '@/lib/actions/categories'
+import { getSiteMedia } from '@/lib/actions/media'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { ProductsClient } from '@/components/catalog/products-client'
@@ -20,6 +21,7 @@ interface ProductsPageProps {
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const categories = await getCategories()
+  const siteMedia = await getSiteMedia().catch(() => null)
 
   const resolvedSearchParams = searchParams ? await searchParams : {}
 
@@ -87,11 +89,12 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             filters={filters}
             categories={categories}
             brands={brands}
+            whatsappUrl={siteMedia?.whatsappUrl ?? null}
           />
         </div>
       </main>
 
-      <Footer />
+      <Footer siteMedia={siteMedia ?? undefined} />
     </div>
   )
 }
