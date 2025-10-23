@@ -97,19 +97,19 @@ export function Header({ categories }: HeaderProps) {
       {/* Top Bar */}
       <div ref={topBarRef} className="bg-primary-600 text-white py-2">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
+          <div className="flex flex-col gap-2 text-xs sm:flex-row sm:items-center sm:justify-between sm:text-sm">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+              <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4" />
-                <span>+601 6976689</span>
+                <span className="whitespace-nowrap">+601 6976689</span>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4" />
-                <span>cosersenalmaq@gmail.com</span>
+                <span className="truncate sm:whitespace-nowrap">cosersenalmaq@gmail.com</span>
               </div>
             </div>
             <div className="hidden md:flex items-center space-x-4">
-              <span> Reclama un obsequio por compras superiores a 700.000</span>
+              <span>Reclama un obsequio por compras superiores a $700.000</span>
             </div>
           </div>
         </div>
@@ -125,7 +125,7 @@ export function Header({ categories }: HeaderProps) {
           <div className="flex items-center gap-4 h-16">
             <div className="flex items-center gap-6 flex-shrink-0">
               {/* Logo */}
-              <Link href="/" className="flex items-center space-x-2">
+              <Link href="/" className="flex items-center gap-2">
                 <Image
                   src="/images/logosenalmaq.png"
                   alt="Senalmaq Logo"
@@ -216,3 +216,6 @@ export function Header({ categories }: HeaderProps) {
     </>
   )
 }
+
+
+

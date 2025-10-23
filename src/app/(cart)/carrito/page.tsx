@@ -95,7 +95,7 @@ export default function CartPage() {
           <div className="h-16 bg-gray-200"></div>
           <div className="container mx-auto px-4 py-8">
             <div className="h-8 bg-gray-200 rounded mb-8"></div>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
               <div className="lg:col-span-2 space-y-4">
                 {Array.from({ length: 3 }).map((_, i) => (
                   <div key={i} className="h-32 bg-gray-200 rounded-2xl"></div>
@@ -116,31 +116,32 @@ export default function CartPage() {
       <main className="py-8">
         <div className="container mx-auto px-4">
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center space-x-4">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center gap-3 text-sm md:text-base">
               <Button
                 variant="ghost"
                 onClick={() => router.back()}
-                className="flex items-center space-x-2"
+                className="flex items-center gap-2 px-0 text-primary-700 hover:text-primary-800"
               >
                 <ArrowLeft className="h-4 w-4" />
                 <span>Continuar comprando</span>
               </Button>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-                Carrito de compras
-              </h1>
             </div>
             {cart.length > 0 && (
               <Button
                 variant="outline"
                 onClick={clearCart}
-                className="text-red-600 hover:text-red-700"
+                className="text-red-600 hover:text-red-700 flex items-center gap-2 self-start md:self-auto"
               >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Vaciar carrito
+                <Trash2 className="h-4 w-4" />
+                <span>Vaciar carrito</span>
               </Button>
             )}
           </div>
+
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+            Carrito de compras
+          </h1>
 
           {cart.length === 0 ? (
             /* Empty Cart */
@@ -158,7 +159,7 @@ export default function CartPage() {
               </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
               {/* Cart Items */}
               <div className="lg:col-span-2 space-y-4">
                 {hasConsultItems && (
@@ -172,7 +173,7 @@ export default function CartPage() {
                     key={item.productId}
                     className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200"
                   >
-                      <div className="flex items-center space-x-4">
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         {/* Product Image */}
                         <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                           {(() => {
@@ -203,8 +204,8 @@ export default function CartPage() {
                         </div>
 
                         {/* Product Info */}
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-gray-900 truncate">
+                        <div className="flex-1 min-w-0 space-y-2">
+                          <h3 className="font-semibold text-gray-900">
                             {item.product?.name || 'Producto no disponible'}
                           </h3>
                           {item.product?.brand && (
@@ -217,7 +218,6 @@ export default function CartPage() {
                               className="mt-2"
                               priceClassName="text-lg font-bold text-primary-600"
                               comparePriceClassName="text-sm text-gray-500 line-through"
-                              consultationLabelClassName="text-sm font-semibold text-amber-700"
                               buttonClassName="mt-2 w-full justify-center sm:w-auto"
                             />
                           ) : (
@@ -233,7 +233,7 @@ export default function CartPage() {
                         </div>
 
                         {/* Quantity Controls */}
-                        <div className="flex items-center space-x-3">
+                        <div className="flex flex-wrap items-center gap-3">
                           {!item.product?.consultRequired ? (
                             <>
                               <Button
@@ -250,7 +250,7 @@ export default function CartPage() {
                                 onChange={(e) =>
                                   updateQuantity(item.productId, parseInt(e.target.value, 10) || 0)
                                 }
-                                className="w-16 text-center"
+                                className="w-20 text-center"
                                 min="1"
                               />
                               <Button
@@ -285,7 +285,7 @@ export default function CartPage() {
 
               {/* Order Summary */}
               <div className="lg:col-span-1">
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 sticky top-8">
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 lg:sticky lg:top-8">
                   <h2 className="text-xl font-semibold text-gray-900 mb-6">
                     Resumen del pedido
                   </h2>
@@ -327,7 +327,7 @@ export default function CartPage() {
                   </div>
 
                     <div className="mt-6 space-y-3">
-                      <CheckoutButton className="w-full h-12 text-lg" />
+                      <CheckoutButton className="w-full h-12 text-base" />
 
                       <Button
                         variant="outline"
@@ -338,13 +338,13 @@ export default function CartPage() {
                       }}
                     >
                       <MessageCircle className="h-4 w-4 mr-2" />
-                      Consultar por WhatsApp
+                      Contactar con un asesor
                     </Button>
                   </div>
 
                   {/* Trust Badges */}
                   <div className="mt-6 pt-6 border-t border-gray-200">
-                    <div className="grid grid-cols-3 gap-4 text-center text-xs text-gray-500">
+                    <div className="grid grid-cols-3 gap-4 text-center text-[11px] sm:text-xs text-gray-500">
                       <div>
                         <div className="text-2xl mb-1">🛡️</div>
                         <div>Garantía</div>
@@ -370,3 +370,16 @@ export default function CartPage() {
     </div>
   )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
