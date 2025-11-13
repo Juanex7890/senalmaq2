@@ -27,6 +27,7 @@ import { Product } from "@/lib/types";
 
 
 import SocialSection from "./social-section";
+import SocialShortsSection from "./social-shorts-section";
 import CategoriesSection from "./categories-section";
 import ProductsSection from "./products-section";
 import NewProductSection from "./new-product-section";
@@ -132,6 +133,8 @@ export default function AdminPanel() {
   const [shortSavingIndex, setShortSavingIndex] = useState<number | "new" | null>(null);
   const [shortDeletingIndex, setShortDeletingIndex] = useState<number | null>(null);
   const [shortInput, setShortInput] = useState("");
+  const [activeTab, setActiveTab] = useState<"products" | "categories" | "social" | "shorts">("products");
+  const [productSearch, setProductSearch] = useState("");
 
   const categoryOptions = useMemo(() => {
     return categoryDocs
@@ -156,6 +159,12 @@ export default function AdminPanel() {
   );
   const [newProduct, setNewProduct] = useState<ProductDraft>(() => createEmptyForm());
   const [creating, setCreating] = useState(false);
+  const tabItems = [
+    { id: "products" as const, label: "Productos" },
+    { id: "categories" as const, label: "Categorías" },
+    { id: "social" as const, label: "Redes sociales" },
+    { id: "shorts" as const, label: "YouTube Shorts" },
+  ];
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -290,14 +299,6 @@ export default function AdminPanel() {
 
   const handleShortInputChange = (value: string) => {
     setShortInput(value);
-    setSocialError("");
-  };
-
-  const handleHeroImageChange = (images: string[]) => {
-    setSocialDraft((prev) => ({
-      ...prev,
-      heroImages: images,
-    }));
     setSocialError("");
   };
 
@@ -1081,76 +1082,115 @@ export default function AdminPanel() {
           </div>
         )}
 
-        <SocialSection
-          socialDraft={socialDraft}
-          socialLoading={socialLoading}
-          socialSaving={socialSaving}
-          socialError={socialError}
-          shortSavingIndex={shortSavingIndex}
-          shortDeletingIndex={shortDeletingIndex}
-          shortInput={shortInput}
-          onSocialFieldChange={handleSocialFieldChange}
-          onSaveSocialFields={handleSaveSocialFields}
-          onShortChange={handleShortChange}
-          onShortSave={handleShortSave}
-          onShortDelete={handleShortDelete}
-          onAddShort={handleAddShort}
-          onShortInputChange={handleShortInputChange}
-          onHeroImageChange={handleHeroImageChange}
-        />
-
-        <CategoriesSection
-          categoryDocs={categoryDocs}
-          categoryDrafts={categoryDrafts}
-          categoryForm={categoryForm}
-          categorySaving={categorySaving}
-          categoryDeleting={categoryDeleting}
-          categoriesLoading={categoriesLoading}
-          categoriesError={categoriesError}
-          onCategoryFormChange={handleCategoryFormChange}
-          onAddCategory={handleAddCategory}
-          onCategoryDraftChange={handleCategoryDraftChange}
-          onCategorySave={handleCategorySave}
-          onCategoryDelete={handleCategoryDelete}
-          setMessage={setMessage}
-        />
-
-        <NewProductSection
-          newProduct={newProduct}
-          creating={creating}
-          categoryOptions={categoryOptions}
-          onNewProductChange={handleNewProductChange}
-          onNewProductImageChange={handleNewProductImageChange}
-          onAddNewProductImage={handleAddNewProductImage}
-          onRemoveNewProductImage={handleRemoveNewProductImage}
-          onAddProduct={handleAddProduct}
-          resolveCategoryName={resolveCategoryName}
-          sanitizeImageList={sanitizeImageList}
-          ensureImageList={ensureImageList}
-        />
-
-        {loading ? (
-          <div className="flex h-64 flex-col items-center justify-center text-sm font-semibold text-slate-500">
-            <div className="h-12 w-12 rounded-full border-4 border-green-200 border-t-green-600 animate-spin" />
-            <p className="mt-3">Cargando productos...</p>
+        <div className="rounded-2xl border border-slate-200 bg-white/80 p-2 shadow-sm">
+          <div className="grid gap-2 sm:flex sm:flex-wrap">
+            {tabItems.map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex-1 rounded-xl px-4 py-2 text-sm font-semibold transition ${
+                    isActive
+                      ? "bg-green-700 text-white shadow-sm"
+                      : "bg-white text-slate-600 hover:bg-slate-100"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
           </div>
-        ) : (
-          <ProductsSection
-            products={products}
-            drafts={drafts}
-            saving={saving}
-            deleting={deleting}
-            categoryOptions={categoryOptions}
-            onDraftChange={handleDraftChange}
-            onDraftImageChange={handleDraftImageChange}
-            onDraftAddImage={handleDraftAddImage}
-            onDraftRemoveImage={handleDraftRemoveImage}
-            onSave={handleSave}
-            onDeleteProduct={handleDeleteProduct}
-            resolveCategoryName={resolveCategoryName}
-            sanitizeImageList={sanitizeImageList}
-            ensureImageList={ensureImageList}
+        </div>
+
+        {activeTab === "social" && (
+          <SocialSection
+            socialDraft={socialDraft}
+            socialLoading={socialLoading}
+            socialSaving={socialSaving}
+            socialError={socialError}
+            onSocialFieldChange={handleSocialFieldChange}
+            onSaveSocialFields={handleSaveSocialFields}
           />
+        )}
+
+        {activeTab === "shorts" && (
+          <SocialShortsSection
+            socialDraft={socialDraft}
+            socialLoading={socialLoading}
+            socialSaving={socialSaving}
+            shortSavingIndex={shortSavingIndex}
+            shortDeletingIndex={shortDeletingIndex}
+            shortInput={shortInput}
+            onShortChange={handleShortChange}
+            onShortSave={handleShortSave}
+            onShortDelete={handleShortDelete}
+            onAddShort={handleAddShort}
+            onShortInputChange={handleShortInputChange}
+          />
+        )}
+
+        {activeTab === "categories" && (
+          <CategoriesSection
+            categoryDocs={categoryDocs}
+            categoryDrafts={categoryDrafts}
+            categoryForm={categoryForm}
+            categorySaving={categorySaving}
+            categoryDeleting={categoryDeleting}
+            categoriesLoading={categoriesLoading}
+            categoriesError={categoriesError}
+            onCategoryFormChange={handleCategoryFormChange}
+            onAddCategory={handleAddCategory}
+            onCategoryDraftChange={handleCategoryDraftChange}
+            onCategorySave={handleCategorySave}
+            onCategoryDelete={handleCategoryDelete}
+            setMessage={setMessage}
+          />
+        )}
+
+        {activeTab === "products" && (
+          <div className="space-y-4">
+            <NewProductSection
+              newProduct={newProduct}
+              creating={creating}
+              categoryOptions={categoryOptions}
+              onNewProductChange={handleNewProductChange}
+              onNewProductImageChange={handleNewProductImageChange}
+              onAddNewProductImage={handleAddNewProductImage}
+              onRemoveNewProductImage={handleRemoveNewProductImage}
+              onAddProduct={handleAddProduct}
+              resolveCategoryName={resolveCategoryName}
+              sanitizeImageList={sanitizeImageList}
+              ensureImageList={ensureImageList}
+            />
+
+            {loading ? (
+              <div className="flex h-64 flex-col items-center justify-center text-sm font-semibold text-slate-500">
+                <div className="h-12 w-12 rounded-full border-4 border-green-200 border-t-green-600 animate-spin" />
+                <p className="mt-3">Cargando productos...</p>
+              </div>
+            ) : (
+              <ProductsSection
+                products={products}
+                drafts={drafts}
+                saving={saving}
+                deleting={deleting}
+                categoryOptions={categoryOptions}
+                searchTerm={productSearch}
+                onSearchTermChange={(value) => setProductSearch(value)}
+                onDraftChange={handleDraftChange}
+                onDraftImageChange={handleDraftImageChange}
+                onDraftAddImage={handleDraftAddImage}
+                onDraftRemoveImage={handleDraftRemoveImage}
+                onSave={handleSave}
+                onDeleteProduct={handleDeleteProduct}
+                resolveCategoryName={resolveCategoryName}
+                sanitizeImageList={sanitizeImageList}
+                ensureImageList={ensureImageList}
+              />
+            )}
+          </div>
         )}
       </main>
     </div>

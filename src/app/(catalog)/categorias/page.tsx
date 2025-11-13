@@ -5,9 +5,9 @@ import { CategoryCard } from '@/components/catalog/category-card'
 import { generateMetadata } from '@/lib/seo'
 
 export const metadata = generateMetadata({
-  title: 'CategorA-as de Productos',
-  description: 'Explora todas nuestras categorA-as de mA�quinas de coser, fileteadoras, cortadoras y accesorios industriales.',
-  keywords: 'categorA-as, mA�quinas de coser, fileteadoras, cortadoras, planchas, accesorios',
+  title: 'Categorias de Productos',
+  description: 'Explora todas nuestras categorias de maquinas de coser, fileteadoras, cortadoras y accesorios industriales.',
+  keywords: 'categorias, maquinas de coser, fileteadoras, cortadoras, planchas, accesorios',
 })
 
 export const revalidate = 300
@@ -23,10 +23,10 @@ export default async function CategoriesPage() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Nuestras CategorA-as
+              Nuestras Categoris
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Explora nuestra amplia gama de productos organizados por categorA-as. 
+              Explora nuestra amplia gama de productos organizados por categorias. 
               Encuentra exactamente lo que necesitas para tu taller o negocio.
             </p>
           </div>
@@ -39,12 +39,12 @@ export default async function CategoriesPage() {
             </div>
           ) : (
             <div className="text-center py-16">
-              <div className="text-6xl text-gray-300 mb-4">dY"�</div>
+              <div className="text-6xl text-gray-300 mb-4"></div>
               <h3 className="text-xl font-semibold text-gray-600 mb-2">
-                No hay categorA-as disponibles
+                No hay categorias disponibles
               </h3>
               <p className="text-gray-500">
-                Pronto tendremos categorA-as disponibles para ti.
+                Pronto tendremos categorias disponibles para ti.
               </p>
             </div>
           )}

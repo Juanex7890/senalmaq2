@@ -40,6 +40,8 @@ export const metadata: Metadata = {
   },
 }
 
+export const revalidate = 60
+
 async function HomePageContent() {
   let bestsellers: any[] = []
   let siteMedia: any = null
