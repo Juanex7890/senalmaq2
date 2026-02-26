@@ -256,17 +256,6 @@ export async function getProductsWithPagination(
   try {
     const allProducts = await getAllProducts();
 
-    // Debug logging
-    console.log('dY"? getProductsWithPagination Debug:');
-    console.log('  - Total products:', allProducts.length);
-    console.log('  - Filter categoryName:', filters.categoryName);
-    console.log('  - Filter categorySlug:', filters.categorySlug);
-    console.log('  - Sample product categories:', allProducts.slice(0, 3).map(p => ({
-      name: p.name,
-      categoryName: p.categoryName || p.category,
-      categorySlug: p.categorySlug,
-    })));
-
     // Apply category filter
     let filteredProducts = allProducts;
     const categoryFilter: CategoryFilterInput = {
@@ -281,7 +270,6 @@ export async function getProductsWithPagination(
       filteredProducts = allProducts.filter((product) =>
         matchesCategoryFilter(product, categoryFilter)
       );
-      console.log('  - Products after category filter:', filteredProducts.length);
     }
 
     // Apply price filters
@@ -393,4 +381,3 @@ export function resolveCategoryForProduct(product: Product, categories: Category
 
   return null;
 }
-

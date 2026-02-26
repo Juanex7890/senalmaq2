@@ -53,7 +53,7 @@ export function ProductCardServer({ product, whatsappUrl }: ProductCardServerPro
               alt={product.name}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              sizes="(max-width: 640px) 92vw, (max-width: 1024px) 46vw, (max-width: 1536px) 23vw, 280px"
             />
           </div>
         </Link>

@@ -68,13 +68,18 @@ export function getImageUrl(path?: string | null): string {
   }
 }
 
-export function getYouTubeEmbedUrl(videoId: string, isShort = false): string {
-  if (isShort) {
-    return `https://www.youtube.com/embed/${videoId}?autoplay=0&mute=1&controls=1&showinfo=0&rel=0&modestbranding=1`
-  }
-  return `https://www.youtube.com/embed/${videoId}?autoplay=0&mute=1&controls=1&showinfo=0&rel=0&modestbranding=1`
+export function getYouTubeEmbedUrl(videoId: string): string {
+  const params = new URLSearchParams({
+    autoplay: '0',
+    controls: '1',
+    modestbranding: '1',
+    playsinline: '1',
+    rel: '0',
+  })
+
+  return `https://www.youtube-nocookie.com/embed/${videoId}?${params.toString()}`
 }
 
 export function getYouTubeThumbnail(videoId: string): string {
-  return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
+  return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`
 }

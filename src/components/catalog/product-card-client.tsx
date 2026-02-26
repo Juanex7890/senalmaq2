@@ -14,9 +14,16 @@ import { PriceOrConsult } from '@/components/PriceOrConsult'
 interface ProductCardClientProps {
   product: Product
   whatsappUrl?: string | null
+  imageSizes?: string
+  priority?: boolean
 }
 
-export function ProductCardClient({ product, whatsappUrl }: ProductCardClientProps) {
+export function ProductCardClient({
+  product,
+  whatsappUrl,
+  imageSizes = '(max-width: 640px) 90vw, (max-width: 1024px) 46vw, 320px',
+  priority = false,
+}: ProductCardClientProps) {
   const [isAddingToCart, setIsAddingToCart] = useState(false)
   const consultRequired = Boolean(product.consultRequired)
 
@@ -99,7 +106,9 @@ export function ProductCardClient({ product, whatsappUrl }: ProductCardClientPro
               alt={product.name}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              sizes={imageSizes}
+              priority={priority}
+              fetchPriority={priority ? 'high' : undefined}
             />
           </div>
         </Link>

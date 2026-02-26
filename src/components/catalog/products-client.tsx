@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ProductCard } from '@/components/catalog/product-card'
 import { Pagination } from '@/components/catalog/pagination'
@@ -25,6 +25,10 @@ export function ProductsClient({
 }: ProductsClientProps) {
   const router = useRouter()
   const [isNavigating, setIsNavigating] = useState(false)
+
+  useEffect(() => {
+    setIsNavigating(false)
+  }, [products, pagination.page])
 
   const enrichFilters = (input: SearchFilters, override?: Category): SearchFilters => {
     const next: SearchFilters = { ...input }

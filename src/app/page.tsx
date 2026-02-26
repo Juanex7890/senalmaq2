@@ -7,21 +7,13 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { SearchBarOverlay } from '@/components/catalog/search-bar-overlay'
 import { ProductCardClient } from '@/components/catalog/product-card-client'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { InfiniteSlider } from '@/components/ui/infinite-slider'
-import { SimpleSlider } from '@/components/ui/simple-slider'
-import { ClickableVideo } from '@/components/ui/clickable-video'
+import { HomeShortsSectionLazy } from '@/components/home/home-shorts-section-lazy'
 import { 
-  Shield, 
-  Truck, 
   MessageCircle, 
-  Star,
-  Play,
   Instagram,
   Youtube
 } from 'lucide-react'
-import { getYouTubeEmbedUrl, getYouTubeThumbnail } from '@/lib/utils'
 export const metadata: Metadata = {
   title: 'Inicio',
   description:
@@ -85,15 +77,14 @@ async function HomePageContent() {
                     <div className="relative w-full aspect-[16/9] md:aspect-[2/1]">
                       <iframe
                         className="absolute inset-0 h-full w-full"
-                        src={getYouTubeEmbedUrl(siteMedia.youtubeMainId)}
-                        loading="lazy"
+                        src={`https://www.youtube-nocookie.com/embed/${siteMedia.youtubeMainId}?controls=1&rel=0&playsinline=1`}
                         title="Senalmaq - Maquinas de Coser"
-                        allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        loading="lazy"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         referrerPolicy="strict-origin-when-cross-origin"
                         allowFullScreen
-              />
-            </div>
-                    <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-tr from-white/0 to-white/5" />
+                      />
+                    </div>
                   </div>
                 </div>
               )}
@@ -180,8 +171,14 @@ async function HomePageContent() {
               autoPlaySpeed={4}
               className="max-w-7xl mx-auto"
             >
-              {bestsellers.map((product) => (
-                <ProductCardClient key={product.id} product={product} whatsappUrl={siteMedia?.whatsappUrl} />
+              {bestsellers.map((product, index) => (
+                <ProductCardClient
+                  key={product.id}
+                  product={product}
+                  whatsappUrl={siteMedia?.whatsappUrl}
+                  imageSizes="(max-width: 640px) 88vw, (max-width: 1024px) 44vw, 320px"
+                  priority={index === 0 && !siteMedia?.youtubeMainId}
+                />
               ))}
             </InfiniteSlider>
           </div>
@@ -190,42 +187,10 @@ async function HomePageContent() {
 
         {/* YouTube Shorts Section */}
         {siteMedia?.youtubeShortIds && siteMedia.youtubeShortIds.length > 0 && (
-          <section className="py-6 bg-white">
-            <div className="max-w-screen-xl mx-auto px-4">
-              <div className="flex items-end justify-between mb-2">
-                <h3 className="text-lg font-extrabold text-green-800">Shorts</h3>
-                {siteMedia.youtubeUrl && (
-                  <a
-                    href={siteMedia.youtubeUrl}
-                    target="_blank" 
-                    rel="noreferrer"
-                    className="text-green-700 text-sm hover:underline"
-                  >
-                    Ver canal +
-                  </a>
-                )}
-              </div>
-
-              <SimpleSlider
-                itemWidth={260}
-                gap={20}
-                autoPlay={false}
-                className="max-w-7xl mx-auto"
-              >
-                {siteMedia.youtubeShortIds.slice(0, 6).map((videoId: string, index: number) => (
-                  <div
-                    key={videoId}
-                    className="min-w-[240px] max-w-[260px] snap-start bg-white rounded-2xl shadow border border-green-100 p-2"
-                  >
-                    <ClickableVideo
-                      videoId={videoId}
-                      title={`Short ${videoId}`}
-                    />
-                  </div>
-                ))}
-              </SimpleSlider>
-            </div>
-          </section>
+          <HomeShortsSectionLazy
+            youtubeShortIds={siteMedia.youtubeShortIds}
+            youtubeUrl={siteMedia.youtubeUrl || undefined}
+          />
         )}
 
 
