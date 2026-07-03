@@ -23,7 +23,7 @@ export default async function CategoriesPage() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Nuestras Categoris
+              Nuestras Categorias
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Explora nuestra amplia gama de productos organizados por categorias. 

@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   if (!category) {
     return {
-      title: 'CategorA-a no encontrada',
+      title: 'Categoria no encontrada',
     }
   }
 
@@ -89,7 +89,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
           <nav className="flex items-center space-x-2 text-sm text-gray-500 mb-8">
             <Link href="/" className="hover:text-primary-600">Inicio</Link>
             <span>/</span>
-            <Link href="/categorias" className="hover:text-primary-600">CategorA-as</Link>
+            <Link href="/categorias" className="hover:text-primary-600">Categorias</Link>
             <span>/</span>
             <span className="text-gray-900">{category.name}</span>
           </nav>

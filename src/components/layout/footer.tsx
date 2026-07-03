@@ -84,14 +84,14 @@ export function Footer({ siteMedia, contactInfo }: FooterProps) {
   const footerLinks = {
     company: [
       { name: 'Sobre nosotros', href: '/sobre-nosotros' },
+      { name: 'Garantia y devoluciones', href: '/garantia' },
       { name: 'Contacto', href: '/contacto' },
-      { name: 'Politica de privacidad', href: '/privacidad' },
-      { name: 'Terminos y condiciones', href: '/terminos' },
+      { name: 'Politica de cookies', href: '/cookies' },
     ],
     support: [
       { name: 'Centro de ayuda', href: '/ayuda' },
       { name: 'Guias de compra', href: '/guias' },
-      { name: 'Garantia', href: '/garantia' },
+      { name: 'Garantia y devoluciones', href: '/garantia' },
       { name: 'Devoluciones', href: '/devoluciones' },
       { name: 'Soporte tecnico', href: '/soporte' },
     ],
@@ -232,12 +232,9 @@ export function Footer({ siteMedia, contactInfo }: FooterProps) {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
             <p className="text-sm text-gray-400">&copy; {currentYear} Senalmaq. Todos los derechos reservados.</p>
-            <div className="flex items-center space-x-6 text-sm text-gray-400">
-              <Link href="/privacidad" className="hover:text-white transition-colors">
-                Politica de privacidad
-              </Link>
-              <Link href="/terminos" className="hover:text-white transition-colors">
-                Terminos
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-gray-400">
+              <Link href="/sobre-nosotros" className="hover:text-white transition-colors">
+                Sobre nosotros
               </Link>
               <Link href="/cookies" className="hover:text-white transition-colors">
                 Cookies

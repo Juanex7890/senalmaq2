@@ -12,9 +12,9 @@ interface SearchPageProps {
 }
 
 export const metadata = generateMetadata({
-  title: 'BA�squeda de productos',
-  description: 'Busca entre nuestra amplia gama de mA�quinas de coser, fileteadoras, cortadoras y accesorios industriales.',
-  keywords: 'bA�squeda, mA�quinas de coser, fileteadoras, cortadoras, planchas, accesorios',
+  title: 'Busqueda de productos',
+  description: 'Busca entre nuestra amplia gama de maquinas de coser, fileteadoras, cortadoras y accesorios industriales.',
+  keywords: 'busqueda, maquinas de coser, fileteadoras, cortadoras, planchas, accesorios',
 })
 
 export const revalidate = 300
@@ -35,10 +35,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           <div className="container mx-auto px-4">
             <div className="text-center">
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                BA�squeda de productos
+                Busqueda de productos
               </h1>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                Utiliza la barra de bA�squeda para encontrar los productos que necesitas
+                Utiliza la barra de busqueda para encontrar los productos que necesitas
               </p>
             </div>
           </div>
@@ -88,7 +88,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <div className="container mx-auto px-4">
           <div className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Resultados de bA�squeda
+              Resultados de busqueda
             </h1>
             <p className="text-lg text-gray-600">
               {pagination.total} {pagination.total === 1 ? 'resultado' : 'resultados'} para "{query}"

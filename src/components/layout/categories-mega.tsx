@@ -335,13 +335,6 @@ export function CategoriesMega({ categories, isOpen, onClose, triggerRef, header
               >
                 Ver todas las Categorías
               </Link>
-              <Link
-                href="/busqueda"
-                className="block rounded-2xl border border-neutral-200 bg-white px-5 py-3 text-center text-sm font-semibold text-primary-600 transition-all duration-150 hover:border-primary-300 hover:bg-primary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-                onClick={onClose}
-              >
-                Búsqueda Avanzada
-              </Link>
             </div>
           </div>
         </div>
@@ -423,13 +416,6 @@ export function CategoriesMega({ categories, isOpen, onClose, triggerRef, header
                     onClick={onClose}
                   >
                     Ver todas las Categorías
-                  </Link>
-                  <Link
-                    href="/busqueda"
-                    className="text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors"
-                    onClick={onClose}
-                  >
-                    Búsqueda Avanzada
                   </Link>
                 </div>
               </div>
