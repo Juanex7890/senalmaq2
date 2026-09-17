@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { addDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { getCategoriesCollection, getCategoryDoc, Category } from "@/lib/firebase";
+import SectionHeader from "./section-header";
+import { Tags, Plus, Loader2, Trash2, Save } from "lucide-react";
 
 // Icon components
 const IconGear = ({ className = "h-5 w-5", ...props }: { className?: string; [key: string]: any }) => (
@@ -100,12 +101,14 @@ export default function CategoriesSection({
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-bold text-green-800">Categorías de la tienda</h2>
-        <span className="text-xs text-slate-500">
-          {categoriesLoading ? "Cargando categorías..." : `${categoryDocs.length} registradas`}
-        </span>
-      </div>
+      <SectionHeader
+        icon={<Tags className="h-5 w-5" />}
+        iconClassName="bg-amber-100 text-amber-700"
+        title="Categorías de la tienda"
+        subtitle={
+          categoriesLoading ? "Cargando categorías..." : `${categoryDocs.length} registradas`
+        }
+      />
       {categoriesError && (
         <div className="mt-3 rounded-lg bg-red-100 px-3 py-2 text-sm font-semibold text-red-700">
           {categoriesError}
@@ -140,9 +143,14 @@ export default function CategoriesSection({
         </label>
         <button
           type="submit"
-          className="inline-flex items-center justify-center rounded-xl bg-green-700 px-4 py-2 font-semibold text-white shadow transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-700 px-4 py-2 font-semibold text-white shadow transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60"
           disabled={isAddingCategory || categoriesLoading}
         >
+          {isAddingCategory ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Plus className="h-4 w-4" />
+          )}
           {isAddingCategory ? "Guardando..." : "Agregar categoría"}
         </button>
       </form>
@@ -206,17 +214,19 @@ export default function CategoriesSection({
                     <button
                       type="button"
                       onClick={() => onCategorySave(category.id)}
-                      className="inline-flex items-center rounded-xl bg-green-700 px-3 py-2 text-sm font-semibold text-white shadow transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-green-700 px-3 py-2 text-sm font-semibold text-white shadow transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60"
                       disabled={disabled}
                     >
+                      {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                       {saving ? "Guardando..." : "Guardar"}
                     </button>
                     <button
                       type="button"
                       onClick={() => onCategoryDelete(category.id)}
-                      className="inline-flex items-center rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-600 shadow transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-600 shadow transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
                       disabled={disabled}
                     >
+                      <Trash2 className="h-4 w-4" />
                       {removing ? "Eliminando..." : "Eliminar"}
                     </button>
                   </div>

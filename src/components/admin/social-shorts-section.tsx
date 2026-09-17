@@ -3,6 +3,8 @@
 import { FormEvent } from "react";
 
 import { SocialData } from "@/lib/firebase";
+import SectionHeader from "./section-header";
+import { Youtube, Plus, Save, Trash2, Loader2 } from "lucide-react";
 
 interface SocialShortsSectionProps {
   socialDraft: SocialData;
@@ -35,12 +37,14 @@ export default function SocialShortsSection({
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-bold text-green-800">Shorts de YouTube</h2>
-        <span className="text-xs text-slate-500">
-          {Array.isArray(socialDraft.shorts) ? `${socialDraft.shorts.length} guardados` : "Sin shorts"}
-        </span>
-      </div>
+      <SectionHeader
+        icon={<Youtube className="h-5 w-5" />}
+        iconClassName="bg-red-100 text-red-600"
+        title="Shorts de YouTube"
+        subtitle={
+          Array.isArray(socialDraft.shorts) ? `${socialDraft.shorts.length} guardados` : "Sin shorts"
+        }
+      />
       {socialLoading ? (
         <div className="mt-4 rounded-xl bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-600">
           Cargando shorts...
@@ -76,17 +80,19 @@ export default function SocialShortsSection({
                         <button
                           type="button"
                           onClick={() => onShortSave(index)}
-                          className="inline-flex items-center rounded-xl bg-green-700 px-3 py-2 text-sm font-semibold text-white shadow transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60"
+                          className="inline-flex items-center gap-1.5 rounded-xl bg-green-700 px-3 py-2 text-sm font-semibold text-white shadow transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60"
                           disabled={disabled}
                         >
+                          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                           {saving ? "Guardando..." : "Guardar"}
                         </button>
                         <button
                           type="button"
                           onClick={() => onShortDelete(index)}
-                          className="inline-flex items-center rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-600 shadow transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                          className="inline-flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-600 shadow transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
                           disabled={disabled}
                         >
+                          <Trash2 className="h-4 w-4" />
                           {removing ? "Eliminando..." : "Eliminar"}
                         </button>
                       </div>
@@ -117,9 +123,14 @@ export default function SocialShortsSection({
             </div>
             <button
               type="submit"
-              className="inline-flex items-center justify-center rounded-xl bg-green-700 px-4 py-2 font-semibold text-white shadow transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-700 px-4 py-2 font-semibold text-white shadow transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60"
               disabled={socialDisabled}
             >
+              {shortSavingIndex === "new" && socialSaving ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Plus className="h-4 w-4" />
+              )}
               {shortSavingIndex === "new" && socialSaving ? "Agregando..." : "Agregar short"}
             </button>
           </form>

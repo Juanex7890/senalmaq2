@@ -24,7 +24,19 @@ import {
   SocialData,
 } from "@/lib/firebase";
 import { Product } from "@/lib/types";
-
+import {
+  Package,
+  Tags,
+  Share2,
+  Youtube,
+  ScanSearch,
+  LogOut,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
+  X,
+  Settings,
+} from "lucide-react";
 
 import SocialSection from "./social-section";
 import SocialShortsSection from "./social-shorts-section";
@@ -160,10 +172,10 @@ export default function AdminPanel() {
   const [newProduct, setNewProduct] = useState<ProductDraft>(() => createEmptyForm());
   const [creating, setCreating] = useState(false);
   const tabItems = [
-    { id: "products" as const, label: "Productos" },
-    { id: "categories" as const, label: "Categorías" },
-    { id: "social" as const, label: "Redes sociales" },
-    { id: "shorts" as const, label: "YouTube Shorts" },
+    { id: "products" as const, label: "Productos", icon: Package },
+    { id: "categories" as const, label: "Categorías", icon: Tags },
+    { id: "social" as const, label: "Redes sociales", icon: Share2 },
+    { id: "shorts" as const, label: "YouTube Shorts", icon: Youtube },
   ];
 
   // Redirect if not authenticated
@@ -1005,7 +1017,7 @@ export default function AdminPanel() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-100 text-green-700">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-green-50 via-slate-50 to-slate-50 text-green-700">
         <div className="h-12 w-12 rounded-full border-4 border-green-200 border-t-green-600 animate-spin" />
         <p className="mt-4 text-sm font-semibold">Verificando acceso...</p>
       </div>
@@ -1014,13 +1026,19 @@ export default function AdminPanel() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4">
-        <div className="w-full max-w-md rounded-2xl bg-white px-6 py-8 text-center shadow-lg">
-          <h1 className="text-2xl font-bold text-green-800">Acceso restringido</h1>
-          <p className="mt-3 text-sm text-slate-600">You must be logged in to access this page.</p>
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-green-50 via-slate-50 to-slate-50 px-4">
+        <div className="w-full max-w-md rounded-3xl bg-white px-6 py-8 text-center shadow-xl animate-fade-in">
+          <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-100 text-red-600">
+            <XCircle className="h-7 w-7" />
+          </span>
+          <h1 className="mt-4 text-2xl font-bold text-slate-900">Acceso restringido</h1>
+          <p className="mt-2 text-sm text-slate-600">
+            Debes iniciar sesión para acceder a esta página.
+          </p>
           {errorNotice && (
-            <div className="mt-4 rounded-lg bg-red-100 px-3 py-2 text-sm font-semibold text-red-700">
-              {errorNotice}
+            <div className="mt-4 flex items-start gap-2 rounded-xl bg-red-50 px-3 py-2 text-left text-sm font-semibold text-red-700">
+              <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+              <span>{errorNotice}</span>
             </div>
           )}
         </div>
@@ -1030,79 +1048,105 @@ export default function AdminPanel() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="bg-white border-b border-slate-200">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-6 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-green-800">Panel de administración</h1>
-            <p className="text-sm text-slate-500">
-              Edita los productos en Firestore en tiempo real.
-            </p>
+      <header className="border-b border-slate-200 bg-gradient-to-r from-green-800 via-green-700 to-green-600 text-white shadow-sm">
+        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-5 sm:px-6 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-white/15 backdrop-blur">
+              <Settings className="h-6 w-6" />
+            </span>
+            <div>
+              <h1 className="text-xl font-bold sm:text-2xl">Panel de administración</h1>
+              <p className="text-xs font-medium text-green-100 sm:text-sm">
+                Edita tu tienda en tiempo real
+              </p>
+            </div>
           </div>
-          <div className="flex flex-col gap-2 text-sm text-slate-600 md:items-end">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
             {user && (
-              <span className="font-semibold">
-                Sesión iniciada como {user.email}
+              <span className="truncate rounded-xl bg-white/10 px-3 py-1.5 text-xs font-semibold text-green-50 sm:text-sm">
+                {user.email}
               </span>
             )}
             <div className="flex gap-2">
               <a
                 href="/admin/verificar-codigo"
-                className="inline-flex items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 font-semibold text-blue-600 shadow-sm transition hover:bg-blue-100"
+                className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-white/10 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-white/20 sm:flex-none sm:text-sm"
               >
-                🔍 Verificar Códigos
+                <ScanSearch className="h-4 w-4" />
+                <span className="hidden sm:inline">Verificar códigos</span>
+                <span className="sm:hidden">Códigos</span>
               </a>
               <button
-                className="inline-flex items-center justify-center rounded-xl border border-red-200 bg-red-50 px-4 py-2 font-semibold text-red-600 shadow-sm transition hover:bg-red-100"
+                className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-white/10 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-red-500/80 sm:flex-none sm:text-sm"
                 onClick={() => signOut(auth)}
                 type="button"
               >
-                Cerrar sesión
+                <LogOut className="h-4 w-4" />
+                <span>Salir</span>
               </button>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-6 space-y-4">
-        {errorNotice && (
-          <div className="rounded-xl bg-red-100 px-4 py-3 text-sm font-semibold text-red-700 shadow">
-            {errorNotice}
-          </div>
-        )}
-
-        {message && (
-          <div
-            className={`rounded-xl px-4 py-3 text-sm font-semibold shadow ${
-              message.type === "success"
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
-            }`}
-          >
-            {message.text}
-          </div>
-        )}
-
-        <div className="rounded-2xl border border-slate-200 bg-white/80 p-2 shadow-sm">
-          <div className="grid gap-2 sm:flex sm:flex-wrap">
+      <div className="sticky top-0 z-20 border-b border-slate-200 bg-slate-50/90 backdrop-blur">
+        <div className="mx-auto max-w-6xl px-4 py-2 sm:px-6">
+          <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {tabItems.map((tab) => {
               const isActive = activeTab === tab.id;
+              const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 rounded-xl px-4 py-2 text-sm font-semibold transition ${
+                  className={`inline-flex flex-shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition ${
                     isActive
                       ? "bg-green-700 text-white shadow-sm"
-                      : "bg-white text-slate-600 hover:bg-slate-100"
+                      : "bg-white text-slate-600 shadow-sm hover:bg-slate-100"
                   }`}
                 >
+                  <Icon className="h-4 w-4" />
                   {tab.label}
                 </button>
               );
             })}
           </div>
         </div>
+      </div>
+
+      <main className="mx-auto max-w-6xl px-4 py-6 space-y-4 sm:px-6">
+        {errorNotice && (
+          <div className="flex items-start gap-2 rounded-xl bg-red-100 px-4 py-3 text-sm font-semibold text-red-700 shadow animate-slide-up">
+            <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+            <span className="flex-1">{errorNotice}</span>
+          </div>
+        )}
+
+        {message && (
+          <div
+            className={`flex items-start gap-2 rounded-xl px-4 py-3 text-sm font-semibold shadow animate-slide-up ${
+              message.type === "success"
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            }`}
+          >
+            {message.type === "success" ? (
+              <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
+            ) : (
+              <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+            )}
+            <span className="flex-1">{message.text}</span>
+            <button
+              type="button"
+              onClick={() => setMessage(null)}
+              className="flex-shrink-0 rounded-lg p-0.5 opacity-70 transition hover:opacity-100"
+              aria-label="Cerrar mensaje"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
 
         {activeTab === "social" && (
           <SocialSection

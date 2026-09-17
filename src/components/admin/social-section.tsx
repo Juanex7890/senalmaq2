@@ -1,5 +1,7 @@
 "use client";
 import { SocialData } from "@/lib/firebase";
+import SectionHeader from "./section-header";
+import { Share2, Save, Loader2 } from "lucide-react";
 
 interface SocialSectionProps {
   socialDraft: SocialData;
@@ -23,12 +25,16 @@ export default function SocialSection({
   return (
     <>
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-lg font-bold text-green-800">Video principal y redes</h2>
-          <span className="text-xs text-slate-500">
-            {socialLoading ? "Cargando datos..." : "Actualiza los enlaces visibles en la página principal."}
-          </span>
-        </div>
+        <SectionHeader
+          icon={<Share2 className="h-5 w-5" />}
+          iconClassName="bg-sky-100 text-sky-700"
+          title="Video principal y redes"
+          subtitle={
+            socialLoading
+              ? "Cargando datos..."
+              : "Actualiza los enlaces visibles en la página principal"
+          }
+        />
         {socialError && (
           <div className="mt-3 rounded-lg bg-red-100 px-3 py-2 text-sm font-semibold text-red-700">
             {socialError}
@@ -96,6 +102,11 @@ export default function SocialSection({
               className="inline-flex items-center gap-2 rounded-xl bg-green-700 px-4 py-2 font-semibold text-white shadow transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60"
               disabled={socialDisabled}
             >
+              {socialSaving ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
               {socialSaving ? "Guardando..." : "Guardar cambios"}
             </button>
           </div>

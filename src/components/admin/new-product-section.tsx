@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { ProductDraft } from "./admin-panel-complete";
 import ProductImageUploader from "./product-image-uploader";
+import SectionHeader from "./section-header";
+import { PackagePlus, Plus, Loader2 } from "lucide-react";
 
 interface NewProductSectionProps {
   newProduct: ProductDraft;
@@ -37,8 +38,11 @@ export default function NewProductSection({
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h2 className="text-lg font-bold text-green-800">Agregar nuevo producto</h2>
-      <p className="mt-1 text-sm text-slate-500">Completa los campos para publicar un nuevo producto.</p>
+      <SectionHeader
+        icon={<PackagePlus className="h-5 w-5" />}
+        title="Agregar nuevo producto"
+        subtitle="Completa los campos para publicar un nuevo producto"
+      />
       <form onSubmit={onAddProduct} className="mt-4 grid gap-4 md:grid-cols-2">
         <label className="block text-sm font-semibold text-slate-700">
           Nombre
@@ -137,8 +141,9 @@ export default function NewProductSection({
             <button
               type="button"
               onClick={onAddNewProductImage}
-              className="inline-flex items-center rounded-lg border border-green-200 px-3 py-1 text-xs font-semibold text-green-700 transition hover:bg-green-50"
+              className="inline-flex items-center gap-1 rounded-lg border border-green-200 px-3 py-1 text-xs font-semibold text-green-700 transition hover:bg-green-50"
             >
+              <Plus className="h-3.5 w-3.5" />
               Agregar imagen
             </button>
           </div>
@@ -160,8 +165,13 @@ export default function NewProductSection({
           <button
             type="submit"
             disabled={creating}
-            className="inline-flex items-center justify-center rounded-xl bg-green-700 px-4 py-2 font-semibold text-white shadow transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-700 px-4 py-2 font-semibold text-white shadow transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
+            {creating ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <PackagePlus className="h-4 w-4" />
+            )}
             {creating ? "Agregando..." : "Agregar producto"}
           </button>
         </div>
