@@ -16,7 +16,7 @@ import {
 } from 'lucide-react'
 
 interface HeaderProps {
-  categories?: Array<{ id: string; name: string; slug: string; icon?: string }>
+  categories?: Array<{ id: string; name: string; slug: string; icon?: string; heroImagePath?: string }>
 }
 
 export function Header({ categories }: HeaderProps) {

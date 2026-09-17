@@ -2,13 +2,15 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import { Home, X } from 'lucide-react'
+import Image from 'next/image'
+import { Home, LayoutGrid, Tag, X } from 'lucide-react'
 
 interface Category {
   id: string
   name: string
   slug: string
   icon?: string
+  heroImagePath?: string
 }
 
 interface DisplayCategory {
@@ -17,6 +19,7 @@ interface DisplayCategory {
   href: string
   helperText?: string
   isSpecial?: boolean
+  image?: string
 }
 
 interface CategoriesMegaProps {
@@ -221,6 +224,7 @@ export function CategoriesMega({ categories, isOpen, onClose, triggerRef, header
       name: category.name,
       href: `/categoria/${category.slug}`,
       helperText: 'Ver productos',
+      image: category.heroImagePath,
     }))
 
     return [
@@ -241,6 +245,38 @@ export function CategoriesMega({ categories, isOpen, onClose, triggerRef, header
       ...baseCategories,
     ]
   }, [sortedCategories])
+
+  const renderThumb = (category: DisplayCategory, size: number) => {
+    if (category.image) {
+      return (
+        <span
+          className="relative flex-shrink-0 overflow-hidden rounded-xl bg-gray-100 ring-1 ring-black/5"
+          style={{ width: size, height: size }}
+        >
+          <Image
+            src={category.image}
+            alt=""
+            fill
+            sizes={`${size}px`}
+            className="object-cover"
+          />
+        </span>
+      )
+    }
+
+    const FallbackIcon = category.id === 'home' ? Home : category.id === 'all-products' ? LayoutGrid : Tag
+
+    return (
+      <span
+        className={`flex flex-shrink-0 items-center justify-center rounded-xl ${
+          category.isSpecial ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-400'
+        }`}
+        style={{ width: size, height: size }}
+      >
+        <FallbackIcon className="h-1/2 w-1/2" aria-hidden="true" />
+      </span>
+    )
+  }
 
   const handleMouseLeave = () => {
     timeoutRef.current = setTimeout(() => {
@@ -294,28 +330,26 @@ export function CategoriesMega({ categories, isOpen, onClose, triggerRef, header
 
         <div className="overflow-y-auto h-[calc(100vh-3rem)] pb-4 pb-safe pb-[env(safe-area-inset-bottom)]">
           {displayCategories.length > 0 ? (
-            <nav className="px-4 pt-4 pb-2">
-              <div className="space-y-3">
+            <nav className="px-3 pt-3 pb-2">
+              <div className="space-y-1.5">
                 {displayCategories.map((category) => (
                   <Link
                     key={category.id}
                     href={category.href}
-                    className={`group relative block rounded-2xl border px-5 py-4 text-center shadow-sm transition-all duration-150 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${category.isSpecial ? 'border-primary-400 bg-primary-50 text-primary-800' : 'border-neutral-200 bg-white text-primary-700 hover:border-primary-200 hover:bg-primary-50'}`}
+                    className={`group flex items-center gap-3 rounded-2xl px-3 py-2.5 transition-all duration-150 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${category.isSpecial ? 'bg-primary-50' : 'hover:bg-neutral-50 active:bg-neutral-100'}`}
                     onClick={onClose}
                   >
-                    <div className="flex flex-col items-center gap-1">
-                      <div className="flex items-center gap-2">
-                        {category.id === 'home' && <Home className="h-4 w-4 text-primary-600" aria-hidden="true" />}
-                        <span className={`text-base font-semibold leading-5 ${category.isSpecial ? 'text-primary-800' : 'text-primary-700'}`}>
-                          {category.name}
-                        </span>
-                      </div>
+                    {renderThumb(category, 44)}
+                    <span className="min-w-0 flex-1">
+                      <span className={`block truncate text-base font-semibold leading-5 ${category.isSpecial ? 'text-primary-800' : 'text-neutral-900'}`}>
+                        {category.name}
+                      </span>
                       {category.helperText && (
-                        <span className={`text-xs ${category.isSpecial ? 'text-primary-600' : 'text-neutral-500'}`}>
+                        <span className={`block truncate text-xs ${category.isSpecial ? 'text-primary-600' : 'text-neutral-500'}`}>
                           {category.helperText}
                         </span>
                       )}
-                    </div>
+                    </span>
                   </Link>
                 ))}
               </div>
@@ -378,20 +412,25 @@ export function CategoriesMega({ categories, isOpen, onClose, triggerRef, header
               </button>
             </div>
 
-            <div className="px-6 py-4">
+            <div className="px-6 py-4 max-h-[70vh] overflow-y-auto">
               {displayCategories.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-4">
                   {displayCategories.map((category) => (
                     <Link
                       key={category.id}
                       href={category.href}
-                      className="group block rounded-md px-4 py-3 text-sm text-gray-700 transition-colors hover:bg-primary-50 hover:text-primary-700 border border-transparent hover:border-primary-200"
+                      className={`group flex items-center gap-3 rounded-xl border border-transparent px-3 py-2 transition-colors hover:border-primary-200 hover:bg-primary-50 ${category.isSpecial ? 'bg-primary-50/60' : ''}`}
                       onClick={onClose}
                     >
-                      <span className="font-medium">{category.name}</span>
-                      {category.helperText && (
-                        <span className="block text-xs text-gray-500 mt-1">{category.helperText}</span>
-                      )}
+                      {renderThumb(category, 40)}
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-medium text-gray-800 group-hover:text-primary-700">
+                          {category.name}
+                        </span>
+                        {category.helperText && (
+                          <span className="block truncate text-xs text-gray-500">{category.helperText}</span>
+                        )}
+                      </span>
                     </Link>
                   ))}
                 </div>
