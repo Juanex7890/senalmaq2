@@ -375,13 +375,6 @@ export function CategoriesMega({ categories, isOpen, onClose, triggerRef, header
       </div>
 
 
-      {/* Desktop Backdrop */}
-      <div
-        className="fixed inset-0 z-40 hidden bg-black/20 backdrop-blur-[1px] lg:block"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-
       {/* Desktop Menu - Hidden on mobile */}
       <div
         ref={(node) => {
