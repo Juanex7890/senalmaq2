@@ -24,7 +24,8 @@ export function HomeShortsSection({ youtubeShortIds, youtubeUrl }: HomeShortsSec
               rel="noreferrer"
               className="text-green-700 text-sm hover:underline"
             >
-              Ver canal +
+              Ver canal
+    
             </a>
           )}
         </div>
