@@ -5,11 +5,12 @@ import { Product } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import ProductImageUploader from "./product-image-uploader";
 import SectionHeader from "./section-header";
+import Modal from "./modal";
 import {
   Package,
   PackagePlus,
   Search,
-  ChevronDown,
+  ChevronRight,
   Plus,
   Trash2,
   Save,
@@ -85,7 +86,6 @@ interface ProductCardProps {
   resolveCategoryName: (value: string) => string;
   sanitizeImageList: (value: any) => string[];
   ensureImageList: (value: any) => string[];
-  defaultExpanded: boolean;
 }
 
 function ProductCard({
@@ -104,9 +104,8 @@ function ProductCard({
   resolveCategoryName,
   sanitizeImageList,
   ensureImageList,
-  defaultExpanded,
 }: ProductCardProps) {
-  const [expanded, setExpanded] = useState(defaultExpanded);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const draftName = draft.name ?? product.name ?? "";
   const displayName = (draftName || "").toString().trim() || "Sin nombre";
@@ -163,7 +162,7 @@ function ProductCard({
     <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
       <button
         type="button"
-        onClick={() => setExpanded((prev) => !prev)}
+        onClick={() => setModalOpen(true)}
         className="flex w-full items-start gap-3 p-4 text-left"
       >
         <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl bg-slate-100">
@@ -192,15 +191,16 @@ function ProductCard({
           </div>
         </div>
 
-        <ChevronDown
-          className={`mt-1 h-5 w-5 flex-shrink-0 text-slate-400 transition-transform ${
-            expanded ? "rotate-180" : ""
-          }`}
-        />
+        <ChevronRight className="mt-1 h-5 w-5 flex-shrink-0 text-slate-400" />
       </button>
 
-      {expanded && (
-        <div className="space-y-3 border-t border-slate-100 p-4 pt-4 animate-fade-in">
+      <Modal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={displayName}
+        icon={<Package className="h-5 w-5" />}
+      >
+        <div className="space-y-3">
           <label className="block text-sm font-semibold text-slate-700">
             Nombre
             <input
@@ -370,7 +370,10 @@ function ProductCard({
             </button>
             <button
               type="button"
-              onClick={() => onDeleteProduct(product.docId)}
+              onClick={() => {
+                setModalOpen(false);
+                onDeleteProduct(product.docId);
+              }}
               disabled={disableActions}
               className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-2 text-sm font-semibold text-red-600 shadow transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
             >
@@ -379,7 +382,7 @@ function ProductCard({
             </button>
           </div>
         </div>
-      )}
+      </Modal>
     </article>
   );
 }
@@ -519,7 +522,6 @@ export default function ProductsSection({
               resolveCategoryName={resolveCategoryName}
               sanitizeImageList={sanitizeImageList}
               ensureImageList={ensureImageList}
-              defaultExpanded={false}
             />
           ))}
         </div>

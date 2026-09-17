@@ -1,13 +1,15 @@
 "use client";
 
 import { CATEGORY_ICON_OPTIONS } from "./category-icons";
+import ProductImageUploader from "./product-image-uploader";
 import { Plus, Loader2 } from "lucide-react";
 
 interface AddCategoryFormProps {
-  categoryForm: { name: string; icon: string };
+  categoryForm: { name: string; icon: string; heroImagePath: string };
   isAddingCategory: boolean;
   categoriesLoading: boolean;
   onCategoryFormChange: (field: string) => (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  onCategoryFormImageChange: (value: string) => void;
   onAddCategory: (event: React.FormEvent) => Promise<void>;
 }
 
@@ -16,6 +18,7 @@ export default function AddCategoryForm({
   isAddingCategory,
   categoriesLoading,
   onCategoryFormChange,
+  onCategoryFormImageChange,
   onAddCategory,
 }: AddCategoryFormProps) {
   const disabled = isAddingCategory || categoriesLoading;
@@ -49,6 +52,20 @@ export default function AddCategoryForm({
           ))}
         </select>
       </label>
+      <div className="block text-sm font-semibold text-slate-700">
+        Imagen de portada (opcional)
+        <div className="mt-1">
+          <ProductImageUploader
+            index={0}
+            value={categoryForm.heroImagePath}
+            altLabel="Portada de la categoría"
+            canRemove
+            disabled={disabled}
+            onChange={onCategoryFormImageChange}
+            onRemove={() => onCategoryFormImageChange("")}
+          />
+        </div>
+      </div>
       <button
         type="submit"
         className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-700 px-4 py-2 font-semibold text-white shadow transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60"

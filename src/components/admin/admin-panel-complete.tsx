@@ -62,6 +62,7 @@ export interface ProductDraft {
 interface CategoryDraft {
   name: string;
   icon: string;
+  heroImagePath: string;
 }
 
 interface Message {
@@ -85,6 +86,7 @@ export default function AdminPanel() {
   const [categoryForm, setCategoryForm] = useState({
     name: "",
     icon: CATEGORY_ICON_OPTIONS[0]?.value || "gear",
+    heroImagePath: "",
   });
   const [categorySaving, setCategorySaving] = useState<Record<string, boolean>>({});
   const [categoryDeleting, setCategoryDeleting] = useState<Record<string, boolean>>({});
@@ -278,12 +280,20 @@ export default function AdminPanel() {
     }));
   };
 
+  const handleCategoryFormImageChange = (value: string) => {
+    setCategoryForm((prev) => ({
+      ...prev,
+      heroImagePath: value,
+    }));
+  };
+
   const handleAddCategory = async (event: React.FormEvent) => {
     event?.preventDefault?.();
     const rawName = categoryForm.name;
     const name = typeof rawName === "string" ? rawName.trim() : "";
     const icon =
       categoryForm.icon || CATEGORY_ICON_OPTIONS[0]?.value || CATEGORY_DEFAULTS.icon;
+    const heroImagePath = (categoryForm.heroImagePath || "").trim();
 
     if (!name) {
       setMessage({ type: "error", text: "Escribe un nombre para la categoría." });
@@ -300,13 +310,15 @@ export default function AdminPanel() {
 
     setCategorySaving((prev) => ({ ...prev, __new__: true }));
     try {
-      await addDoc(getCategoriesCollection(), {
-        name,
-        icon,
-      });
+      const payload: Record<string, unknown> = { name, icon };
+      if (heroImagePath) {
+        payload.heroImagePath = heroImagePath;
+      }
+      await addDoc(getCategoriesCollection(), payload);
       setCategoryForm({
         name: "",
         icon: CATEGORY_ICON_OPTIONS[0]?.value || CATEGORY_DEFAULTS.icon,
+        heroImagePath: "",
       });
       setMessage({ type: "success", text: "Categoría agregada." });
     } catch (error) {
@@ -338,6 +350,7 @@ export default function AdminPanel() {
     }
     const name = typeof draft.name === "string" ? draft.name.trim() : "";
     const icon = draft.icon || CATEGORY_DEFAULTS.icon;
+    const heroImagePath = (draft.heroImagePath || "").trim();
 
     if (!name) {
       setMessage({ type: "error", text: "La categoría necesita un nombre." });
@@ -357,12 +370,14 @@ export default function AdminPanel() {
       await updateDoc(getCategoryDoc(id), {
         name,
         icon,
+        heroImagePath: heroImagePath ? heroImagePath : deleteField(),
       });
       setCategoryDrafts((prev) => ({
         ...prev,
         [id]: {
           name,
           icon,
+          heroImagePath,
         },
       }));
       setMessage({ type: "success", text: "Categoría actualizada." });
@@ -742,6 +757,7 @@ export default function AdminPanel() {
       setCategoryForm({
         name: "",
         icon: CATEGORY_ICON_OPTIONS[0]?.value || "gear",
+        heroImagePath: "",
       });
       return;
     }
@@ -764,11 +780,14 @@ export default function AdminPanel() {
             const sanitized = {
               name: category.name,
               icon: category.icon || "gear",
+              heroImagePath: category.heroImagePath || "",
             };
             const current = prev[category.id];
             if (
               !current ||
-              (current.name === category.name && current.icon === sanitized.icon)
+              (current.name === category.name &&
+                current.icon === sanitized.icon &&
+                current.heroImagePath === sanitized.heroImagePath)
             ) {
               next[category.id] = sanitized;
             }
@@ -1166,6 +1185,7 @@ export default function AdminPanel() {
                 isAddingCategory={Boolean(categorySaving.__new__)}
                 categoriesLoading={categoriesLoading}
                 onCategoryFormChange={handleCategoryFormChange}
+                onCategoryFormImageChange={handleCategoryFormImageChange}
                 onAddCategory={handleAddCategory}
               />
             </Modal>

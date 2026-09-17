@@ -99,6 +99,7 @@ export interface Category {
   icon: string;
   slug: string;
   description?: string;
+  heroImagePath?: string;
   updatedAt?: Date;
 }
 
@@ -237,6 +238,7 @@ export function applyCategorySchema(data: unknown = {}): Partial<Category> {
     icon: sanitizeString(raw.icon) || CATEGORY_DEFAULTS.icon,
     slug,
     description: sanitizeString(raw.description) || undefined,
+    heroImagePath: sanitizeString(raw.heroImagePath) || undefined,
   };
 }
 
@@ -252,6 +254,7 @@ export function mapCategoryDocument(document: DocumentSnapshot<DocumentData>): C
     icon: data.icon ?? CATEGORY_DEFAULTS.icon,
     slug: data.slug ?? generateSlug(document.id),
     description: data.description,
+    heroImagePath: data.heroImagePath,
   };
 }
 
