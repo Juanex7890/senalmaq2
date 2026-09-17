@@ -26,6 +26,7 @@ import {
 import { Product } from "@/lib/types";
 import {
   Package,
+  PackagePlus,
   Tags,
   Share2,
   Youtube,
@@ -43,57 +44,9 @@ import SocialShortsSection from "./social-shorts-section";
 import CategoriesSection from "./categories-section";
 import ProductsSection from "./products-section";
 import NewProductSection from "./new-product-section";
-
-// Icon components
-const IconGear = ({ className = "h-5 w-5", ...props }: { className?: string; [key: string]: any }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
-    <circle cx="12" cy="12" r="3" />
-    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06c.5.5 1.2.66 1.82.33h.09c.61-.24 1-.84 1-1.51V3a2 2 0 1 1 4 0v.09c0 .67.39 1.27 1 1.51.45.18.95.11 1.34-.16.39.27.89.34 1.34.16l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06c-.27.39-.34.89-.16 1.34.24.61.84 1 1.51 1H21a2 2 0 1 1 0 4h-.09c-.67 0-1.27.39-1.51 1z" />
-  </svg>
-);
-
-const IconScissors = ({ className = "h-5 w-5", ...props }: { className?: string; [key: string]: any }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
-    <circle cx="6" cy="6" r="3" />
-    <circle cx="14" cy="6" r="3" />
-    <path d="M8.5 8.5L21 21" />
-    <path d="M21 3l-9 9" />
-  </svg>
-);
-
-const IconShirt = ({ className = "h-5 w-5", ...props }: { className?: string; [key: string]: any }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
-    <path d="M4 7l5-3 3 2 5-2 3 3v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7z" />
-  </svg>
-);
-
-const IconNeedle = ({ className = "h-5 w-5", ...props }: { className?: string; [key: string]: any }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
-    <path d="M2 22c0-4 8-14 14-18" />
-    <path d="M20 4l0 4" />
-    <path d="M17 7l3 3" />
-  </svg>
-);
-
-const IconPackage = ({ className = "h-5 w-5", ...props }: { className?: string; [key: string]: any }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
-    <path d="M21 16V8a2 2 0 0 0-1-1.73L12 2 4 6.27A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73L12 22l8-4.27A2 2 0 0 0 21 16z" />
-    <path d="M7.5 4.21L12 6.5l4.5-2.29" />
-  </svg>
-);
-
-const CATEGORY_ICON_OPTIONS = [
-  { value: "gear", label: "Engranaje", icon: IconGear },
-  { value: "scissors", label: "Tijeras", icon: IconScissors },
-  { value: "shirt", label: "Camisa", icon: IconShirt },
-  { value: "needle", label: "Aguja", icon: IconNeedle },
-  { value: "package", label: "Caja", icon: IconPackage },
-];
-
-const getCategoryIcon = (iconKey: string) => {
-  const match = CATEGORY_ICON_OPTIONS.find((option) => option.value === iconKey);
-  return match ? match.icon : IconGear;
-};
+import AddCategoryForm from "./add-category-form";
+import Modal from "./modal";
+import { CATEGORY_ICON_OPTIONS } from "./category-icons";
 
 export interface ProductDraft {
   name: string;
@@ -171,6 +124,8 @@ export default function AdminPanel() {
   );
   const [newProduct, setNewProduct] = useState<ProductDraft>(() => createEmptyForm());
   const [creating, setCreating] = useState(false);
+  const [showAddProductModal, setShowAddProductModal] = useState(false);
+  const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
   const tabItems = [
     { id: "products" as const, label: "Productos", icon: Package },
     { id: "categories" as const, label: "Categorías", icon: Tags },
@@ -1005,6 +960,15 @@ export default function AdminPanel() {
     return () => clearTimeout(timer);
   }, [message]);
 
+  // Close whichever "add" modal is open once its submit succeeds
+  useEffect(() => {
+    if (message?.type !== "success") {
+      return;
+    }
+    setShowAddProductModal(false);
+    setShowAddCategoryModal(false);
+  }, [message]);
+
   // Handle auth errors
   useEffect(() => {
     if (!authError) {
@@ -1176,39 +1140,40 @@ export default function AdminPanel() {
         )}
 
         {activeTab === "categories" && (
-          <CategoriesSection
-            categoryDocs={categoryDocs}
-            categoryDrafts={categoryDrafts}
-            categoryForm={categoryForm}
-            categorySaving={categorySaving}
-            categoryDeleting={categoryDeleting}
-            categoriesLoading={categoriesLoading}
-            categoriesError={categoriesError}
-            onCategoryFormChange={handleCategoryFormChange}
-            onAddCategory={handleAddCategory}
-            onCategoryDraftChange={handleCategoryDraftChange}
-            onCategorySave={handleCategorySave}
-            onCategoryDelete={handleCategoryDelete}
-            setMessage={setMessage}
-          />
+          <>
+            <CategoriesSection
+              categoryDocs={categoryDocs}
+              categoryDrafts={categoryDrafts}
+              categorySaving={categorySaving}
+              categoryDeleting={categoryDeleting}
+              categoriesLoading={categoriesLoading}
+              categoriesError={categoriesError}
+              onCategoryDraftChange={handleCategoryDraftChange}
+              onCategorySave={handleCategorySave}
+              onCategoryDelete={handleCategoryDelete}
+              onOpenAddCategory={() => setShowAddCategoryModal(true)}
+            />
+
+            <Modal
+              open={showAddCategoryModal}
+              onClose={() => setShowAddCategoryModal(false)}
+              title="Nueva categoría"
+              icon={<Tags className="h-5 w-5" />}
+              iconClassName="bg-amber-100 text-amber-700"
+            >
+              <AddCategoryForm
+                categoryForm={categoryForm}
+                isAddingCategory={Boolean(categorySaving.__new__)}
+                categoriesLoading={categoriesLoading}
+                onCategoryFormChange={handleCategoryFormChange}
+                onAddCategory={handleAddCategory}
+              />
+            </Modal>
+          </>
         )}
 
         {activeTab === "products" && (
           <div className="space-y-4">
-            <NewProductSection
-              newProduct={newProduct}
-              creating={creating}
-              categoryOptions={categoryOptions}
-              onNewProductChange={handleNewProductChange}
-              onNewProductImageChange={handleNewProductImageChange}
-              onAddNewProductImage={handleAddNewProductImage}
-              onRemoveNewProductImage={handleRemoveNewProductImage}
-              onAddProduct={handleAddProduct}
-              resolveCategoryName={resolveCategoryName}
-              sanitizeImageList={sanitizeImageList}
-              ensureImageList={ensureImageList}
-            />
-
             {loading ? (
               <div className="flex h-64 flex-col items-center justify-center text-sm font-semibold text-slate-500">
                 <div className="h-12 w-12 rounded-full border-4 border-green-200 border-t-green-600 animate-spin" />
@@ -1232,8 +1197,30 @@ export default function AdminPanel() {
                 resolveCategoryName={resolveCategoryName}
                 sanitizeImageList={sanitizeImageList}
                 ensureImageList={ensureImageList}
+                onOpenAddProduct={() => setShowAddProductModal(true)}
               />
             )}
+
+            <Modal
+              open={showAddProductModal}
+              onClose={() => setShowAddProductModal(false)}
+              title="Agregar nuevo producto"
+              icon={<PackagePlus className="h-5 w-5" />}
+            >
+              <NewProductSection
+                newProduct={newProduct}
+                creating={creating}
+                categoryOptions={categoryOptions}
+                onNewProductChange={handleNewProductChange}
+                onNewProductImageChange={handleNewProductImageChange}
+                onAddNewProductImage={handleAddNewProductImage}
+                onRemoveNewProductImage={handleRemoveNewProductImage}
+                onAddProduct={handleAddProduct}
+                resolveCategoryName={resolveCategoryName}
+                sanitizeImageList={sanitizeImageList}
+                ensureImageList={ensureImageList}
+              />
+            </Modal>
           </div>
         )}
       </main>

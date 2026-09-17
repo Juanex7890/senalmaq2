@@ -7,6 +7,7 @@ import ProductImageUploader from "./product-image-uploader";
 import SectionHeader from "./section-header";
 import {
   Package,
+  PackagePlus,
   Search,
   ChevronDown,
   Plus,
@@ -43,6 +44,7 @@ interface ProductsSectionProps {
   resolveCategoryName: (value: string) => string;
   sanitizeImageList: (value: any) => string[];
   ensureImageList: (value: any) => string[];
+  onOpenAddProduct: () => void;
 }
 
 function isValidImageUrl(value: string) {
@@ -399,6 +401,7 @@ export default function ProductsSection({
   resolveCategoryName,
   sanitizeImageList,
   ensureImageList,
+  onOpenAddProduct,
 }: ProductsSectionProps) {
   const formatPrice = useMemo(() => {
     try {
@@ -457,24 +460,44 @@ export default function ProductsSection({
             : "Edita los productos existentes"
         }
         action={
-          products.length > 0 ? (
-            <div className="relative sm:w-72">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                type="search"
-                value={searchTerm}
-                onChange={(event) => onSearchTermChange(event.target.value)}
-                placeholder="Buscar por nombre, categoría o ID"
-                className="w-full rounded-xl border border-slate-200 py-2 pl-9 pr-3 text-sm focus:border-green-600 focus:ring-2 focus:ring-green-100"
-              />
-            </div>
-          ) : undefined
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            {products.length > 0 && (
+              <div className="relative sm:w-64">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="search"
+                  value={searchTerm}
+                  onChange={(event) => onSearchTermChange(event.target.value)}
+                  placeholder="Buscar por nombre, categoría o ID"
+                  className="w-full rounded-xl border border-slate-200 py-2 pl-9 pr-3 text-sm focus:border-green-600 focus:ring-2 focus:ring-green-100"
+                />
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={onOpenAddProduct}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-700 px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-green-800"
+            >
+              <PackagePlus className="h-4 w-4" />
+              Agregar producto
+            </button>
+          </div>
         }
       />
 
       {filteredProducts.length === 0 ? (
-        <div className="mt-4 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm font-semibold text-slate-500">
-          {emptyStateMessage}
+        <div className="mt-4 flex flex-col items-center gap-3 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm font-semibold text-slate-500">
+          <span>{emptyStateMessage}</span>
+          {!hasSearch && (
+            <button
+              type="button"
+              onClick={onOpenAddProduct}
+              className="inline-flex items-center gap-2 rounded-xl bg-green-700 px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-green-800"
+            >
+              <PackagePlus className="h-4 w-4" />
+              Agregar tu primer producto
+            </button>
+          )}
         </div>
       ) : (
         <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
