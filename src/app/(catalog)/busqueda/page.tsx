@@ -29,7 +29,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   if (!query) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header categories={categories} />
+        <Header />
         
         <main className="py-12">
           <div className="container mx-auto px-4">
@@ -82,7 +82,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header categories={categories} />
+      <Header />
       
       <main className="py-8">
         <div className="container mx-auto px-4">

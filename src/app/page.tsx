@@ -56,7 +56,7 @@ async function HomePageContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header categories={categories} />
+      <Header />
       
       <main>
         {/* Hero Section */}

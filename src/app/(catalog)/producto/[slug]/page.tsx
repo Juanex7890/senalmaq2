@@ -58,7 +58,7 @@ async function ProductContent({ slug }: { slug: string }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header categories={categories} />
+      <Header />
 
       <main className="py-8">
         <div className="container mx-auto px-4">

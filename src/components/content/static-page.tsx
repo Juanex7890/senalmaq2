@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react'
 
-import { getCategories } from '@/lib/actions/categories'
 import { getSiteMedia } from '@/lib/actions/media'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
@@ -12,16 +11,11 @@ interface StaticPageProps {
 }
 
 export async function StaticPage({ title, description, children }: StaticPageProps) {
-  const [categoriesResult, siteMediaResult] = await Promise.allSettled([
-    getCategories(),
-    getSiteMedia(),
-  ])
-  const categories = categoriesResult.status === 'fulfilled' ? categoriesResult.value : []
-  const siteMedia = siteMediaResult.status === 'fulfilled' ? siteMediaResult.value : null
+  const siteMedia = await getSiteMedia().catch(() => null)
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header categories={categories} />
+      <Header />
 
       <main className="py-10 md:py-14">
         <article className="container mx-auto max-w-4xl px-4">

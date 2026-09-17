@@ -7,43 +7,26 @@ import { useRouter, usePathname } from 'next/navigation'
 import { SearchBarOverlay } from '@/components/catalog/search-bar-overlay'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { CategoriesMega } from '@/components/layout/categories-mega'
 import {
   ShoppingCart,
   Phone,
   Mail,
-  MoreHorizontal,
+  LayoutGrid,
 } from 'lucide-react'
 
-interface HeaderProps {
-  categories?: Array<{ id: string; name: string; slug: string; icon?: string; heroImagePath?: string }>
-}
-
-export function Header({ categories }: HeaderProps) {
+export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [cartCount, setCartCount] = useState(0)
-  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [shouldAutoScroll, setShouldAutoScroll] = useState(false)
-  const categoriesButtonRef = useRef<HTMLButtonElement>(null)
   const topBarRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLElement>(null)
-  const panelRef = useRef<HTMLDivElement>(null)
   const contactInfoRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const pathname = usePathname()
 
-  const isDesktopViewport = () =>
-    typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches
-
   const isMobileViewport = () =>
     typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches
-
-  const openCategoriesIfDesktop = () => {
-    if (isDesktopViewport()) {
-      setIsCategoriesOpen(true)
-    }
-  }
 
   const checkForOverflow = () => {
     if (contactInfoRef.current) {
@@ -161,24 +144,17 @@ export function Header({ categories }: HeaderProps) {
 
             {/* Action Buttons */}
             <div className="flex items-center gap-2 sm:gap-3 ml-auto">
-              <button
-                type="button"
-                ref={categoriesButtonRef}
-                onClick={() => setIsCategoriesOpen((prev) => !prev)}
-                onMouseEnter={openCategoriesIfDesktop}
-                onFocus={openCategoriesIfDesktop}
+              <Link
+                href="/categorias"
                 className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 ${
-                  isCategoriesOpen || isCategoriesRoute
+                  isCategoriesRoute
                     ? 'bg-primary-700 text-white'
                     : 'bg-primary-600 text-white hover:bg-primary-700'
                 }`}
-                aria-expanded={isCategoriesOpen}
-                aria-controls="categories-mega-menu"
-                aria-haspopup="true"
               >
-                <MoreHorizontal className="h-4 w-4" />
+                <LayoutGrid className="h-4 w-4" />
                 <span className="whitespace-nowrap">Categorías</span>
-              </button>
+              </Link>
               <Button
                 variant="ghost"
                 size="icon"
@@ -203,16 +179,6 @@ export function Header({ categories }: HeaderProps) {
         </div>
 
       </header>
-
-      {/* Categories Mega Menu */}
-      <CategoriesMega
-        categories={categories || []}
-        isOpen={isCategoriesOpen}
-        onClose={() => setIsCategoriesOpen(false)}
-        triggerRef={categoriesButtonRef}
-        headerRef={headerRef}
-        panelRef={panelRef}
-      />
     </>
   )
 }

@@ -1,8 +1,10 @@
 import { getCategories } from '@/lib/actions/categories'
+import { getAllProducts, resolveCategoryForProduct } from '@/lib/actions/products'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { CategoryCard } from '@/components/catalog/category-card'
 import { generateMetadata } from '@/lib/seo'
+import { LayoutGrid } from 'lucide-react'
 
 export const metadata = generateMetadata({
   title: 'Categorias de Productos',
@@ -13,33 +15,57 @@ export const metadata = generateMetadata({
 export const revalidate = 300
 
 export default async function CategoriesPage() {
-  const categories = await getCategories()
+  const [categories, products] = await Promise.all([
+    getCategories(),
+    getAllProducts(),
+  ])
+
+  const productCounts = new Map<string, number>()
+  for (const product of products) {
+    const category = resolveCategoryForProduct(product, categories)
+    if (category) {
+      productCounts.set(category.id, (productCounts.get(category.id) ?? 0) + 1)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header categories={categories} />
-      
-      <main className="py-12">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Nuestras Categorias
+      <Header />
+
+      <main>
+        <div className="bg-gradient-to-br from-primary-700 via-primary-600 to-primary-500 text-white">
+          <div className="container mx-auto px-4 py-16 text-center">
+            <span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 backdrop-blur">
+              <LayoutGrid className="h-7 w-7" />
+            </span>
+            <h1 className="text-4xl md:text-5xl font-bold">
+              Nuestras Categorías
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Explora nuestra amplia gama de productos organizados por categorias. 
+            <p className="mt-4 text-lg text-primary-50 max-w-2xl mx-auto">
+              Explora nuestra amplia gama de productos organizados por categoría.
               Encuentra exactamente lo que necesitas para tu taller o negocio.
             </p>
           </div>
+        </div>
 
+        <div className="container mx-auto px-4 py-12">
           {categories.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {categories.map((category) => (
-                <CategoryCard key={category.id} category={category} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {categories.map((category, index) => (
+                <div
+                  key={category.id}
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${Math.min(index, 8) * 60}ms`, animationFillMode: 'backwards' }}
+                >
+                  <CategoryCard
+                    category={category}
+                    productCount={productCounts.get(category.id) ?? 0}
+                  />
+                </div>
               ))}
             </div>
           ) : (
             <div className="text-center py-16">
-              <div className="text-6xl text-gray-300 mb-4"></div>
               <h3 className="text-xl font-semibold text-gray-600 mb-2">
                 No hay categorias disponibles
               </h3>

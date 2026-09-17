@@ -70,7 +70,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header categories={categories} />
+      <Header />
       
       <main className="py-8">
         <div className="container mx-auto px-4">
