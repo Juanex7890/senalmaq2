@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ProductDraft } from "./admin-panel-complete";
+import ProductImageUploader from "./product-image-uploader";
 
 interface NewProductSectionProps {
   newProduct: ProductDraft;
@@ -30,39 +31,6 @@ export default function NewProductSection({
   sanitizeImageList,
   ensureImageList,
 }: NewProductSectionProps) {
-  const isValidImageUrl = (value: string) => {
-    if (typeof value !== "string") {
-      return false;
-    }
-
-    const trimmed = value.trim();
-    if (!trimmed) {
-      return false;
-    }
-
-    try {
-      const parsed = new URL(trimmed);
-      return parsed.protocol === "http:" || parsed.protocol === "https:";
-    } catch {
-      return false;
-    }
-  };
-
-  const pickFirstValidImage = (images: string[]) => {
-    if (!Array.isArray(images)) {
-      return "";
-    }
-
-    for (const item of images) {
-      if (typeof item === "string" && isValidImageUrl(item)) {
-        return item.trim();
-      }
-    }
-
-    return "";
-  };
-
-  const newProductPreviewUrl = pickFirstValidImage(newProduct.images);
   const newProductImages = ensureImageList(newProduct.images);
   const consultRequired = Boolean(newProduct.consultRequired);
   const consultNote = newProduct.consultNote ?? "";
@@ -165,7 +133,7 @@ export default function NewProductSection({
         </label>
         <div className="md:col-span-2 rounded-2xl border border-dashed border-slate-200 p-3">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-slate-700">Imágenes (URLs)</p>
+            <p className="text-sm font-semibold text-slate-700">Imágenes</p>
             <button
               type="button"
               onClick={onAddNewProductImage}
@@ -174,63 +142,18 @@ export default function NewProductSection({
               Agregar imagen
             </button>
           </div>
-          {newProductPreviewUrl ? (
-            <div className="mt-2 flex justify-center">
-              <img
-                src={newProductPreviewUrl}
-                alt="Vista previa nuevo producto"
-                className="max-h-24 w-auto rounded-xl object-contain"
+          <div className="mt-3 max-h-72 space-y-3 overflow-y-auto pr-1">
+            {newProductImages.map((imageValue, index) => (
+              <ProductImageUploader
+                key={index}
+                index={index}
+                value={imageValue}
+                altLabel="Vista previa imagen"
+                canRemove={newProductImages.length > 1}
+                onChange={(value) => onNewProductImageChange(index, value)}
+                onRemove={() => onRemoveNewProductImage(index)}
               />
-            </div>
-          ) : null}
-          <div className="mt-3 max-h-60 space-y-3 overflow-y-auto pr-1">
-            {newProductImages.map((imageValue, index) => {
-              const trimmedValue =
-                typeof imageValue === "string" ? imageValue.trim() : "";
-              const hasPreview = isValidImageUrl(trimmedValue);
-
-              return (
-                <div
-                  key={index}
-                  className="rounded-xl border border-slate-200 bg-white/60 p-3 shadow-sm"
-                >
-                  <div className="flex items-start gap-3">
-                    {hasPreview ? (
-                      <img
-                        src={trimmedValue}
-                        alt={`Vista previa imagen ${index + 1}`}
-                        className="max-h-24 w-24 flex-shrink-0 rounded-lg object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-lg bg-slate-200 text-xs font-semibold text-slate-600">
-                        Sin vista
-                      </div>
-                    )}
-                    <div className="flex-1 space-y-2">
-                      <input
-                        type="url"
-                        value={imageValue ?? ""}
-                        onChange={(event) =>
-                          onNewProductImageChange(index, event.target.value)
-                        }
-                        placeholder="https://..."
-                        className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-green-600 focus:ring-2 focus:ring-green-100"
-                      />
-                      <div className="flex justify-end">
-                        <button
-                          type="button"
-                          onClick={() => onRemoveNewProductImage(index)}
-                          disabled={newProductImages.length === 1}
-                          className="text-xs font-semibold text-red-600 transition hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                          Eliminar imagen
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            ))}
           </div>
         </div>
         <div className="md:col-span-2 flex justify-end">

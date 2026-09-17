@@ -42,70 +42,12 @@ const nextConfig: NextConfig = {
     return config
   },
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'firebasestorage.googleapis.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'storage.googleapis.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'yt3.ggpht.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'i.ytimg.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'via.placeholder.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'picsum.photos',
-      },
-      {
-        protocol: 'https',
-        hostname: 'cdn.pixabay.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.pexels.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'i.postimg.cc',
-      },
-      {
-        protocol: 'https',
-        hostname: 'www.senalmaq.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'test.senalmaq.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'img.youtube.com',
-      },
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '3000',
-        pathname: '/images/**',
-      },
-    ],
+    // Cloudinary handles all resizing/format optimization (f_auto, q_auto) on
+    // its own free CDN via src/lib/cloudinary-loader.ts, so the built-in
+    // Vercel image optimizer (/_next/image) is never invoked and remote
+    // domain allowlisting is no longer needed.
+    loader: 'custom',
+    loaderFile: './src/lib/cloudinary-loader.ts',
   },
   serverExternalPackages: ['firebase-admin']
 }
