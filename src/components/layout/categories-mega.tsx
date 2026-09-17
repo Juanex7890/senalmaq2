@@ -375,6 +375,13 @@ export function CategoriesMega({ categories, isOpen, onClose, triggerRef, header
       </div>
 
 
+      {/* Desktop Backdrop */}
+      <div
+        className="fixed inset-0 z-40 hidden bg-black/20 backdrop-blur-[1px] lg:block"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
       {/* Desktop Menu - Hidden on mobile */}
       <div
         ref={(node) => {
@@ -386,77 +393,75 @@ export function CategoriesMega({ categories, isOpen, onClose, triggerRef, header
         }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        className="hidden lg:block fixed left-0 right-0 z-50 animate-in slide-in-from-top-2 duration-300 ease-out shadow-2xl"
+        className="hidden lg:block fixed left-0 right-0 z-50 animate-in slide-in-from-top-2 duration-300 ease-out bg-white border-b border-gray-200 shadow-2xl"
         style={{ top: `${topPosition}px` }}
         role="dialog"
         aria-modal="true"
         aria-labelledby="categories-mega-title"
       >
-        <div className="w-full max-w-7xl mx-auto px-4 md:px-6">
-          <div className="bg-white shadow-2xl border border-gray-200 rounded-lg overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
-              <div>
-                <h2 id="categories-mega-title" className="text-lg font-semibold text-gray-900">
-                  Categorías
-                </h2>
-                <p className="text-gray-600 text-sm mt-1">
-                  Explora nuestra amplia gama de productos
-                </p>
-              </div>
-              <button
-                onClick={onClose}
-                className="p-2 hover:bg-gray-200 rounded-full transition-colors"
-                aria-label="Cerrar menú de categorías"
-              >
-                <X className="w-5 h-5" />
-              </button>
+        <div className="w-full max-w-7xl mx-auto px-6">
+          <div className="flex items-center justify-between py-4 border-b border-gray-100">
+            <div>
+              <h2 id="categories-mega-title" className="text-lg font-semibold text-gray-900">
+                Categorías
+              </h2>
+              <p className="text-gray-500 text-sm mt-0.5">
+                Explora nuestra amplia gama de productos
+              </p>
             </div>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              aria-label="Cerrar menú de categorías"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
 
-            <div className="px-6 py-4 max-h-[70vh] overflow-y-auto">
-              {displayCategories.length > 0 ? (
-                <div className="grid grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {displayCategories.map((category) => (
-                    <Link
-                      key={category.id}
-                      href={category.href}
-                      className={`group flex items-center gap-3 rounded-xl border border-transparent px-3 py-2 transition-colors hover:border-primary-200 hover:bg-primary-50 ${category.isSpecial ? 'bg-primary-50/60' : ''}`}
-                      onClick={onClose}
-                    >
-                      {renderThumb(category, 40)}
-                      <span className="min-w-0">
-                        <span className="block truncate text-sm font-medium text-gray-800 group-hover:text-primary-700">
-                          {category.name}
-                        </span>
-                        {category.helperText && (
-                          <span className="block truncate text-xs text-gray-500">{category.helperText}</span>
-                        )}
+          <div className="py-5 max-h-[70vh] overflow-y-auto">
+            {displayCategories.length > 0 ? (
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1 lg:grid-cols-3 xl:grid-cols-4">
+                {displayCategories.map((category) => (
+                  <Link
+                    key={category.id}
+                    href={category.href}
+                    className={`group flex items-center gap-3 rounded-xl border border-transparent px-3 py-2.5 transition-colors hover:border-primary-200 hover:bg-primary-50 ${category.isSpecial ? 'bg-primary-50/60' : ''}`}
+                    onClick={onClose}
+                  >
+                    {renderThumb(category, 40)}
+                    <span className="min-w-0">
+                      <span className="block text-sm font-medium leading-snug text-gray-800 group-hover:text-primary-700">
+                        {category.name}
                       </span>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-gray-500">No hay categorías disponibles</p>
-                </div>
-              )}
+                      {category.helperText && (
+                        <span className="block truncate text-xs text-gray-500">{category.helperText}</span>
+                      )}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500">No hay categorías disponibles</p>
+              </div>
+            )}
 
-              <div className="mt-6 pt-4 border-t border-gray-200">
-                <div className="flex flex-wrap gap-4">
-                  <Link
-                    href="/productos"
-                    className="text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors"
-                    onClick={onClose}
-                  >
-                    Todos los Productos
-                  </Link>
-                  <Link
-                    href="/categorias"
-                    className="text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors"
-                    onClick={onClose}
-                  >
-                    Ver todas las Categorías
-                  </Link>
-                </div>
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <div className="flex flex-wrap gap-4">
+                <Link
+                  href="/productos"
+                  className="text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors"
+                  onClick={onClose}
+                >
+                  Todos los Productos
+                </Link>
+                <Link
+                  href="/categorias"
+                  className="text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors"
+                  onClick={onClose}
+                >
+                  Ver todas las Categorías
+                </Link>
               </div>
             </div>
           </div>

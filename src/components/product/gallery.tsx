@@ -5,7 +5,8 @@ import { X } from 'lucide-react'
 import Image from 'next/image'
 import { getImageUrl } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react'
+import { SliderArrowButton } from '@/components/ui/slider-arrow-button'
+import { ZoomIn } from 'lucide-react'
 
 interface GalleryProps {
   images?: string[]
@@ -57,22 +58,16 @@ export function Gallery({ images, productName }: GalleryProps) {
         {/* Navigation Arrows */}
         {safeImages.length > 1 && (
           <>
-            <Button
-              variant="outline"
-              size="icon"
+            <SliderArrowButton
+              direction="prev"
               onClick={prevImage}
-              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm hover:bg-white"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
+              className="absolute left-4 top-1/2 -translate-y-1/2"
+            />
+            <SliderArrowButton
+              direction="next"
               onClick={nextImage}
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm hover:bg-white"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+              className="absolute right-4 top-1/2 -translate-y-1/2"
+            />
           </>
         )}
 

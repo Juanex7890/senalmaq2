@@ -1,8 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, ReactNode } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { Button } from './button'
+import { SliderArrowButton } from './slider-arrow-button'
 
 interface SimpleSliderProps {
   children: ReactNode[]
@@ -117,33 +116,23 @@ export function SimpleSlider({
   return (
     <div className={`relative group ${className}`}>
       {/* Navigation Arrows - Hidden on Mobile */}
-      <Button
-        variant="outline"
-        size="icon"
-        className={`absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-lg transition-opacity duration-200 hidden md:block ${
-          currentIndex === 0 ? 'opacity-50 cursor-not-allowed' : 'opacity-0 group-hover:opacity-100'
-        }`}
+      <SliderArrowButton
+        direction="prev"
+        className="absolute left-2 top-1/2 z-10 hidden -translate-y-1/2 opacity-0 transition-opacity duration-200 group-hover:opacity-100 md:flex"
         onClick={goToPrevious}
         disabled={currentIndex === 0}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-      >
-        <ChevronLeft className="h-4 w-4" />
-      </Button>
-      
-      <Button
-        variant="outline"
-        size="icon"
-        className={`absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-lg transition-opacity duration-200 hidden md:block ${
-          currentIndex >= maxIndex ? 'opacity-50 cursor-not-allowed' : 'opacity-0 group-hover:opacity-100'
-        }`}
+      />
+
+      <SliderArrowButton
+        direction="next"
+        className="absolute right-2 top-1/2 z-10 hidden -translate-y-1/2 opacity-0 transition-opacity duration-200 group-hover:opacity-100 md:flex"
         onClick={goToNext}
         disabled={currentIndex >= maxIndex}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-      >
-        <ChevronRight className="h-4 w-4" />
-      </Button>
+      />
 
       {/* Slider Container */}
       <div className="overflow-x-auto overflow-y-hidden scrollbar-hide">
